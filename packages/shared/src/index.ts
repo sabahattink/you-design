@@ -6,3 +6,4 @@ export * from './critic.js';
 export * from './projects.js';
 export * from './router.js';
 export * from './pricing.js';
+export * from './exports.js';
