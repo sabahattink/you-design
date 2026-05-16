@@ -56,10 +56,12 @@ export async function searchMemories(
   q: string,
   openAiKey?: string,
 ): Promise<string[]> {
-  const params = new URLSearchParams({ q });
-  if (openAiKey) params.set('openAiKey', openAiKey);
   const data = await apiFetch<{ memories: string[] }>(
-    `/projects/${projectId}/memories/search?${params}`,
+    `/projects/${projectId}/memories/search`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ q, openAiKey }),
+    },
   );
   return data.memories;
 }
