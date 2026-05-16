@@ -14,6 +14,7 @@ import { ProjectSwitcher } from '@/components/sidebar/ProjectSwitcher';
 import { CriticDrawer } from '@/components/critic/CriticDrawer';
 import { ProjectListModal } from '@/components/projects/ProjectListModal';
 import { useProjectSync } from '@/lib/projects/useProjectSync';
+import { ExportDialog } from '@/components/export/ExportDialog';
 
 export function WorkspaceLayout() {
   const intentPhase = useWorkspaceStore((s) => s.intentPhase);
@@ -22,6 +23,7 @@ export function WorkspaceLayout() {
   const [view, setView] = React.useState<'preview' | 'code'>('preview');
   const [criticOpen, setCriticOpen] = React.useState(false);
   const [showProjectModal, setShowProjectModal] = React.useState(!projectId);
+  const [exportOpen, setExportOpen] = React.useState(false);
 
   useProjectSync();
 
@@ -36,6 +38,12 @@ export function WorkspaceLayout() {
         <span className="ml-2 text-xs px-2 py-0.5 rounded bg-[color:var(--color-border)] font-mono">
           ${sessionCostUsd.toFixed(4)}
         </span>
+        <button
+          onClick={() => setExportOpen(true)}
+          className="ml-2 text-xs px-2 py-0.5 rounded border border-[color:var(--color-border)] hover:bg-[color:var(--color-border)]"
+        >
+          Export
+        </button>
       </header>
       <div className="flex-1 flex min-h-0">
         <aside
@@ -88,6 +96,7 @@ export function WorkspaceLayout() {
       {showProjectModal && (
         <ProjectListModal onDismiss={() => setShowProjectModal(false)} />
       )}
+      {exportOpen && <ExportDialog onClose={() => setExportOpen(false)} />}
     </div>
   );
 }
