@@ -4,7 +4,7 @@
 
 Local-first, AGPL-licensed, AI-assisted visual design + code workspace. Picks up where Figma + V0 + Bolt fall short: no sycophancy, domain expertise, multi-format export, post-deploy analytics feedback loop.
 
-> ⚠️ **Alpha — M1 complete + multi-provider.** Workspace shell, intent quiz with honest critic, multi-page HTML designer agent, click-to-edit canvas, Monaco code panel, all wired and persisting to localStorage. **Bring any LLM** — built-in Anthropic / OpenAI / Gemini support plus any OpenAI-compatible endpoint (Ollama, Groq, OpenRouter, LM Studio, vLLM, ...). Multi-format export (M3), multiplayer (M5), and multi-agent room (M4) ship later.
+> ⚠️ **Alpha — M2.1 (critic + domains) shipped.** Workspace shell, intent quiz, multi-page HTML designer agent, click-to-edit canvas, Monaco code panel, all wired and persisting to localStorage. **Bring any LLM** — built-in Anthropic / OpenAI / Gemini support plus any OpenAI-compatible endpoint (Ollama, Groq, OpenRouter, LM Studio, vLLM, ...). **Honest critic now runs in build phase too** — reviews every designer action, structured issues with severity / category / Fix button, never blocks. **4 domain templates**: general / SaaS landing / e-commerce product / healthcare appointment. Multi-format export (M3), multiplayer (M5), full multi-agent room (M4) ship later.
 
 ## Why?
 
@@ -12,9 +12,10 @@ Existing AI design and code tools (Figma AI, V0, Lovable, Bolt.new, Cursor, huas
 
 **You Design** is categorically different:
 
-- 🎯 **Intent-first** — every project begins with: who is this for, what action, what emotion, what success metric. The brief cannot be skipped.
-- 🗣 **Honest critic** — no flattery. It can say "this won't ship." Domain expertise (healthcare / fintech / e-commerce planned for M2).
-- 👥 **Multi-agent room** — designer + copywriter + a11y + dev + critic agents work in parallel on the same canvas (M4).
+- 🎯 **Intent-first** — every project begins with: who is this for, what action, what emotion, what success metric, **and what domain**. The brief cannot be skipped.
+- 🗣 **Honest critic (now in build phase too)** — runs automatically after every designer action. Structured issues (severity / category / message / element / suggestion). One-click Fix routes back to the designer. Suggest-only — never blocks.
+- 🏛 **Domain templates** — pick from general / SaaS landing / e-commerce product / healthcare appointment. Designer and critic specialize their rules accordingly.
+- 👥 **Multi-agent room** — designer + critic land in M2.1 (this release). Copywriter / a11y / dev as separate agents land in M4.
 - 🎨 **Canvas + code parity** — HTML iframe preview with click-to-edit, Monaco code panel with live sync.
 - 📦 **One source, 5+ formats** — same project → web app + PPTX + PDF + motion + iOS (M3+).
 - 🔄 **Living loop** — deploy → analytics → critic feedback (M5).
@@ -58,13 +59,14 @@ Keys are stored in your browser's localStorage and sent per request to the local
 
 1. `/setup` → add a model (e.g. Anthropic Claude with your key)
 2. `/app` → answer "Quick — who is this for?" with a vague reply ("everyone") — observe the critic challenge
-3. Refine through 4 slots: persona, action, emotion, success metric
+3. Refine through 5 slots: persona, action, emotion, success metric, **domain** (general / saas-landing / ecommerce-product / healthcare-appointment)
 4. Click **Approve & build** when the contract card appears
-5. The designer agent generates the homepage; click any element to edit it
-6. Switch to the **Code** tab to see / edit the raw HTML in Monaco
-7. Ask the chat to "add a pricing page" — sidebar updates, navigate between pages
-8. Sidebar **Model** dropdown switches providers/models on the fly
-9. Refresh — your workspace persists in localStorage
+5. Designer generates the homepage using the domain's rules; **critic runs automatically** in the background
+6. Open the **Critic** drawer (sidebar bottom) — filter by severity, click **Fix** to send the issue back through the designer
+7. Click any canvas element to edit it; switch to **Code** tab for Monaco
+8. Ask the chat to "add a pricing page" — sidebar updates, navigate between pages
+9. Sidebar **Model** dropdown switches providers/models on the fly
+10. Refresh — your workspace persists in localStorage
 
 ## Development
 
@@ -99,10 +101,13 @@ pnpm format           # prettier
 Detailed milestone plan: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 
 - **M0** ✅ Foundation
-- **M1** ✅ Workspace + Intent (alpha)
-- **M2** — Brain + Honest Critic (multi-LLM router, persistent memory, BYOK UI) — 4 weeks
+- **M1** ✅ Workspace + Intent (alpha) — v0.1.0-alpha
+- **multi-provider BYOK** ✅ — v0.2.0-alpha
+- **M2.1** ✅ Build-phase critic + Domain templates — v0.3.0-alpha
+- **M2.2** — Persistent memory + summaries (auth) — 1-2 weeks
+- **M2.3** — Smart router + cost tracking — 1-2 weeks
 - **M3** — Multi-format export (web + PPTX + PDF) — 3 weeks
-- **M4** — Multi-Agent Room (5 specialized agents) — 5 weeks
+- **M4** — Full Multi-Agent Room (copywriter / a11y / dev) — 5 weeks
 - **M5** — Multiplayer + Living Loop — 4 weeks
 - **M6** — Plugins + Native — 4 weeks
 

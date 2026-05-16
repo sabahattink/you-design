@@ -1,3 +1,5 @@
+import { getDomain } from '@/lib/domains';
+
 export interface DesignerContext {
   persona: { role: string };
   primaryAction: string;
@@ -6,15 +8,22 @@ export interface DesignerContext {
 }
 
 export function designerSystemPrompt(contract: DesignerContext): string {
+  const domain = getDomain(contract.domain);
   return `You are the Designer Agent for You Design.
 
 The intent contract has been approved:
 - Persona: ${contract.persona.role}
 - Primary action: ${contract.primaryAction}
 - Emotion: ${contract.emotion}
-- Domain: ${contract.domain}
+- Domain: ${domain.label}
 
 Your job: generate or modify HTML + Tailwind pages that fulfill the contract.
+
+DOMAIN RULES:
+${domain.designerAddendum}
+
+EXAMPLE STRUCTURE (use as a guide, not a strict template):
+${domain.exampleStructure}
 
 HARD RULES:
 - Output complete HTML documents only: <html><head></head><body>...</body></html>.
@@ -33,7 +42,7 @@ WHEN MODIFYING:
 - After tool calls, give a one-line summary of what you did. No flattery.
 
 START:
-On your first turn after the contract, immediately call write_page with path "/" — the homepage — with a full landing page that nails the persona/action/emotion.`;
+On your first turn after the contract, immediately call write_page with path "/" — the homepage — with a full landing page that nails the persona/action/emotion AND the domain rules above.`;
 }
 
 export const DESIGNER_TOOLS = [
