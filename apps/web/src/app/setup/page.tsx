@@ -8,7 +8,7 @@ export default function SetupPage() {
       <div className="max-w-lg w-full">
         <h1 className="text-3xl font-bold tracking-tight mb-2">Setup</h1>
         <p className="text-[color:var(--color-muted)] mb-8">
-          BYOK (Bring Your Own Keys) onboarding — M2'de aktif.
+          BYOK (Bring Your Own Keys) onboarding — active in M2.
         </p>
 
         <div className="space-y-4">
@@ -24,7 +24,7 @@ export default function SetupPage() {
         </div>
 
         <p className="mt-8 text-xs text-[color:var(--color-muted)]">
-          Şu an M0 — boş iskelet. Setup wizard M2 (~7 hafta sonra).
+          Currently M0 — empty skeleton. Setup wizard arrives in M2 (~7 weeks).
         </p>
       </div>
     </main>
@@ -33,7 +33,7 @@ export default function SetupPage() {
 
 const STEPS = [
   { title: '1. LLM Keys', desc: 'Anthropic / OpenAI / Gemini API keys (BYOK)' },
-  { title: '2. Brand Kit', desc: 'Logo, fontlar, renk paleti — assetler için fallback' },
-  { title: '3. Domain Templates', desc: 'Sağlık, fintek, e-ticaret — uzmanlık katmanı seç' },
-  { title: '4. Analytics (opt)', desc: 'PostHog / Plausible / Umami — Living loop için' },
+  { title: '2. Brand Kit', desc: 'Logo, fonts, color palette — fallback assets' },
+  { title: '3. Domain Templates', desc: 'Healthcare, fintech, e-commerce — pick your expertise layer' },
+  { title: '4. Analytics (opt)', desc: 'PostHog / Plausible / Umami — for Living Loop' },
 ];

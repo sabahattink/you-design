@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     template: '%s · You Design',
   },
   description:
-    "Brief'i sorgular, dürüstçe eleştirir, çoklu çözünürlükte gezinir — multi-agent uzman takımıyla. Yerelinde.",
+    'Questions the brief, criticizes honestly, navigates across resolutions — with a multi-agent expert team. Locally.',
   applicationName: 'You Design',
   keywords: [
     'AI design',

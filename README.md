@@ -1,27 +1,27 @@
 # You Design
 
-> **Brief'i sorgular, dürüstçe eleştirir, çoklu çözünürlükte gezinir — multi-agent uzman takımıyla. Yerelinde.**
+> **Questions the brief, criticizes honestly, navigates across resolutions — with a multi-agent expert team. Locally.**
 
-Local-first, AGPL-lisanslı, AI destekli görsel tasarım + kod çalışma alanı. Figma + V0 + Bolt'un eksik bıraktığı yerden başlar: yağcılık yok, domain expertise var, multi-format export, deploy sonrası analytics geri besleme.
+Local-first, AGPL-licensed, AI-assisted visual design + code workspace. Picks up where Figma + V0 + Bolt fall short: no sycophancy, domain expertise, multi-format export, post-deploy analytics feedback loop.
 
-> ⚠️ **Pre-alpha.** M0 scaffolding aşaması. v0.1 demosu için M1 (Workspace + Intent) bekleniyor.
+> ⚠️ **Pre-alpha.** Currently in M0 scaffolding. First demo (v0.1) lands with M1 (Workspace + Intent).
 
-## Neden?
+## Why?
 
-Mevcut AI tasarım ve kodlama araçları (Figma AI, V0, Lovable, Bolt.new, Cursor, huashu-design, Claude artifacts, open-design) iyi başlangıç. Ama hepsi **output üretici** — "yağcı, niyetsiz, tek seferlik".
+Existing AI design and code tools (Figma AI, V0, Lovable, Bolt.new, Cursor, huashu-design, Claude artifacts, open-design) are good starting points. But they're all **output generators** — sycophantic, intent-less, one-shot.
 
-**You Design** kategorik olarak farklı:
+**You Design** is categorically different:
 
-- 🎯 **Intent-first** — her project "kim için, hangi aksiyonu istetiyoruz, success metric ne" sorularıyla başlar
-- 🗣 **Honest critic** — "bu brief kötü", "bu shipped olamaz" diyebilir. Yağcılık yok.
-- 👥 **Multi-agent room** — designer + copywriter + a11y + dev + critic ajanları aynı canvas'ta paralel çalışır
-- 🎨 **Canvas + kod parite** — Figma tarzı editable canvas, bidirectional sync ile kod
-- 📦 **Tek kaynak, 5+ format** — aynı proje → web app + PPTX + PDF + motion + iOS
-- 🔄 **Living loop** — deploy → analytics → critic'e geri akar
-- 🏠 **Local-first** — Docker compose, kendi LLM key'lerin, kendi data'n
-- 🔌 **MCP plugin** — extensible custom agent + exporter
+- 🎯 **Intent-first** — every project begins with: who is this for, what action, what emotion, what success metric. The brief cannot be skipped.
+- 🗣 **Honest critic** — no flattery. It can say "this won't ship." Domain expertise (healthcare / fintech / e-commerce).
+- 👥 **Multi-agent room** — designer + copywriter + a11y + dev + critic agents work in parallel on the same canvas.
+- 🎨 **Canvas + code parity** — Figma-style editable canvas with bidirectional code sync.
+- 📦 **One source, 5+ formats** — same project → web app + PPTX + PDF + motion + iOS.
+- 🔄 **Living loop** — deploy → analytics → critic feedback.
+- 🏠 **Local-first** — Docker compose, your LLM keys, your data.
+- 🔌 **MCP plugin ecosystem** — extensible custom agents + exporters.
 
-## Hızlı Başlangıç (M0 — boş iskelet)
+## Quick Start (M0 — empty skeleton)
 
 ```bash
 git clone https://github.com/sabahattink/you-design.git
@@ -30,31 +30,31 @@ cp .env.example .env
 docker compose up -d
 ```
 
-Açılınca:
+Then:
 - Web: http://localhost:3000
 - API: http://localhost:3001/health
 
-> Şu anda boş bir landing var. M1 (~5 hafta sonra) ilk gerçek özelliklerle gelecek.
+> Currently shows an empty landing. M1 (~5 weeks out) brings the first real features.
 
-## Geliştirme
+## Development
 
-Gerekenler: Node 22, pnpm 9, Docker 25+
+Requires: Node 22, pnpm 9, Docker 25+
 
 ```bash
 pnpm install
 pnpm dev          # web :3000 + api :3001 hot reload
-pnpm typecheck    # tsc her workspace
+pnpm typecheck    # tsc across all workspaces
 pnpm test         # vitest
 pnpm format       # prettier
 ```
 
 ## Stack
 
-| Katman | Teknoloji |
-|--------|-----------|
+| Layer | Technology |
+|-------|------------|
 | Frontend | Next.js 15 + React 19 + TypeScript |
 | UI | shadcn/ui + Tailwind |
-| Canvas | Tldraw (M1'de eklenir) |
+| Canvas | Tldraw (lands in M1) |
 | Code editor | Monaco (M1) |
 | Multiplayer | Y.js + Hocuspocus (M5) |
 | Backend | Fastify 5 + Zod + Pino |
@@ -62,34 +62,34 @@ pnpm format       # prettier
 | Queue | BullMQ + Redis 7 |
 | Render | Playwright + FFmpeg (M3) |
 | LLM | Vercel AI SDK + custom router (M2) |
-| Plugins | MCP protokolü (M6) |
+| Plugins | MCP protocol (M6) |
 | Self-host | Docker compose |
 
-## Yol Haritası
+## Roadmap
 
-Detaylı milestone planı: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+Detailed milestone plan: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 
-- **M0** — Foundation (şu anda, 1-2 hafta)
-- **M1** — Workspace + Intent (5 hafta)
-- **M2** — Brain + Honest Critic (4 hafta)
-- **M3** — Multi-format export (3 hafta)
-- **M4** — Multi-Agent Room (5 hafta)
-- **M5** — Multiplayer + Living Loop (4 hafta)
-- **M6** — Plugins + Native (4 hafta)
+- **M0** — Foundation (current, 1-2 weeks)
+- **M1** — Workspace + Intent (5 weeks)
+- **M2** — Brain + Honest Critic (4 weeks)
+- **M3** — Multi-format export (3 weeks)
+- **M4** — Multi-Agent Room (5 weeks)
+- **M5** — Multiplayer + Living Loop (4 weeks)
+- **M6** — Plugins + Native (4 weeks)
 
-**Toplam v1:** ~6 ay.
+**Total v1:** ~6 months.
 
-## Katkı
+## Contributing
 
-Henüz pre-alpha. M1'den itibaren PR'lar açık olacak. Bkz: [`CONTRIBUTING.md`](CONTRIBUTING.md).
+Currently pre-alpha. PRs will be officially welcomed from M1. See: [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
-## Lisans
+## License
 
-[AGPL-3.0-or-later](LICENSE). SaaS forku için ayrı ticari lisans gerekir.
+[AGPL-3.0-or-later](LICENSE). SaaS forks require a separate commercial license.
 
-## Topluluk
+## Community
 
-- 🐦 Twitter: [@youdesigndev](https://twitter.com/youdesigndev) (rezerv)
+- 🐦 Twitter: [@youdesigndev](https://twitter.com/youdesigndev) (reserved)
 - 💬 Discussions: GitHub Discussions
 - 🐛 Issues: GitHub Issues
 

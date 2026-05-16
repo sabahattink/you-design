@@ -1,20 +1,20 @@
 # Architecture
 
-> Yüksek seviye sistem tasarımı. Detaylı master plan için: `~/.claude/plans/open-design-claude-design-sleepy-cat.md`.
+> High-level system design. For the detailed master plan see: `~/.claude/plans/open-design-claude-design-sleepy-cat.md`.
 
 ## Wedge
 
-Mevcut AI tasarım/kod araçları "output üretici, sycophant, niyetsiz". You Design **honest, multi-agent, living, local-first** kategorisi.
+Existing AI design/code tools are "output generators, sycophantic, intent-less." You Design defines a new category: **honest, multi-agent, living, local-first**.
 
-## Ürün Konumu
+## Product Position
 
-> "Brief'i sorgular, dürüstçe eleştirir, çoklu çözünürlükte gezinir, copy ve a11y'yi de kapsar, multi-agent uzman takımıyla çalışır, deploy sonrası gerçek datayla iterasyon yapar — yerelinde."
+> "Questions the brief, criticizes honestly, navigates across resolutions, covers copy and a11y, works with a multi-agent expert team, iterates on real post-deploy analytics — locally."
 
-## 9 Alt Sistem
+## 9 Subsystems
 
-| # | Alt Sistem | Sorumluluk | Geldiği Milestone |
-|---|-----------|-----------|-------------------|
-| 1 | **Workspace Core** | Canvas + kod editor + bidirectional sync + file tree | M1 |
+| # | Subsystem | Responsibility | Milestone |
+|---|-----------|----------------|-----------|
+| 1 | **Workspace Core** | Canvas + code editor + bidirectional sync + file tree | M1 |
 | 2 | **LLM Brain** | Multi-LLM smart router + streaming chat + agent tools + pgvector memory + BYOK | M1 (minimal) → M2 (full) |
 | 3 | **Multi-Format Pipeline** | Web + PPTX + PDF + MP4/GIF + iOS exporters + Vercel deploy + npm extraction | M3 (web/PPTX/PDF) → M6 (motion/iOS) |
 | 4 | **Multiplayer** | Y.js CRDT + Hocuspocus + cursor presence + permissions | M5 |
@@ -24,7 +24,7 @@ Mevcut AI tasarım/kod araçları "output üretici, sycophant, niyetsiz". You De
 | 8 | **Multi-Agent Room** | 5 specialized agents (designer/copy/a11y/dev/critic) + canvas annotations + arbitration | M4 |
 | 9 | **Living Loop** | Analytics integration + design git (branch/merge directions) + feedback synthesis | M5 |
 
-## Veri Akışı (yüksek seviye)
+## Data Flow (high level)
 
 ```
 User brief
@@ -35,7 +35,7 @@ LLM Brain (Subsystem 2) — multi-LLM smart routing
    ↓
 Workspace Core (Subsystem 1) — canvas + code state
    ↓
-Multi-Agent Room (Subsystem 8) — 5 paralel ajan
+Multi-Agent Room (Subsystem 8) — 5 parallel agents
    ↓
 User accept/reject + iteration
    ↓
@@ -43,12 +43,12 @@ Multi-Format Pipeline (Subsystem 3) — export
    ↓
 Deploy
    ↓
-Living Loop (Subsystem 9) — analytics geri besleme
+Living Loop (Subsystem 9) — analytics feedback
    ↓
 (loop back to Intent / Critic)
 ```
 
-## Stack Özet
+## Stack Summary
 
 - **Frontend:** Next.js 15, React 19, TypeScript, shadcn/ui, Tailwind, Tldraw, Monaco
 - **Backend:** Fastify 5, TypeScript, Zod, Pino
@@ -57,11 +57,11 @@ Living Loop (Subsystem 9) — analytics geri besleme
 - **Queue:** BullMQ + Redis 7
 - **Render:** Playwright (headless Chromium) + FFmpeg
 - **LLM:** Vercel AI SDK + custom cost-aware router
-- **Plugin:** MCP protokolü
-- **Self-host:** Docker compose (tek dosya)
+- **Plugin:** MCP protocol
+- **Self-host:** Docker compose (single file)
 - **Desktop (opt):** Tauri
 
-## Monorepo Yapısı
+## Monorepo Layout
 
 ```
 you-design/
@@ -79,24 +79,24 @@ you-design/
 
 ## Multi-LLM Routing (Subsystem 2, M2)
 
-| Görev tipi | Default model | Neden |
-|-----------|--------------|------|
-| Yargı / honest critic | Claude Opus 4.7 | en derin reasoning |
-| Ana üretim | Claude Sonnet 4.6 | best coding model |
-| Hızlı edit, autocomplete | Claude Haiku 4.5 | 3x ucuz, %90 capability |
-| Vision (canvas screenshot analiz) | Gemini 2.0 Flash | en ucuz vision |
-| Embedding (memory) | text-embedding-3-large | pgvector için |
+| Task type | Default model | Why |
+|-----------|--------------|-----|
+| Judgment / honest critic | Claude Opus 4.7 | deepest reasoning |
+| Main generation | Claude Sonnet 4.6 | best coding model |
+| Fast edits, autocomplete | Claude Haiku 4.5 | 3x cheaper, ~90% capability |
+| Vision (canvas screenshot analysis) | Gemini 2.0 Flash | cheapest vision |
+| Embeddings (memory) | text-embedding-3-large | pgvector compatible dims |
 
-## Lisans Stratejisi
+## License Strategy
 
-- **AGPL-3.0-or-later** — SaaS fork'larını engeller (network use = source release zorunluluğu)
-- Commercial license ayrıca satılabilir (gelecek)
-- Brand/logo trademark'i ayrı
+- **AGPL-3.0-or-later** — blocks SaaS forks (network use = source release obligation)
+- Commercial license available separately (future)
+- Brand/logo trademarked separately
 
-## Güvenlik
+## Security
 
-- BYOK → env veya admin UI üzerinden, Postgres'te encrypted at rest
-- MCP plugin'leri Docker container'da izole, kullanıcı onayı zorunlu
-- Rate limit her endpoint'te (Redis-backed)
-- CORS whitelist env'den
-- AGPL clause: telemetri opt-in, default off
+- BYOK → via env or admin UI, encrypted at rest in Postgres
+- MCP plugins run isolated in Docker containers, explicit user consent required
+- Rate limiting on every endpoint (Redis-backed)
+- CORS whitelist from env
+- AGPL clause: telemetry opt-in, default off

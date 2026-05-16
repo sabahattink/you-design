@@ -19,16 +19,16 @@ export default function AppShellPage() {
             Files
           </div>
           <div className="text-[color:var(--color-muted)] italic">
-            Empty — M1'de file tree gelir
+            Empty — file tree lands in M1
           </div>
         </aside>
 
         <section className="flex-1 grid place-items-center bg-[color:var(--color-bg)]">
           <div className="text-center max-w-md px-6">
             <div className="text-5xl mb-4">🎨</div>
-            <h2 className="text-xl font-semibold mb-2">Canvas yer tutucusu</h2>
+            <h2 className="text-xl font-semibold mb-2">Canvas placeholder</h2>
             <p className="text-sm text-[color:var(--color-muted)]">
-              M1'de Tldraw entegrasyonu + AST ↔ Canvas sync + ilk LLM chat panel gelecek.
+              M1 brings Tldraw integration + AST ↔ Canvas sync + the first LLM chat panel.
             </p>
           </div>
         </section>
@@ -38,7 +38,7 @@ export default function AppShellPage() {
             Chat (M1)
           </div>
           <div className="text-[color:var(--color-muted)] italic">
-            LLM chat panel — M1'de aktif
+            LLM chat panel — active in M1
           </div>
         </aside>
       </div>

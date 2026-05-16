@@ -34,16 +34,16 @@ export default function HomePage() {
       <section className="flex-1 flex items-center">
         <div className="max-w-4xl mx-auto px-6 py-24">
           <h1 className="text-5xl md:text-6xl font-bold tracking-tight leading-[1.05]">
-            Brief'i sorgular,
+            Questions the brief,
             <br />
-            dürüstçe eleştirir,
+            criticizes honestly,
             <br />
-            <span className="text-[color:var(--color-accent)]">multi-agent</span> ile çalışır.
+            works <span className="text-[color:var(--color-accent)]">multi-agent</span>.
           </h1>
           <p className="mt-8 text-lg text-[color:var(--color-muted)] max-w-2xl">
-            Yerelinde çalışan, AGPL lisanslı, AI destekli görsel tasarım + kod çalışma alanı.
-            Figma + V0 + Bolt'un eksik bıraktığı yerden başlar: yağcılık yok, multi-format export,
-            deploy sonrası analytics geri besleme.
+            A local-first, AGPL-licensed, AI-assisted visual design + code workspace. Picks up
+            where Figma + V0 + Bolt fall short: no sycophancy, multi-format export, post-deploy
+            analytics feedback loop.
           </p>
 
           <div className="mt-12 flex flex-wrap gap-3">
@@ -51,7 +51,7 @@ export default function HomePage() {
               href="/app"
               className="px-6 py-3 rounded-md bg-[color:var(--color-fg)] text-[color:var(--color-bg)] text-sm font-medium hover:opacity-90"
             >
-              Workspace'i Aç →
+              Open Workspace →
             </Link>
             <a
               href="https://github.com/sabahattink/you-design"
@@ -81,7 +81,7 @@ export default function HomePage() {
       <footer className="border-t border-[color:var(--color-border)]">
         <div className="max-w-6xl mx-auto px-6 py-6 text-sm text-[color:var(--color-muted)] flex flex-wrap items-center justify-between gap-2">
           <span>You Design · AGPL-3.0 · Pre-alpha</span>
-          <span>Roadmap: M0 → M6 (~6 ay)</span>
+          <span>Roadmap: M0 → M6 (~6 months)</span>
         </div>
       </footer>
     </main>
@@ -92,16 +92,16 @@ const FEATURES = [
   {
     icon: '🎯',
     title: 'Intent-first',
-    desc: 'Her project: kim için, hangi aksiyon, hangi duygu, success metric. Brief boş geçilemez.',
+    desc: 'Every project: who, what action, what emotion, what success metric. The brief cannot be skipped.',
   },
   {
     icon: '🗣',
     title: 'Honest critic',
-    desc: 'Yağcılık yok. "Bu shipped olamaz" diyebilir. Domain expertise (sağlık/fintek/e-ticaret).',
+    desc: 'No flattery. It can say "this won\'t ship." Domain expertise (healthcare / fintech / e-commerce).',
   },
   {
     icon: '👥',
     title: 'Multi-agent room',
-    desc: 'Designer + copy + a11y + dev + critic ajanları aynı canvas\'ta paralel. Sen arbiter.',
+    desc: 'Designer + copy + a11y + dev + critic agents working in parallel on the same canvas. You arbitrate.',
   },
 ];

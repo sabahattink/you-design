@@ -1,36 +1,36 @@
 # Contributing to You Design
 
-Şu an **pre-alpha** — M0 scaffolding aşaması. M1'den itibaren PR'lar resmi olarak açılacak.
+Currently **pre-alpha** — M0 scaffolding stage. PRs will be officially welcomed starting M1.
 
-Yine de erken feedback ve issue'lar için teşekkürler.
+Early feedback and issues are appreciated.
 
-## Branş & Commit
+## Branches & Commits
 
-- Branş: `feat/short-description`, `fix/short-description`, `docs/...`
-- Commit: [Conventional Commits](https://www.conventionalcommits.org/)
+- Branch: `feat/short-description`, `fix/short-description`, `docs/...`
+- Commits: [Conventional Commits](https://www.conventionalcommits.org/)
   - `feat: add intent quiz step`
   - `fix(api): health endpoint returns 200 on cold start`
   - `docs: clarify M2 critic agent scope`
   - `chore(deps): bump turbo 2.3.4`
 
-## PR Süreci
+## PR Process
 
-1. Issue aç (varsa onu fix'le)
-2. Feature branch
-3. Local: `pnpm typecheck && pnpm test && pnpm format:check`
+1. Open an issue first (or pick an existing one)
+2. Feature branch off `main`
+3. Local checks: `pnpm typecheck && pnpm test && pnpm format:check`
 4. Commit (Conventional Commits)
-5. PR aç — şablonu doldur
-6. CI yeşil olmalı
-7. Code review — en az 1 onay
+5. Open PR — fill out the template
+6. CI must pass
+7. Code review — at least 1 approval
 
 ## Code Style
 
-- Prettier (ayarlar `package.json`'da)
+- Prettier (config in `package.json`)
 - TypeScript strict mode
-- Functional > class (zorunlu değil ama tercih)
-- Test her yeni feature için (Vitest)
+- Functional over class (not required, preferred)
+- Tests for every new feature (Vitest)
 
-## Yerel Geliştirme
+## Local Development
 
 ```bash
 pnpm install
@@ -40,8 +40,8 @@ pnpm dev
 
 ## Code of Conduct
 
-[Contributor Covenant 2.1](CODE_OF_CONDUCT.md) geçerli.
+[Contributor Covenant 2.1](CODE_OF_CONDUCT.md) applies.
 
-## Lisans
+## License
 
-Katkı yaparken AGPL-3.0-or-later'a tabi olduğunu kabul etmiş olursun.
+By contributing you agree your work is licensed under AGPL-3.0-or-later.

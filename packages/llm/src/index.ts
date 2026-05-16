@@ -1,5 +1,5 @@
 /**
- * @you-design/llm — Cost-aware multi-LLM router (M2'de implement edilecek)
+ * @you-design/llm — Cost-aware multi-LLM router (to be implemented in M2)
  *
  * Plan:
  * - judgment / honest critic → Claude Opus 4.7
@@ -8,7 +8,7 @@
  * - vision (canvas analyze) → Gemini 2.0 Flash
  * - embeddings → OpenAI text-embedding-3-large (pgvector)
  *
- * M0'da sadece stub interface.
+ * In M0 this is only a stub interface.
  */
 
 export type LlmTask =
@@ -60,7 +60,7 @@ export function routeFor(task: LlmTask): LlmRoute {
         task,
         provider: 'openai',
         model: 'text-embedding-3-large',
-        reason: 'pgvector friendly dimensions',
+        reason: 'pgvector-friendly dimensions',
       };
   }
 }
