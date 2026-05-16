@@ -4,7 +4,7 @@
 
 Local-first, AGPL-licensed, AI-assisted visual design + code workspace. Picks up where Figma + V0 + Bolt fall short: no sycophancy, domain expertise, multi-format export, post-deploy analytics feedback loop.
 
-> ⚠️ **Alpha — M1 complete.** Workspace shell, intent quiz with honest critic, multi-page HTML designer agent, click-to-edit canvas, Monaco code panel, all wired and persisting to localStorage. Multi-format export (M3), multiplayer (M5), and multi-agent room (M4) ship later.
+> ⚠️ **Alpha — M1 complete + multi-provider.** Workspace shell, intent quiz with honest critic, multi-page HTML designer agent, click-to-edit canvas, Monaco code panel, all wired and persisting to localStorage. **Bring any LLM** — built-in Anthropic / OpenAI / Gemini support plus any OpenAI-compatible endpoint (Ollama, Groq, OpenRouter, LM Studio, vLLM, ...). Multi-format export (M3), multiplayer (M5), and multi-agent room (M4) ship later.
 
 ## Why?
 
@@ -21,30 +21,50 @@ Existing AI design and code tools (Figma AI, V0, Lovable, Bolt.new, Cursor, huas
 - 🏠 **Local-first** — Docker compose, your LLM keys, your data.
 - 🔌 **MCP plugin ecosystem** — extensible custom agents + exporters (M6).
 
-## Quick Start (M1 alpha)
+## Quick Start (alpha)
 
-Requires: Node 22, pnpm 9, Docker 25+, an Anthropic API key.
+Requires: Node 22, pnpm 9, Docker 25+, **and any LLM you can reach** — see the provider list below.
 
 ```bash
 git clone https://github.com/sabahattink/you-design.git
 cd you-design
 cp .env.example .env
-echo 'ANTHROPIC_API_KEY=sk-ant-...' >> .env
+# Optional: set an env key as a server-side fallback. The UI works without it too.
+# echo 'ANTHROPIC_API_KEY=sk-ant-...' >> .env
 
 docker compose -f compose.dev.yml up -d   # Postgres + Redis
 pnpm install
 pnpm dev                                  # web :3000 + api :3001
 ```
 
-Open `http://localhost:3000/app` and try the demo flow:
+Open `http://localhost:3000/setup` and add the model you want to use. Then visit `/app`.
 
-1. Answer "Quick — who is this for?" with a vague reply ("everyone") — observe the critic challenge
-2. Refine through 4 slots: persona, action, emotion, success metric
-3. Click **Approve & build** when the contract card appears
-4. The designer agent generates the homepage; click any element to edit it
-5. Switch to the **Code** tab to see / edit the raw HTML in Monaco
-6. Ask the chat to "add a pricing page" — sidebar updates, navigate between pages
-7. Refresh — your workspace persists in localStorage
+### Supported providers
+
+| Provider | How |
+|----------|-----|
+| **Anthropic Claude** | API key (built-in) |
+| **OpenAI** | API key (built-in) |
+| **Google Gemini** | API key (built-in) |
+| **Ollama** | OpenAI-compatible, base URL `http://localhost:11434/v1` |
+| **Groq** | OpenAI-compatible, base URL `https://api.groq.com/openai/v1` |
+| **OpenRouter** | OpenAI-compatible, base URL `https://openrouter.ai/api/v1` |
+| **LM Studio** | OpenAI-compatible, base URL `http://localhost:1234/v1` |
+| **vLLM / Text Generation WebUI / any OpenAI-shaped server** | Custom base URL |
+
+Keys are stored in your browser's localStorage and sent per request to the local API server. Nothing is written to disk on the server unless you set them as env vars.
+
+### Demo flow
+
+1. `/setup` → add a model (e.g. Anthropic Claude with your key)
+2. `/app` → answer "Quick — who is this for?" with a vague reply ("everyone") — observe the critic challenge
+3. Refine through 4 slots: persona, action, emotion, success metric
+4. Click **Approve & build** when the contract card appears
+5. The designer agent generates the homepage; click any element to edit it
+6. Switch to the **Code** tab to see / edit the raw HTML in Monaco
+7. Ask the chat to "add a pricing page" — sidebar updates, navigate between pages
+8. Sidebar **Model** dropdown switches providers/models on the fly
+9. Refresh — your workspace persists in localStorage
 
 ## Development
 
@@ -70,7 +90,7 @@ pnpm format           # prettier
 | Backend | Fastify 5 + Zod + Pino |
 | DB | Postgres 16 + pgvector + Drizzle (M2+) |
 | Queue | BullMQ + Redis 7 (M3+) |
-| LLM | Anthropic Claude (Sonnet 4.5 default) |
+| LLM | Vercel AI SDK + @ai-sdk/{anthropic,openai,google} + any OpenAI-compatible endpoint |
 | Self-host | Docker compose |
 | E2E | Playwright (mocked LLM) |
 

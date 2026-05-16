@@ -12,6 +12,8 @@ const EnvSchema = z.object({
   REDIS_URL: z.string().url(),
   QUEUE_CONCURRENCY: z.coerce.number().int().positive().default(4),
 
+  // Optional server-side BYOK fallbacks. Per-request keys from the client
+  // override these. None are required to boot.
   ANTHROPIC_API_KEY: z.string().optional(),
   OPENAI_API_KEY: z.string().optional(),
   GEMINI_API_KEY: z.string().optional(),

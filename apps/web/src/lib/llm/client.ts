@@ -1,12 +1,14 @@
+import type { ModelConfig } from '@you-design/shared';
+
 export interface LlmRequest {
+  model: ModelConfig;
   system: string;
-  messages: Array<{ role: 'user' | 'assistant'; content: unknown }>;
+  messages: Array<{ role: 'user' | 'assistant'; content: string }>;
   tools?: Array<{
     name: string;
     description: string;
     input_schema: Record<string, unknown>;
   }>;
-  model?: string;
   max_tokens?: number;
 }
 
@@ -31,7 +33,14 @@ export async function* streamLlm(
   });
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(`LLM request failed (${res.status}): ${text}`);
+    let parsed: { message?: string; error?: string } | null = null;
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      // not JSON
+    }
+    const msg = parsed?.message || parsed?.error || text || `HTTP ${res.status}`;
+    throw new Error(msg);
   }
   if (!res.body) throw new Error('No response body');
 
@@ -54,7 +63,11 @@ export async function* streamLlm(
         else if (line.startsWith('data: ')) dataStr += line.slice(6);
       }
       if (eventType && dataStr) {
-        yield { type: eventType, data: JSON.parse(dataStr) };
+        try {
+          yield { type: eventType, data: JSON.parse(dataStr) };
+        } catch {
+          // ignore malformed event
+        }
       }
     }
   }

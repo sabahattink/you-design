@@ -1,6 +1,11 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { ChatMessage, IntentContract, Page } from '@you-design/shared';
+import type {
+  ChatMessage,
+  IntentContract,
+  Page,
+  ModelConfig,
+} from '@you-design/shared';
 
 export type IntentPhase = 'collecting' | 'contracted' | 'building';
 
@@ -15,6 +20,10 @@ export interface WorkspaceState {
 
   buildMessages: ChatMessage[];
   isStreaming: boolean;
+
+  // Multi-provider LLM config (BYOK, stored locally).
+  models: ModelConfig[];
+  defaultModelId: string | null;
 }
 
 export interface WorkspaceActions {
@@ -29,7 +38,18 @@ export interface WorkspaceActions {
   setCurrentPath: (path: string) => void;
   setSelectedElement: (id: string | null) => void;
   updateCurrentPageHtml: (html: string) => void;
+
+  upsertModel: (model: ModelConfig) => void;
+  removeModel: (id: string) => void;
+  setDefaultModel: (id: string) => void;
 }
+
+const DEFAULT_MODEL: ModelConfig = {
+  id: 'default-anthropic',
+  label: 'Claude Sonnet 4.5 (env key)',
+  provider: 'anthropic',
+  modelName: 'claude-sonnet-4-5',
+};
 
 const INITIAL: WorkspaceState = {
   intentPhase: 'collecting',
@@ -40,6 +60,8 @@ const INITIAL: WorkspaceState = {
   selectedElementId: null,
   buildMessages: [],
   isStreaming: false,
+  models: [DEFAULT_MODEL],
+  defaultModelId: DEFAULT_MODEL.id,
 };
 
 function normalizeContract(raw: unknown): IntentContract | null {
@@ -100,6 +122,24 @@ export const useWorkspaceStore = create<WorkspaceState & WorkspaceActions>()(
         };
         set((s) => ({ pages: { ...s.pages, [path]: updated } }));
       },
+      upsertModel: (model) =>
+        set((s) => {
+          const filtered = s.models.filter((m) => m.id !== model.id);
+          return {
+            models: [...filtered, model],
+            defaultModelId: s.defaultModelId ?? model.id,
+          };
+        }),
+      removeModel: (id) =>
+        set((s) => {
+          const next = s.models.filter((m) => m.id !== id);
+          return {
+            models: next,
+            defaultModelId:
+              s.defaultModelId === id ? (next[0]?.id ?? null) : s.defaultModelId,
+          };
+        }),
+      setDefaultModel: (id) => set({ defaultModelId: id }),
     }),
     {
       name: 'you-design:workspace:v1',
@@ -111,7 +151,18 @@ export const useWorkspaceStore = create<WorkspaceState & WorkspaceActions>()(
         pages: state.pages,
         currentPath: state.currentPath,
         buildMessages: state.buildMessages,
+        models: state.models,
+        defaultModelId: state.defaultModelId,
       }),
     },
   ),
 );
+
+export function selectActiveModel(state: WorkspaceState): ModelConfig | null {
+  if (!state.defaultModelId) return state.models[0] ?? null;
+  return (
+    state.models.find((m) => m.id === state.defaultModelId) ??
+    state.models[0] ??
+    null
+  );
+}

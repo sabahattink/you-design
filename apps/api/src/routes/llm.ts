@@ -1,21 +1,12 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { getAnthropic } from '../lib/anthropic.js';
-
-const ContentBlock = z.object({
-  type: z.enum(['text', 'tool_use', 'tool_result']),
-  text: z.string().optional(),
-  id: z.string().optional(),
-  name: z.string().optional(),
-  input: z.unknown().optional(),
-  tool_use_id: z.string().optional(),
-  content: z.unknown().optional(),
-  is_error: z.boolean().optional(),
-});
+import { streamText, jsonSchema, type ToolSet } from 'ai';
+import { ModelConfig } from '@you-design/shared';
+import { buildModel, ProviderConfigError } from '../lib/providers.js';
 
 const MessageBody = z.object({
   role: z.enum(['user', 'assistant']),
-  content: z.union([z.string(), z.array(ContentBlock)]),
+  content: z.string(),
 });
 
 const ToolDef = z.object({
@@ -25,26 +16,40 @@ const ToolDef = z.object({
 });
 
 const Body = z.object({
+  model: ModelConfig,
   system: z.string(),
   messages: z.array(MessageBody),
   tools: z.array(ToolDef).optional(),
-  model: z.string().default('claude-sonnet-4-5'),
   max_tokens: z.number().int().positive().default(4096),
 });
 
+function toToolSet(rawTools: Array<z.infer<typeof ToolDef>>): ToolSet {
+  const set: ToolSet = {};
+  for (const t of rawTools) {
+    set[t.name] = {
+      description: t.description,
+      // Wrap raw JSON Schema (kept in agent prompts as Anthropic-style input_schema)
+      // so the AI SDK can validate args without us rewriting every schema as zod.
+      inputSchema: jsonSchema(t.input_schema as never),
+    };
+  }
+  return set;
+}
+
 export async function llmRoutes(app: FastifyInstance) {
   app.post('/llm/stream', { schema: { body: Body } }, async (req, reply) => {
-    const anthropic = getAnthropic();
-    if (!anthropic) {
-      reply.code(503);
-      return {
-        error: 'LLM_NOT_CONFIGURED',
-        message:
-          'ANTHROPIC_API_KEY is not set on the API server. Add it to .env and restart.',
-      };
-    }
-
     const body = req.body as z.infer<typeof Body>;
+
+    let model;
+    try {
+      model = buildModel(body.model);
+    } catch (err) {
+      if (err instanceof ProviderConfigError) {
+        reply.code(503);
+        return { error: err.code, message: err.message };
+      }
+      throw err;
+    }
 
     reply.raw.setHeader('Content-Type', 'text/event-stream');
     reply.raw.setHeader('Cache-Control', 'no-cache');
@@ -58,20 +63,25 @@ export async function llmRoutes(app: FastifyInstance) {
     };
 
     try {
-      const stream = anthropic.messages.stream({
-        model: body.model,
-        max_tokens: body.max_tokens,
+      const result = streamText({
+        model,
         system: body.system,
-        messages: body.messages as never,
-        tools: body.tools as never,
+        messages: body.messages,
+        tools: body.tools ? toToolSet(body.tools) : undefined,
+        maxOutputTokens: body.max_tokens,
       });
 
-      for await (const event of stream) {
-        send(event.type, event);
+      for await (const part of result.fullStream) {
+        send(part.type, part);
       }
 
-      const final = await stream.finalMessage();
-      send('final', final);
+      try {
+        const finishReason = await result.finishReason;
+        const usage = await result.usage;
+        send('finish', { finishReason, usage });
+      } catch {
+        send('finish', { finishReason: 'unknown' });
+      }
       reply.raw.end();
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);

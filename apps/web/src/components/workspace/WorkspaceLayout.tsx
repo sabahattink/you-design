@@ -8,6 +8,7 @@ import { CodePanel } from '@/components/canvas/CodePanel';
 import { ChatPanel } from '@/components/chat/ChatPanel';
 import { PageList } from '@/components/sidebar/PageList';
 import { IntentChip } from '@/components/sidebar/IntentChip';
+import { ModelPicker } from '@/components/sidebar/ModelPicker';
 
 export function WorkspaceLayout() {
   const intentPhase = useWorkspaceStore((s) => s.intentPhase);
@@ -30,6 +31,7 @@ export function WorkspaceLayout() {
           <PageList />
           <div className="flex-1" />
           <IntentChip />
+          <ModelPicker />
         </aside>
         <section
           data-testid="canvas-area"

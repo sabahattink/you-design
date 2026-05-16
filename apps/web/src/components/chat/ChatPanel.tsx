@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { nanoid } from 'nanoid';
-import { useWorkspaceStore } from '@/lib/workspace/store';
+import { useWorkspaceStore, selectActiveModel } from '@/lib/workspace/store';
 import { ChatMessage } from './ChatMessage';
 import { CriticBubble } from './CriticBubble';
 import { Composer } from './Composer';
@@ -16,21 +16,43 @@ import {
 import { dispatchDesignerTool } from '@/lib/chat/designer-dispatch';
 import type { ChatMessage as ChatMessageT } from '@you-design/shared';
 
-function toAnthropicMessages(messages: ChatMessageT[]) {
+function toApiMessages(messages: ChatMessageT[]) {
   return messages
     .filter((m) => m.role === 'user' || m.role === 'assistant')
     .map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content }));
 }
 
-interface ContentBlock {
-  type: string;
+interface TextDeltaPart {
+  type: 'text-delta';
   text?: string;
-  name?: string;
-  input?: Record<string, unknown>;
+  textDelta?: string;
 }
 
-interface FinalEvent {
-  content: ContentBlock[];
+interface ToolCallPart {
+  type: 'tool-call';
+  toolName: string;
+  toolCallId: string;
+  input?: Record<string, unknown>;
+  args?: Record<string, unknown>;
+}
+
+interface ErrorPart {
+  type: 'error';
+  error?: unknown;
+}
+
+interface FinishPart {
+  type: 'finish';
+  finishReason?: string;
+  usage?: unknown;
+}
+
+function deltaText(part: TextDeltaPart): string {
+  return part.text ?? part.textDelta ?? '';
+}
+
+function toolInput(part: ToolCallPart): Record<string, unknown> {
+  return part.input ?? part.args ?? {};
 }
 
 export function ChatPanel() {
@@ -39,6 +61,7 @@ export function ChatPanel() {
   const buildMessages = useWorkspaceStore((s) => s.buildMessages);
   const isStreaming = useWorkspaceStore((s) => s.isStreaming);
   const contract = useWorkspaceStore((s) => s.intentContract);
+  const activeModel = useWorkspaceStore((s) => selectActiveModel(s));
   const appendIntent = useWorkspaceStore((s) => s.appendIntentMessage);
   const appendBuild = useWorkspaceStore((s) => s.appendBuildMessage);
   const setStreaming = useWorkspaceStore((s) => s.setStreaming);
@@ -47,7 +70,7 @@ export function ChatPanel() {
 
   const messages = intentPhase === 'building' ? buildMessages : intentMessages;
 
-  const handleError = (
+  const noteCritic = (
     appendFn: (msg: ChatMessageT) => void,
     label: string,
     message: string,
@@ -58,6 +81,50 @@ export function ChatPanel() {
       content: `${label}: ${message}`,
       createdAt: new Date().toISOString(),
     });
+  };
+
+  const runStream = async (
+    system: string,
+    history: Array<{ role: 'user' | 'assistant'; content: string }>,
+    tools: typeof INTENT_TOOLS | typeof DESIGNER_TOOLS,
+    onText: (s: string) => void,
+    onToolCall: (name: string, input: Record<string, unknown>) => void,
+    onError: (msg: string) => void,
+  ): Promise<void> => {
+    if (!activeModel) {
+      onError('No model configured. Add one in /setup.');
+      return;
+    }
+    try {
+      for await (const ev of streamLlm({
+        model: activeModel,
+        system,
+        messages: history,
+        tools,
+      })) {
+        if (ev.type === 'text-delta') {
+          const t = deltaText(ev.data as TextDeltaPart);
+          if (t) onText(t);
+        } else if (ev.type === 'tool-call') {
+          const part = ev.data as ToolCallPart;
+          onToolCall(part.toolName, toolInput(part));
+        } else if (ev.type === 'error') {
+          const part = ev.data as ErrorPart;
+          const msg =
+            part.error instanceof Error
+              ? part.error.message
+              : typeof part.error === 'string'
+                ? part.error
+                : JSON.stringify(part.error);
+          onError(msg);
+        } else if (ev.type === 'finish') {
+          // no-op: finish summary; could surface usage info later
+          void (ev.data as FinishPart);
+        }
+      }
+    } catch (err) {
+      onError(err instanceof Error ? err.message : String(err));
+    }
   };
 
   const sendIntent = async (text: string): Promise<void> => {
@@ -71,60 +138,44 @@ export function ChatPanel() {
     setStreaming(true);
 
     let assistantText = '';
-    try {
-      const history = toAnthropicMessages([...intentMessages, userMsg]);
-      for await (const ev of streamLlm({
-        system: INTENT_SYSTEM_PROMPT,
-        messages: history,
-        tools: INTENT_TOOLS,
-      })) {
-        if (ev.type === 'content_block_delta') {
-          const d = ev.data as { delta?: { text?: string } };
-          if (d.delta?.text) assistantText += d.delta.text;
-        } else if (ev.type === 'final') {
-          const final = ev.data as FinalEvent;
-          for (const block of final.content) {
-            if (block.type === 'tool_use') {
-              if (block.name === 'challenge') {
-                const reason = String(block.input?.reason ?? '');
-                appendIntent({
-                  id: nanoid(),
-                  role: 'critic',
-                  content: reason,
-                  createdAt: new Date().toISOString(),
-                });
-                const sharper = block.input?.sharperQuestion;
-                if (typeof sharper === 'string' && sharper) {
-                  assistantText = sharper;
-                }
-              } else if (block.name === 'summarize_contract') {
-                setContract(block.input ?? {});
-                setPhase('contracted');
-              }
-            }
+    const history = toApiMessages([...intentMessages, userMsg]);
+    await runStream(
+      INTENT_SYSTEM_PROMPT,
+      history,
+      INTENT_TOOLS,
+      (t) => {
+        assistantText += t;
+      },
+      (toolName, input) => {
+        if (toolName === 'challenge') {
+          const reason = String(input.reason ?? '');
+          appendIntent({
+            id: nanoid(),
+            role: 'critic',
+            content: reason,
+            createdAt: new Date().toISOString(),
+          });
+          const sharper = input.sharperQuestion;
+          if (typeof sharper === 'string' && sharper) {
+            assistantText = sharper;
           }
-        } else if (ev.type === 'error') {
-          const d = ev.data as { message?: string };
-          handleError(appendIntent, 'LLM error', d.message ?? 'unknown');
+        } else if (toolName === 'summarize_contract') {
+          setContract(input);
+          setPhase('contracted');
         }
-      }
-      if (assistantText) {
-        appendIntent({
-          id: nanoid(),
-          role: 'assistant',
-          content: assistantText,
-          createdAt: new Date().toISOString(),
-        });
-      }
-    } catch (err) {
-      handleError(
-        appendIntent,
-        'Network error',
-        err instanceof Error ? err.message : String(err),
-      );
-    } finally {
-      setStreaming(false);
+      },
+      (msg) => noteCritic(appendIntent, 'LLM error', msg),
+    );
+
+    if (assistantText) {
+      appendIntent({
+        id: nanoid(),
+        role: 'assistant',
+        content: assistantText,
+        createdAt: new Date().toISOString(),
+      });
     }
+    setStreaming(false);
   };
 
   const sendBuild = async (text: string): Promise<void> => {
@@ -139,57 +190,37 @@ export function ChatPanel() {
     setStreaming(true);
 
     let assistantText = '';
-    try {
-      const history = toAnthropicMessages([...buildMessages, userMsg]);
-      for await (const ev of streamLlm({
-        system: designerSystemPrompt(contract),
-        messages: history,
-        tools: DESIGNER_TOOLS,
-      })) {
-        if (ev.type === 'content_block_delta') {
-          const d = ev.data as { delta?: { text?: string } };
-          if (d.delta?.text) assistantText += d.delta.text;
-        } else if (ev.type === 'final') {
-          const final = ev.data as FinalEvent;
-          for (const block of final.content) {
-            if (block.type === 'tool_use') {
-              const result = dispatchDesignerTool(
-                String(block.name ?? ''),
-                (block.input ?? {}) as Record<string, unknown>,
-              );
-              appendBuild({
-                id: nanoid(),
-                role: 'tool',
-                content: result.note,
-                createdAt: new Date().toISOString(),
-              });
-            }
-          }
-        } else if (ev.type === 'error') {
-          const d = ev.data as { message?: string };
-          handleError(appendBuild, 'LLM error', d.message ?? 'unknown');
-        }
-      }
-      if (assistantText) {
+    const history = toApiMessages([...buildMessages, userMsg]);
+    await runStream(
+      designerSystemPrompt(contract),
+      history,
+      DESIGNER_TOOLS,
+      (t) => {
+        assistantText += t;
+      },
+      (toolName, input) => {
+        const result = dispatchDesignerTool(toolName, input);
         appendBuild({
           id: nanoid(),
-          role: 'assistant',
-          content: assistantText,
+          role: 'tool',
+          content: result.note,
           createdAt: new Date().toISOString(),
         });
-      }
-    } catch (err) {
-      handleError(
-        appendBuild,
-        'Network error',
-        err instanceof Error ? err.message : String(err),
-      );
-    } finally {
-      setStreaming(false);
+      },
+      (msg) => noteCritic(appendBuild, 'LLM error', msg),
+    );
+
+    if (assistantText) {
+      appendBuild({
+        id: nanoid(),
+        role: 'assistant',
+        content: assistantText,
+        createdAt: new Date().toISOString(),
+      });
     }
+    setStreaming(false);
   };
 
-  // Auto-trigger first homepage generation when entering building phase
   const triggered = React.useRef(false);
   React.useEffect(() => {
     if (
@@ -207,8 +238,7 @@ export function ChatPanel() {
   }, [intentPhase, buildMessages.length]);
 
   const send = intentPhase === 'building' ? sendBuild : sendIntent;
-  const composerDisabled =
-    isStreaming || intentPhase === 'contracted';
+  const composerDisabled = isStreaming || intentPhase === 'contracted';
 
   return (
     <div className="h-full flex flex-col min-h-0">
@@ -235,7 +265,7 @@ export function ChatPanel() {
         {intentPhase === 'contracted' && <IntentContractCard />}
         {isStreaming && (
           <div className="text-xs text-[color:var(--color-muted)] italic">
-            thinking...
+            thinking{activeModel ? ` (${activeModel.label})` : ''}...
           </div>
         )}
       </div>
