@@ -9,6 +9,7 @@ import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod
 import { env } from './config.js';
 import { healthRoutes } from './routes/health.js';
 import { projectsRoutes } from './routes/projects.js';
+import { llmRoutes } from './routes/llm.js';
 import { redis } from './lib/redis.js';
 
 async function buildServer() {
@@ -55,6 +56,7 @@ async function buildServer() {
 
   await app.register(healthRoutes);
   await app.register(projectsRoutes, { prefix: '/api/v1' });
+  await app.register(llmRoutes, { prefix: '/api/v1' });
 
   return app;
 }

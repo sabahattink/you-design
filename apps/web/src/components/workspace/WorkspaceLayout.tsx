@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useWorkspaceStore } from '@/lib/workspace/store';
 import { PreviewIframe } from '@/components/canvas/PreviewIframe';
 import { EditPanel } from '@/components/canvas/EditPanel';
+import { ChatPanel } from '@/components/chat/ChatPanel';
 
 export function WorkspaceLayout() {
   const intentPhase = useWorkspaceStore((s) => s.intentPhase);
@@ -40,11 +41,9 @@ export function WorkspaceLayout() {
         </section>
         <aside
           data-testid="chat-area"
-          className="w-80 border-l border-[color:var(--color-border)] overflow-y-auto"
+          className="w-80 border-l border-[color:var(--color-border)] flex flex-col min-h-0"
         >
-          <div className="p-3 text-xs uppercase tracking-wide text-[color:var(--color-muted)]">
-            Chat
-          </div>
+          <ChatPanel />
         </aside>
       </div>
     </div>
