@@ -7,9 +7,9 @@ export interface DesignerContext {
   domain: string;
 }
 
-export function designerSystemPrompt(contract: DesignerContext): string {
+export function designerSystemPrompt(contract: DesignerContext, memories: string[] = []): string {
   const domain = getDomain(contract.domain);
-  return `You are the Designer Agent for You Design.
+  const base = `You are the Designer Agent for You Design.
 
 The intent contract has been approved:
 - Persona: ${contract.persona.role}
@@ -43,6 +43,12 @@ WHEN MODIFYING:
 
 START:
 On your first turn after the contract, immediately call write_page with path "/" — the homepage — with a full landing page that nails the persona/action/emotion AND the domain rules above.`;
+
+  const memoryBlock =
+    memories.length > 0
+      ? `\n\nProject memory (past sessions):\n${memories.map((m, i) => `${i + 1}. ${m}`).join('\n')}`
+      : '';
+  return `${base}${memoryBlock}`;
 }
 
 export const DESIGNER_TOOLS = [

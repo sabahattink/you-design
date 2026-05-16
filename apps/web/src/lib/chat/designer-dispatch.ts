@@ -1,5 +1,6 @@
 import { nanoid } from 'nanoid';
-import { useWorkspaceStore } from '@/lib/workspace/store';
+import { useWorkspaceStore, selectActiveModel } from '@/lib/workspace/store';
+import { storeBuildMemory } from '@/lib/projects/memory';
 import {
   parseHtml,
   ensureYdIds,
@@ -47,6 +48,12 @@ export function dispatchDesignerTool(
       store.upsertPage(page);
       store.setCurrentPath(path);
       void runAndStoreCritic('write_page', path, finalHtml);
+      const { projectId: wpProjectId, intentContract: wpContract } = useWorkspaceStore.getState();
+      const wpModel = selectActiveModel(useWorkspaceStore.getState());
+      if (wpProjectId && wpContract) {
+        const wpOpenAiKey = wpModel?.provider === 'openai' ? (wpModel as { apiKey?: string }).apiKey : undefined;
+        void storeBuildMemory(wpProjectId, wpContract, path, finalHtml, wpOpenAiKey);
+      }
       return { ok: true, note: `Wrote ${path}` };
     }
     case 'update_element': {
@@ -65,6 +72,12 @@ export function dispatchDesignerTool(
           updatedAt: new Date().toISOString(),
         });
         void runAndStoreCritic('update_element', path, updated);
+        const { projectId: ueProjectId, intentContract: ueContract } = useWorkspaceStore.getState();
+        const ueModel = selectActiveModel(useWorkspaceStore.getState());
+        if (ueProjectId && ueContract) {
+          const ueOpenAiKey = ueModel?.provider === 'openai' ? (ueModel as { apiKey?: string }).apiKey : undefined;
+          void storeBuildMemory(ueProjectId, ueContract, path, updated, ueOpenAiKey);
+        }
         return { ok: true, note: `Updated ${elementId} on ${path}` };
       } catch (err) {
         const message = err instanceof Error ? err.message : 'update failed';
@@ -87,6 +100,12 @@ export function dispatchDesignerTool(
           updatedAt: new Date().toISOString(),
         });
         void runAndStoreCritic('add_element', path, updated);
+        const { projectId: aeProjectId, intentContract: aeContract } = useWorkspaceStore.getState();
+        const aeModel = selectActiveModel(useWorkspaceStore.getState());
+        if (aeProjectId && aeContract) {
+          const aeOpenAiKey = aeModel?.provider === 'openai' ? (aeModel as { apiKey?: string }).apiKey : undefined;
+          void storeBuildMemory(aeProjectId, aeContract, path, updated, aeOpenAiKey);
+        }
         return { ok: true, note: `Added to ${parentId} on ${path}` };
       } catch (err) {
         const message = err instanceof Error ? err.message : 'add failed';

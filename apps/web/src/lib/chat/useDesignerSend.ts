@@ -6,6 +6,7 @@ import { useWorkspaceStore, selectActiveModel } from '@/lib/workspace/store';
 import { streamLlm } from '@/lib/llm/client';
 import { designerSystemPrompt, DESIGNER_TOOLS } from './designer-agent';
 import { dispatchDesignerTool } from './designer-dispatch';
+import { searchMemories } from '@/lib/projects/api';
 import type { ChatMessage } from '@you-design/shared';
 
 function toApiMessages(messages: ChatMessage[]) {
@@ -32,6 +33,7 @@ export function useDesignerSend(): (text: string) => Promise<void> {
   const activeModel = useWorkspaceStore((s) => selectActiveModel(s));
   const appendBuild = useWorkspaceStore((s) => s.appendBuildMessage);
   const setStreaming = useWorkspaceStore((s) => s.setStreaming);
+  const projectId = useWorkspaceStore((s) => s.projectId);
 
   return useCallback(
     async (text: string): Promise<void> => {
@@ -47,9 +49,16 @@ export function useDesignerSend(): (text: string) => Promise<void> {
 
       let assistantText = '';
       try {
+        let memories: string[] = [];
+        if (projectId) {
+          const openAiKey =
+            activeModel?.provider === 'openai' ? (activeModel as { apiKey?: string }).apiKey : undefined;
+          memories = await searchMemories(projectId, text, openAiKey).catch(() => []);
+        }
+
         for await (const ev of streamLlm({
           model: activeModel,
-          system: designerSystemPrompt(contract),
+          system: designerSystemPrompt(contract, memories),
           messages: toApiMessages([...buildMessages, userMsg]),
           tools: DESIGNER_TOOLS,
         })) {
@@ -100,6 +109,6 @@ export function useDesignerSend(): (text: string) => Promise<void> {
         setStreaming(false);
       }
     },
-    [contract, activeModel, buildMessages, appendBuild, setStreaming],
+    [contract, activeModel, buildMessages, appendBuild, setStreaming, projectId],
   );
 }
