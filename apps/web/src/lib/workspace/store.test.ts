@@ -54,8 +54,10 @@ describe('workspace store — actions', () => {
     useWorkspaceStore
       .getState()
       .updateCurrentPageHtml('<html><body><h1>New</h1></body></html>');
-    expect(useWorkspaceStore.getState().pages['/'].html).toContain('New');
-    expect(useWorkspaceStore.getState().pages['/'].updatedAt).toBeTruthy();
+    const page = useWorkspaceStore.getState().pages['/'];
+    expect(page).toBeDefined();
+    expect(page?.html).toContain('New');
+    expect(page?.updatedAt).toBeTruthy();
   });
 
   it('removes a page', () => {
