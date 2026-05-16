@@ -37,8 +37,13 @@ function toToolSet(rawTools: Array<z.infer<typeof ToolDef>>): ToolSet {
 }
 
 export async function llmRoutes(app: FastifyInstance) {
-  app.post('/llm/stream', { schema: { body: Body } }, async (req, reply) => {
-    const body = req.body as z.infer<typeof Body>;
+  app.post('/llm/stream', async (req, reply) => {
+    const parsed = Body.safeParse(req.body);
+    if (!parsed.success) {
+      reply.code(400);
+      return { error: 'INVALID_BODY', message: parsed.error.message };
+    }
+    const body = parsed.data;
 
     let model;
     try {

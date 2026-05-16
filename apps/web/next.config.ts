@@ -5,6 +5,10 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   typedRoutes: true,
   transpilePackages: ['@you-design/shared', '@you-design/ui'],
+  webpack(config) {
+    config.resolve.extensionAlias = { '.js': ['.ts', '.tsx', '.js'] };
+    return config;
+  },
   async headers() {
     return [
       {
