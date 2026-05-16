@@ -10,11 +10,7 @@ const vector = (name: string, config: { dimensions: number }) =>
       return `[${value.join(',')}]`;
     },
     fromDriver(value: string): number[] {
-      return value
-        .replace('[', '')
-        .replace(']', '')
-        .split(',')
-        .map(Number);
+      return value.slice(1, -1).split(',').map(Number);
     },
   })(name);
 
