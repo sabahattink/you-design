@@ -4,7 +4,7 @@
 
 Local-first, AGPL-licensed, AI-assisted visual design + code workspace. Picks up where Figma + V0 + Bolt fall short: no sycophancy, domain expertise, multi-format export, post-deploy analytics feedback loop.
 
-> ⚠️ **Pre-alpha.** Currently in M0 scaffolding. First demo (v0.1) lands with M1 (Workspace + Intent).
+> ⚠️ **Alpha — M1 complete.** Workspace shell, intent quiz with honest critic, multi-page HTML designer agent, click-to-edit canvas, Monaco code panel, all wired and persisting to localStorage. Multi-format export (M3), multiplayer (M5), and multi-agent room (M4) ship later.
 
 ## Why?
 
@@ -13,39 +13,48 @@ Existing AI design and code tools (Figma AI, V0, Lovable, Bolt.new, Cursor, huas
 **You Design** is categorically different:
 
 - 🎯 **Intent-first** — every project begins with: who is this for, what action, what emotion, what success metric. The brief cannot be skipped.
-- 🗣 **Honest critic** — no flattery. It can say "this won't ship." Domain expertise (healthcare / fintech / e-commerce).
-- 👥 **Multi-agent room** — designer + copywriter + a11y + dev + critic agents work in parallel on the same canvas.
-- 🎨 **Canvas + code parity** — Figma-style editable canvas with bidirectional code sync.
-- 📦 **One source, 5+ formats** — same project → web app + PPTX + PDF + motion + iOS.
-- 🔄 **Living loop** — deploy → analytics → critic feedback.
+- 🗣 **Honest critic** — no flattery. It can say "this won't ship." Domain expertise (healthcare / fintech / e-commerce planned for M2).
+- 👥 **Multi-agent room** — designer + copywriter + a11y + dev + critic agents work in parallel on the same canvas (M4).
+- 🎨 **Canvas + code parity** — HTML iframe preview with click-to-edit, Monaco code panel with live sync.
+- 📦 **One source, 5+ formats** — same project → web app + PPTX + PDF + motion + iOS (M3+).
+- 🔄 **Living loop** — deploy → analytics → critic feedback (M5).
 - 🏠 **Local-first** — Docker compose, your LLM keys, your data.
-- 🔌 **MCP plugin ecosystem** — extensible custom agents + exporters.
+- 🔌 **MCP plugin ecosystem** — extensible custom agents + exporters (M6).
 
-## Quick Start (M0 — empty skeleton)
+## Quick Start (M1 alpha)
+
+Requires: Node 22, pnpm 9, Docker 25+, an Anthropic API key.
 
 ```bash
 git clone https://github.com/sabahattink/you-design.git
 cd you-design
 cp .env.example .env
-docker compose up -d
+echo 'ANTHROPIC_API_KEY=sk-ant-...' >> .env
+
+docker compose -f compose.dev.yml up -d   # Postgres + Redis
+pnpm install
+pnpm dev                                  # web :3000 + api :3001
 ```
 
-Then:
-- Web: http://localhost:3000
-- API: http://localhost:3001/health
+Open `http://localhost:3000/app` and try the demo flow:
 
-> Currently shows an empty landing. M1 (~5 weeks out) brings the first real features.
+1. Answer "Quick — who is this for?" with a vague reply ("everyone") — observe the critic challenge
+2. Refine through 4 slots: persona, action, emotion, success metric
+3. Click **Approve & build** when the contract card appears
+4. The designer agent generates the homepage; click any element to edit it
+5. Switch to the **Code** tab to see / edit the raw HTML in Monaco
+6. Ask the chat to "add a pricing page" — sidebar updates, navigate between pages
+7. Refresh — your workspace persists in localStorage
 
 ## Development
 
-Requires: Node 22, pnpm 9, Docker 25+
-
 ```bash
 pnpm install
-pnpm dev          # web :3000 + api :3001 hot reload
-pnpm typecheck    # tsc across all workspaces
-pnpm test         # vitest
-pnpm format       # prettier
+pnpm dev              # web :3000 + api :3001 hot reload
+pnpm typecheck        # tsc across all workspaces
+pnpm test             # vitest (unit)
+pnpm --filter @you-design/web test:e2e   # Playwright (requires `playwright install chromium` first)
+pnpm format           # prettier
 ```
 
 ## Stack
@@ -53,35 +62,33 @@ pnpm format       # prettier
 | Layer | Technology |
 |-------|------------|
 | Frontend | Next.js 15 + React 19 + TypeScript |
-| UI | shadcn/ui + Tailwind |
-| Canvas | Tldraw (lands in M1) |
-| Code editor | Monaco (M1) |
-| Multiplayer | Y.js + Hocuspocus (M5) |
+| UI | Tailwind v4 |
+| Canvas | iframe srcdoc (Tailwind CDN injected) |
+| Code editor | Monaco |
+| State | Zustand + persist (localStorage) |
+| HTML AST | parse5 |
 | Backend | Fastify 5 + Zod + Pino |
-| DB | Postgres 16 + pgvector + Drizzle |
-| Queue | BullMQ + Redis 7 |
-| Render | Playwright + FFmpeg (M3) |
-| LLM | Vercel AI SDK + custom router (M2) |
-| Plugins | MCP protocol (M6) |
+| DB | Postgres 16 + pgvector + Drizzle (M2+) |
+| Queue | BullMQ + Redis 7 (M3+) |
+| LLM | Anthropic Claude (Sonnet 4.5 default) |
 | Self-host | Docker compose |
+| E2E | Playwright (mocked LLM) |
 
 ## Roadmap
 
 Detailed milestone plan: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 
-- **M0** — Foundation (current, 1-2 weeks)
-- **M1** — Workspace + Intent (5 weeks)
-- **M2** — Brain + Honest Critic (4 weeks)
-- **M3** — Multi-format export (3 weeks)
-- **M4** — Multi-Agent Room (5 weeks)
-- **M5** — Multiplayer + Living Loop (4 weeks)
-- **M6** — Plugins + Native (4 weeks)
-
-**Total v1:** ~6 months.
+- **M0** ✅ Foundation
+- **M1** ✅ Workspace + Intent (alpha)
+- **M2** — Brain + Honest Critic (multi-LLM router, persistent memory, BYOK UI) — 4 weeks
+- **M3** — Multi-format export (web + PPTX + PDF) — 3 weeks
+- **M4** — Multi-Agent Room (5 specialized agents) — 5 weeks
+- **M5** — Multiplayer + Living Loop — 4 weeks
+- **M6** — Plugins + Native — 4 weeks
 
 ## Contributing
 
-Currently pre-alpha. PRs will be officially welcomed from M1. See: [`CONTRIBUTING.md`](CONTRIBUTING.md).
+Alpha. Issues and PRs welcome — see [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## License
 
@@ -90,8 +97,8 @@ Currently pre-alpha. PRs will be officially welcomed from M1. See: [`CONTRIBUTIN
 ## Community
 
 - 🐦 Twitter: [@youdesigndev](https://twitter.com/youdesigndev) (reserved)
-- 💬 Discussions: GitHub Discussions
-- 🐛 Issues: GitHub Issues
+- 💬 GitHub Discussions
+- 🐛 GitHub Issues
 
 ---
 
