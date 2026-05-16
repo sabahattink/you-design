@@ -9,11 +9,7 @@ import { Composer } from './Composer';
 import { IntentContractCard } from './IntentContractCard';
 import { streamLlm } from '@/lib/llm/client';
 import { INTENT_SYSTEM_PROMPT, INTENT_TOOLS } from '@/lib/chat/intent-agent';
-import {
-  designerSystemPrompt,
-  DESIGNER_TOOLS,
-} from '@/lib/chat/designer-agent';
-import { dispatchDesignerTool } from '@/lib/chat/designer-dispatch';
+import { useDesignerSend } from '@/lib/chat/useDesignerSend';
 import type { ChatMessage as ChatMessageT } from '@you-design/shared';
 
 function toApiMessages(messages: ChatMessageT[]) {
@@ -23,13 +19,11 @@ function toApiMessages(messages: ChatMessageT[]) {
 }
 
 interface TextDeltaPart {
-  type: 'text-delta';
   text?: string;
   textDelta?: string;
 }
 
 interface ToolCallPart {
-  type: 'tool-call';
   toolName: string;
   toolCallId: string;
   input?: Record<string, unknown>;
@@ -37,14 +31,7 @@ interface ToolCallPart {
 }
 
 interface ErrorPart {
-  type: 'error';
   error?: unknown;
-}
-
-interface FinishPart {
-  type: 'finish';
-  finishReason?: string;
-  usage?: unknown;
 }
 
 function deltaText(part: TextDeltaPart): string {
@@ -60,14 +47,17 @@ export function ChatPanel() {
   const intentMessages = useWorkspaceStore((s) => s.intentMessages);
   const buildMessages = useWorkspaceStore((s) => s.buildMessages);
   const isStreaming = useWorkspaceStore((s) => s.isStreaming);
-  const contract = useWorkspaceStore((s) => s.intentContract);
   const activeModel = useWorkspaceStore((s) => selectActiveModel(s));
   const appendIntent = useWorkspaceStore((s) => s.appendIntentMessage);
-  const appendBuild = useWorkspaceStore((s) => s.appendBuildMessage);
   const setStreaming = useWorkspaceStore((s) => s.setStreaming);
   const setContract = useWorkspaceStore((s) => s.setIntentContract);
   const setPhase = useWorkspaceStore((s) => s.setIntentPhase);
+  const latestReport = useWorkspaceStore((s) => {
+    const reports = s.criticReports[s.currentPath];
+    return reports?.[0] ?? null;
+  });
 
+  const sendBuild = useDesignerSend();
   const messages = intentPhase === 'building' ? buildMessages : intentMessages;
 
   const noteCritic = (
@@ -83,51 +73,11 @@ export function ChatPanel() {
     });
   };
 
-  const runStream = async (
-    system: string,
-    history: Array<{ role: 'user' | 'assistant'; content: string }>,
-    tools: typeof INTENT_TOOLS | typeof DESIGNER_TOOLS,
-    onText: (s: string) => void,
-    onToolCall: (name: string, input: Record<string, unknown>) => void,
-    onError: (msg: string) => void,
-  ): Promise<void> => {
+  const sendIntent = async (text: string): Promise<void> => {
     if (!activeModel) {
-      onError('No model configured. Add one in /setup.');
+      noteCritic(appendIntent, 'Setup', 'No model configured. Add one in /setup.');
       return;
     }
-    try {
-      for await (const ev of streamLlm({
-        model: activeModel,
-        system,
-        messages: history,
-        tools,
-      })) {
-        if (ev.type === 'text-delta') {
-          const t = deltaText(ev.data as TextDeltaPart);
-          if (t) onText(t);
-        } else if (ev.type === 'tool-call') {
-          const part = ev.data as ToolCallPart;
-          onToolCall(part.toolName, toolInput(part));
-        } else if (ev.type === 'error') {
-          const part = ev.data as ErrorPart;
-          const msg =
-            part.error instanceof Error
-              ? part.error.message
-              : typeof part.error === 'string'
-                ? part.error
-                : JSON.stringify(part.error);
-          onError(msg);
-        } else if (ev.type === 'finish') {
-          // no-op: finish summary; could surface usage info later
-          void (ev.data as FinishPart);
-        }
-      }
-    } catch (err) {
-      onError(err instanceof Error ? err.message : String(err));
-    }
-  };
-
-  const sendIntent = async (text: string): Promise<void> => {
     const userMsg: ChatMessageT = {
       id: nanoid(),
       role: 'user',
@@ -138,87 +88,63 @@ export function ChatPanel() {
     setStreaming(true);
 
     let assistantText = '';
-    const history = toApiMessages([...intentMessages, userMsg]);
-    await runStream(
-      INTENT_SYSTEM_PROMPT,
-      history,
-      INTENT_TOOLS,
-      (t) => {
-        assistantText += t;
-      },
-      (toolName, input) => {
-        if (toolName === 'challenge') {
-          const reason = String(input.reason ?? '');
-          appendIntent({
-            id: nanoid(),
-            role: 'critic',
-            content: reason,
-            createdAt: new Date().toISOString(),
-          });
-          const sharper = input.sharperQuestion;
-          if (typeof sharper === 'string' && sharper) {
-            assistantText = sharper;
+    try {
+      for await (const ev of streamLlm({
+        model: activeModel,
+        system: INTENT_SYSTEM_PROMPT,
+        messages: toApiMessages([...intentMessages, userMsg]),
+        tools: INTENT_TOOLS,
+      })) {
+        if (ev.type === 'text-delta') {
+          const t = deltaText(ev.data as TextDeltaPart);
+          if (t) assistantText += t;
+        } else if (ev.type === 'tool-call') {
+          const part = ev.data as ToolCallPart;
+          const input = toolInput(part);
+          if (part.toolName === 'challenge') {
+            const reason = String(input.reason ?? '');
+            appendIntent({
+              id: nanoid(),
+              role: 'critic',
+              content: reason,
+              createdAt: new Date().toISOString(),
+            });
+            const sharper = input.sharperQuestion;
+            if (typeof sharper === 'string' && sharper) {
+              assistantText = sharper;
+            }
+          } else if (part.toolName === 'summarize_contract') {
+            setContract(input);
+            setPhase('contracted');
           }
-        } else if (toolName === 'summarize_contract') {
-          setContract(input);
-          setPhase('contracted');
+        } else if (ev.type === 'error') {
+          const part = ev.data as ErrorPart;
+          const msg =
+            part.error instanceof Error
+              ? part.error.message
+              : typeof part.error === 'string'
+                ? part.error
+                : JSON.stringify(part.error);
+          noteCritic(appendIntent, 'LLM error', msg);
         }
-      },
-      (msg) => noteCritic(appendIntent, 'LLM error', msg),
-    );
-
-    if (assistantText) {
-      appendIntent({
-        id: nanoid(),
-        role: 'assistant',
-        content: assistantText,
-        createdAt: new Date().toISOString(),
-      });
-    }
-    setStreaming(false);
-  };
-
-  const sendBuild = async (text: string): Promise<void> => {
-    if (!contract) return;
-    const userMsg: ChatMessageT = {
-      id: nanoid(),
-      role: 'user',
-      content: text,
-      createdAt: new Date().toISOString(),
-    };
-    appendBuild(userMsg);
-    setStreaming(true);
-
-    let assistantText = '';
-    const history = toApiMessages([...buildMessages, userMsg]);
-    await runStream(
-      designerSystemPrompt(contract),
-      history,
-      DESIGNER_TOOLS,
-      (t) => {
-        assistantText += t;
-      },
-      (toolName, input) => {
-        const result = dispatchDesignerTool(toolName, input);
-        appendBuild({
+      }
+      if (assistantText) {
+        appendIntent({
           id: nanoid(),
-          role: 'tool',
-          content: result.note,
+          role: 'assistant',
+          content: assistantText,
           createdAt: new Date().toISOString(),
         });
-      },
-      (msg) => noteCritic(appendBuild, 'LLM error', msg),
-    );
-
-    if (assistantText) {
-      appendBuild({
-        id: nanoid(),
-        role: 'assistant',
-        content: assistantText,
-        createdAt: new Date().toISOString(),
-      });
+      }
+    } catch (err) {
+      noteCritic(
+        appendIntent,
+        'Network error',
+        err instanceof Error ? err.message : String(err),
+      );
+    } finally {
+      setStreaming(false);
     }
-    setStreaming(false);
   };
 
   const triggered = React.useRef(false);
@@ -239,6 +165,17 @@ export function ChatPanel() {
 
   const send = intentPhase === 'building' ? sendBuild : sendIntent;
   const composerDisabled = isStreaming || intentPhase === 'contracted';
+
+  const inlineCriticIssues = React.useMemo(() => {
+    if (intentPhase !== 'building' || !latestReport) return [];
+    return latestReport.issues.filter((i) => i.status === 'open').slice(0, 3);
+  }, [intentPhase, latestReport]);
+
+  const hiddenInlineCount = React.useMemo(() => {
+    if (!latestReport) return 0;
+    const open = latestReport.issues.filter((i) => i.status === 'open').length;
+    return Math.max(0, open - 3);
+  }, [latestReport]);
 
   return (
     <div className="h-full flex flex-col min-h-0">
@@ -263,6 +200,24 @@ export function ChatPanel() {
           ),
         )}
         {intentPhase === 'contracted' && <IntentContractCard />}
+        {inlineCriticIssues.length > 0 && latestReport && (
+          <div className="flex flex-col gap-1 mt-1">
+            <div className="text-xs uppercase tracking-wide text-[color:var(--color-muted)]">
+              Critic on {latestReport.pagePath} ({latestReport.triggeredBy})
+            </div>
+            {inlineCriticIssues.map((i) => (
+              <CriticBubble
+                key={i.id}
+                issue={{ severity: i.severity, category: i.category, message: i.message }}
+              />
+            ))}
+            {hiddenInlineCount > 0 && (
+              <div className="text-xs italic text-[color:var(--color-muted)]">
+                + {hiddenInlineCount} more — open the critic drawer
+              </div>
+            )}
+          </div>
+        )}
         {isStreaming && (
           <div className="text-xs text-[color:var(--color-muted)] italic">
             thinking{activeModel ? ` (${activeModel.label})` : ''}...

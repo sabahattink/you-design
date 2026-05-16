@@ -9,10 +9,13 @@ import { ChatPanel } from '@/components/chat/ChatPanel';
 import { PageList } from '@/components/sidebar/PageList';
 import { IntentChip } from '@/components/sidebar/IntentChip';
 import { ModelPicker } from '@/components/sidebar/ModelPicker';
+import { CriticBadge } from '@/components/sidebar/CriticBadge';
+import { CriticDrawer } from '@/components/critic/CriticDrawer';
 
 export function WorkspaceLayout() {
   const intentPhase = useWorkspaceStore((s) => s.intentPhase);
   const [view, setView] = React.useState<'preview' | 'code'>('preview');
+  const [criticOpen, setCriticOpen] = React.useState(false);
 
   return (
     <div className="h-screen flex flex-col">
@@ -31,6 +34,7 @@ export function WorkspaceLayout() {
           <PageList />
           <div className="flex-1" />
           <IntentChip />
+          <CriticBadge onOpen={() => setCriticOpen(true)} />
           <ModelPicker />
         </aside>
         <section
@@ -58,6 +62,7 @@ export function WorkspaceLayout() {
           <div className="flex-1 relative">
             {view === 'preview' ? <PreviewIframe /> : <CodePanel />}
             {view === 'preview' && <EditPanel />}
+            <CriticDrawer open={criticOpen} onClose={() => setCriticOpen(false)} />
           </div>
         </section>
         <aside
