@@ -28,13 +28,9 @@ export type Emotion = z.infer<typeof Emotion>;
 
 export const Domain = z.enum([
   'general',
-  'healthcare',
-  'fintech',
-  'ecommerce',
-  'saas',
-  'education',
-  'media',
-  'government',
+  'saas-landing',
+  'ecommerce-product',
+  'healthcare-appointment',
 ]);
 export type Domain = z.infer<typeof Domain>;
 
