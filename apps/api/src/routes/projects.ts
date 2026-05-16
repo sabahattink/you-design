@@ -119,7 +119,11 @@ export async function projectsRoutes(app: FastifyInstance) {
   // DELETE /projects/:id
   app.delete('/projects/:id', async (req, reply) => {
     const { id } = req.params as { id: string };
-    await db.delete(schema.projects).where(eq(schema.projects.id, id));
+    const result = await db.delete(schema.projects).where(eq(schema.projects.id, id)).returning({ id: schema.projects.id });
+    if (result.length === 0) {
+      reply.code(404);
+      return { error: 'NOT_FOUND' };
+    }
     return { ok: true };
   });
 
@@ -151,22 +155,22 @@ export async function projectsRoutes(app: FastifyInstance) {
     return { ok: true };
   });
 
-  // GET /projects/:id/memories/search
-  app.get('/projects/:id/memories/search', async (req, reply) => {
+  // POST /projects/:id/memories/search
+  app.post('/projects/:id/memories/search', async (req, reply) => {
     const { id } = req.params as { id: string };
-    const query = req.query as { q?: string; openAiKey?: string };
+    const body = req.body as { q?: string; openAiKey?: string };
 
-    if (!query.q) {
+    if (!body.q) {
       reply.code(400);
       return { error: 'MISSING_QUERY' };
     }
 
-    if (query.openAiKey) {
+    if (body.openAiKey) {
       try {
-        const openai = createOpenAI({ apiKey: query.openAiKey });
+        const openai = createOpenAI({ apiKey: body.openAiKey });
         const result = await embed({
           model: openai.embedding('text-embedding-3-small'),
-          value: query.q,
+          value: body.q,
         });
         const queryVec = `[${result.embedding.join(',')}]`;
         const rows = (await db.execute(
