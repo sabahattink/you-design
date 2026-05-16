@@ -31,9 +31,11 @@ export function useProjectSync(): void {
         if (full.intentContract) setIntentContract(full.intentContract);
         for (const p of full.pages) {
           upsertPage({
+            id: p.path,
             path: p.path,
             title: p.title,
             html: p.html,
+            createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           });
         }

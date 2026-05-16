@@ -47,7 +47,7 @@ export function ProjectSwitcher() {
       setIntentPhase(full.intentPhase as 'collecting' | 'contracted' | 'building');
       if (full.intentContract) setIntentContract(full.intentContract);
       for (const p of full.pages) {
-        upsertPage({ path: p.path, title: p.title, html: p.html, updatedAt: new Date().toISOString() });
+        upsertPage({ id: p.path, path: p.path, title: p.title, html: p.html, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
       }
     } finally {
       setOpen(false);
