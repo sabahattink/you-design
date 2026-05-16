@@ -18,6 +18,7 @@ import { useProjectSync } from '@/lib/projects/useProjectSync';
 export function WorkspaceLayout() {
   const intentPhase = useWorkspaceStore((s) => s.intentPhase);
   const projectId = useWorkspaceStore((s) => s.projectId);
+  const sessionCostUsd = useWorkspaceStore((s) => s.sessionCostUsd);
   const [view, setView] = React.useState<'preview' | 'code'>('preview');
   const [criticOpen, setCriticOpen] = React.useState(false);
   const [showProjectModal, setShowProjectModal] = React.useState(!projectId);
@@ -31,6 +32,9 @@ export function WorkspaceLayout() {
         <span className="ml-3 text-[color:var(--color-muted)]">Workspace</span>
         <span className="ml-auto text-xs px-2 py-0.5 rounded bg-[color:var(--color-border)]">
           {intentPhase}
+        </span>
+        <span className="ml-2 text-xs px-2 py-0.5 rounded bg-[color:var(--color-border)] font-mono">
+          ${sessionCostUsd.toFixed(4)}
         </span>
       </header>
       <div className="flex-1 flex min-h-0">

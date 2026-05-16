@@ -16,6 +16,7 @@ interface FormState {
   modelName: string;
   apiKey: string;
   baseURL: string;
+  tier: 'fast' | 'standard' | 'best';
 }
 
 const EMPTY_FORM: FormState = {
@@ -24,6 +25,7 @@ const EMPTY_FORM: FormState = {
   modelName: 'claude-sonnet-4-5',
   apiKey: '',
   baseURL: '',
+  tier: 'standard',
 };
 
 export function ProviderConfig() {
@@ -46,6 +48,7 @@ export function ProviderConfig() {
       modelName: m.modelName,
       apiKey: m.apiKey ?? '',
       baseURL: m.baseURL ?? '',
+      tier: m.tier ?? 'standard',
     });
   };
 
@@ -63,6 +66,7 @@ export function ProviderConfig() {
       label: form.label.trim(),
       provider: form.provider,
       modelName: form.modelName.trim(),
+      tier: form.tier,
       ...(form.apiKey.trim() ? { apiKey: form.apiKey.trim() } : {}),
       ...(form.baseURL.trim() ? { baseURL: form.baseURL.trim() } : {}),
     };
@@ -185,6 +189,20 @@ export function ProviderConfig() {
               required
             />
           </Field>
+          <div>
+            <label className="text-xs text-[color:var(--color-muted)] block mb-1">Tier</label>
+            <select
+              value={form.tier}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, tier: e.target.value as 'fast' | 'standard' | 'best' }))
+              }
+              className="w-full border border-[color:var(--color-border)] rounded px-2 py-1 text-sm bg-[color:var(--color-bg)]"
+            >
+              <option value="fast">Fast — cheap, quick tasks (intent, critic)</option>
+              <option value="standard">Standard — main work (designer)</option>
+              <option value="best">Best — complex reasoning</option>
+            </select>
+          </div>
           <Field
             label="API key"
             hint={
