@@ -32,6 +32,7 @@ export interface WorkspaceState {
   isCriticRunning: boolean;
   projectId: string | null;
   projectName: string;
+  sessionCostUsd: number;
 }
 
 export interface WorkspaceActions {
@@ -61,6 +62,7 @@ export interface WorkspaceActions {
   clearCriticReports: (pagePath: string) => void;
   setProjectId: (id: string) => void;
   setProjectName: (name: string) => void;
+  appendSessionCost: (delta: number) => void;
 }
 
 const DEFAULT_MODEL: ModelConfig = {
@@ -68,6 +70,7 @@ const DEFAULT_MODEL: ModelConfig = {
   label: 'Claude Sonnet 4.5 (env key)',
   provider: 'anthropic',
   modelName: 'claude-sonnet-4-5',
+  tier: 'standard',
 };
 
 const INITIAL: WorkspaceState = {
@@ -85,6 +88,7 @@ const INITIAL: WorkspaceState = {
   isCriticRunning: false,
   projectId: null,
   projectName: '',
+  sessionCostUsd: 0,
 };
 
 function normalizeContract(raw: unknown): IntentContract | null {
@@ -192,6 +196,8 @@ export const useWorkspaceStore = create<WorkspaceState & WorkspaceActions>()(
       setCriticRunning: (isCriticRunning) => set({ isCriticRunning }),
       setProjectId: (projectId) => set({ projectId }),
       setProjectName: (projectName) => set({ projectName }),
+      appendSessionCost: (delta) =>
+        set((s) => ({ sessionCostUsd: s.sessionCostUsd + delta })),
       clearCriticReports: (pagePath) =>
         set((s) => {
           const next = { ...s.criticReports };

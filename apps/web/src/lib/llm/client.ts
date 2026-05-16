@@ -17,6 +17,11 @@ export interface LlmEvent {
   data: unknown;
 }
 
+export interface UsageInfo {
+  promptTokens: number;
+  completionTokens: number;
+}
+
 const API_BASE =
   (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_URL) ||
   'http://localhost:3001';
@@ -24,6 +29,7 @@ const API_BASE =
 export async function* streamLlm(
   req: LlmRequest,
   signal?: AbortSignal,
+  onUsage?: (usage: UsageInfo) => void,
 ): AsyncGenerator<LlmEvent> {
   const res = await fetch(`${API_BASE}/api/v1/llm/stream`, {
     method: 'POST',
@@ -64,7 +70,15 @@ export async function* streamLlm(
       }
       if (eventType && dataStr) {
         try {
-          yield { type: eventType, data: JSON.parse(dataStr) };
+          const parsed = JSON.parse(dataStr);
+          if (eventType === 'finish' && onUsage && parsed?.usage) {
+            const u = parsed.usage as { promptTokens?: number; completionTokens?: number };
+            onUsage({
+              promptTokens: u.promptTokens ?? 0,
+              completionTokens: u.completionTokens ?? 0,
+            });
+          }
+          yield { type: eventType, data: parsed };
         } catch {
           // ignore malformed event
         }
