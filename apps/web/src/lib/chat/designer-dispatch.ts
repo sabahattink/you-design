@@ -8,6 +8,7 @@ import {
   toHtml,
 } from '@/lib/html/ast';
 import type { ElementPatch, Page } from '@you-design/shared';
+import { runAndStoreCritic } from './critic-dispatch';
 
 export interface DispatchResult {
   ok: boolean;
@@ -45,6 +46,7 @@ export function dispatchDesignerTool(
       };
       store.upsertPage(page);
       store.setCurrentPath(path);
+      void runAndStoreCritic('write_page', path, finalHtml);
       return { ok: true, note: `Wrote ${path}` };
     }
     case 'update_element': {
@@ -62,6 +64,7 @@ export function dispatchDesignerTool(
           html: updated,
           updatedAt: new Date().toISOString(),
         });
+        void runAndStoreCritic('update_element', path, updated);
         return { ok: true, note: `Updated ${elementId} on ${path}` };
       } catch (err) {
         const message = err instanceof Error ? err.message : 'update failed';
@@ -83,6 +86,7 @@ export function dispatchDesignerTool(
           html: updated,
           updatedAt: new Date().toISOString(),
         });
+        void runAndStoreCritic('add_element', path, updated);
         return { ok: true, note: `Added to ${parentId} on ${path}` };
       } catch (err) {
         const message = err instanceof Error ? err.message : 'add failed';

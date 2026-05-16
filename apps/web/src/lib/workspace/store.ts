@@ -5,6 +5,8 @@ import type {
   IntentContract,
   Page,
   ModelConfig,
+  CriticReport,
+  IssueStatus,
 } from '@you-design/shared';
 
 export type IntentPhase = 'collecting' | 'contracted' | 'building';
@@ -24,6 +26,10 @@ export interface WorkspaceState {
   // Multi-provider LLM config (BYOK, stored locally).
   models: ModelConfig[];
   defaultModelId: string | null;
+
+  // Build-phase critic state (M2.1).
+  criticReports: Record<string, CriticReport[]>;
+  isCriticRunning: boolean;
 }
 
 export interface WorkspaceActions {
@@ -42,6 +48,15 @@ export interface WorkspaceActions {
   upsertModel: (model: ModelConfig) => void;
   removeModel: (id: string) => void;
   setDefaultModel: (id: string) => void;
+
+  addCriticReport: (report: CriticReport) => void;
+  updateIssueStatus: (
+    reportId: string,
+    issueId: string,
+    status: IssueStatus,
+  ) => void;
+  setCriticRunning: (running: boolean) => void;
+  clearCriticReports: (pagePath: string) => void;
 }
 
 const DEFAULT_MODEL: ModelConfig = {
@@ -62,6 +77,8 @@ const INITIAL: WorkspaceState = {
   isStreaming: false,
   models: [DEFAULT_MODEL],
   defaultModelId: DEFAULT_MODEL.id,
+  criticReports: {},
+  isCriticRunning: false,
 };
 
 function normalizeContract(raw: unknown): IntentContract | null {
@@ -140,6 +157,39 @@ export const useWorkspaceStore = create<WorkspaceState & WorkspaceActions>()(
           };
         }),
       setDefaultModel: (id) => set({ defaultModelId: id }),
+
+      addCriticReport: (report) =>
+        set((s) => {
+          const existing = s.criticReports[report.pagePath] ?? [];
+          const trimmed = [report, ...existing].slice(0, 5);
+          return {
+            criticReports: { ...s.criticReports, [report.pagePath]: trimmed },
+          };
+        }),
+      updateIssueStatus: (reportId, issueId, status) =>
+        set((s) => {
+          const next: Record<string, CriticReport[]> = {};
+          for (const [path, reports] of Object.entries(s.criticReports)) {
+            next[path] = reports.map((r) =>
+              r.id !== reportId
+                ? r
+                : {
+                    ...r,
+                    issues: r.issues.map((i) =>
+                      i.id === issueId ? { ...i, status } : i,
+                    ),
+                  },
+            );
+          }
+          return { criticReports: next };
+        }),
+      setCriticRunning: (isCriticRunning) => set({ isCriticRunning }),
+      clearCriticReports: (pagePath) =>
+        set((s) => {
+          const next = { ...s.criticReports };
+          delete next[pagePath];
+          return { criticReports: next };
+        }),
     }),
     {
       name: 'you-design:workspace:v1',
@@ -153,6 +203,7 @@ export const useWorkspaceStore = create<WorkspaceState & WorkspaceActions>()(
         buildMessages: state.buildMessages,
         models: state.models,
         defaultModelId: state.defaultModelId,
+        criticReports: state.criticReports,
       }),
     },
   ),
