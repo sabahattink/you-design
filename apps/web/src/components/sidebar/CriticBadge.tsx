@@ -8,6 +8,7 @@ interface Props {
   onOpen: () => void;
 }
 
+const EMPTY_REPORTS: never[] = [];
 const ORDER: Severity[] = ['critical', 'warning', 'info'];
 const DOT: Record<Severity, string> = {
   critical: 'bg-red-500',
@@ -16,7 +17,7 @@ const DOT: Record<Severity, string> = {
 };
 
 export function CriticBadge({ onOpen }: Props) {
-  const reports = useWorkspaceStore((s) => s.criticReports[s.currentPath] ?? []);
+  const reports = useWorkspaceStore((s) => s.criticReports[s.currentPath] ?? EMPTY_REPORTS);
   const isCriticRunning = useWorkspaceStore((s) => s.isCriticRunning);
 
   const openIssues = React.useMemo(
