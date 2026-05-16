@@ -5,6 +5,8 @@ import { useWorkspaceStore } from '@/lib/workspace/store';
 import { PreviewIframe } from '@/components/canvas/PreviewIframe';
 import { EditPanel } from '@/components/canvas/EditPanel';
 import { ChatPanel } from '@/components/chat/ChatPanel';
+import { PageList } from '@/components/sidebar/PageList';
+import { IntentChip } from '@/components/sidebar/IntentChip';
 
 export function WorkspaceLayout() {
   const intentPhase = useWorkspaceStore((s) => s.intentPhase);
@@ -23,14 +25,11 @@ export function WorkspaceLayout() {
       <div className="flex-1 flex min-h-0">
         <aside
           data-testid="sidebar"
-          className="w-56 border-r border-[color:var(--color-border)] overflow-y-auto"
+          className="w-56 border-r border-[color:var(--color-border)] overflow-y-auto flex flex-col"
         >
-          <div className="p-3 text-xs uppercase tracking-wide text-[color:var(--color-muted)]">
-            Sidebar
-          </div>
-          <div className="p-3 text-xs text-[color:var(--color-muted)]">
-            {Object.keys(pages).length} pages · current {currentPath}
-          </div>
+          <PageList />
+          <div className="flex-1" />
+          <IntentChip />
         </aside>
         <section
           data-testid="canvas-area"
