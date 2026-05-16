@@ -2,6 +2,8 @@
 
 import * as React from 'react';
 import { useWorkspaceStore } from '@/lib/workspace/store';
+import { PreviewIframe } from '@/components/canvas/PreviewIframe';
+import { EditPanel } from '@/components/canvas/EditPanel';
 
 export function WorkspaceLayout() {
   const intentPhase = useWorkspaceStore((s) => s.intentPhase);
@@ -31,11 +33,10 @@ export function WorkspaceLayout() {
         </aside>
         <section
           data-testid="canvas-area"
-          className="flex-1 grid place-items-center bg-[color:var(--color-bg)] min-w-0"
+          className="flex-1 relative bg-white min-w-0"
         >
-          <div className="text-[color:var(--color-muted)] text-sm">
-            Canvas (will render iframe in Task 2.5)
-          </div>
+          <PreviewIframe />
+          <EditPanel />
         </section>
         <aside
           data-testid="chat-area"
