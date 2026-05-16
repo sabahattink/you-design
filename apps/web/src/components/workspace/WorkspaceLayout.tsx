@@ -10,12 +10,19 @@ import { PageList } from '@/components/sidebar/PageList';
 import { IntentChip } from '@/components/sidebar/IntentChip';
 import { ModelPicker } from '@/components/sidebar/ModelPicker';
 import { CriticBadge } from '@/components/sidebar/CriticBadge';
+import { ProjectSwitcher } from '@/components/sidebar/ProjectSwitcher';
 import { CriticDrawer } from '@/components/critic/CriticDrawer';
+import { ProjectListModal } from '@/components/projects/ProjectListModal';
+import { useProjectSync } from '@/lib/projects/useProjectSync';
 
 export function WorkspaceLayout() {
   const intentPhase = useWorkspaceStore((s) => s.intentPhase);
+  const projectId = useWorkspaceStore((s) => s.projectId);
   const [view, setView] = React.useState<'preview' | 'code'>('preview');
   const [criticOpen, setCriticOpen] = React.useState(false);
+  const [showProjectModal, setShowProjectModal] = React.useState(!projectId);
+
+  useProjectSync();
 
   return (
     <div className="h-screen flex flex-col">
@@ -31,6 +38,7 @@ export function WorkspaceLayout() {
           data-testid="sidebar"
           className="w-56 border-r border-[color:var(--color-border)] overflow-y-auto flex flex-col"
         >
+          <ProjectSwitcher />
           <PageList />
           <div className="flex-1" />
           <IntentChip />
@@ -72,6 +80,10 @@ export function WorkspaceLayout() {
           <ChatPanel />
         </aside>
       </div>
+
+      {showProjectModal && (
+        <ProjectListModal onDismiss={() => setShowProjectModal(false)} />
+      )}
     </div>
   );
 }
