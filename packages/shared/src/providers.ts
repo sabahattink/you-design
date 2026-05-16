@@ -15,6 +15,7 @@ export const ModelConfig = z.object({
   modelName: z.string().min(1),
   apiKey: z.string().optional(),
   baseURL: z.string().url().optional(),
+  tier: z.enum(['fast', 'standard', 'best']).default('standard'),
 });
 export type ModelConfig = z.infer<typeof ModelConfig>;
 
