@@ -4,14 +4,14 @@ import * as React from 'react';
 import { useWorkspaceStore } from '@/lib/workspace/store';
 import { PreviewIframe } from '@/components/canvas/PreviewIframe';
 import { EditPanel } from '@/components/canvas/EditPanel';
+import { CodePanel } from '@/components/canvas/CodePanel';
 import { ChatPanel } from '@/components/chat/ChatPanel';
 import { PageList } from '@/components/sidebar/PageList';
 import { IntentChip } from '@/components/sidebar/IntentChip';
 
 export function WorkspaceLayout() {
   const intentPhase = useWorkspaceStore((s) => s.intentPhase);
-  const pages = useWorkspaceStore((s) => s.pages);
-  const currentPath = useWorkspaceStore((s) => s.currentPath);
+  const [view, setView] = React.useState<'preview' | 'code'>('preview');
 
   return (
     <div className="h-screen flex flex-col">
@@ -33,10 +33,30 @@ export function WorkspaceLayout() {
         </aside>
         <section
           data-testid="canvas-area"
-          className="flex-1 relative bg-white min-w-0"
+          className="flex-1 relative bg-white min-w-0 flex flex-col"
         >
-          <PreviewIframe />
-          <EditPanel />
+          <div className="h-8 border-b border-[color:var(--color-border)] flex items-center text-xs px-2 gap-2 bg-[color:var(--color-bg)]">
+            <button
+              onClick={() => setView('preview')}
+              className={`px-2 py-0.5 rounded ${
+                view === 'preview' ? 'bg-[color:var(--color-border)]' : ''
+              }`}
+            >
+              Preview
+            </button>
+            <button
+              onClick={() => setView('code')}
+              className={`px-2 py-0.5 rounded ${
+                view === 'code' ? 'bg-[color:var(--color-border)]' : ''
+              }`}
+            >
+              Code
+            </button>
+          </div>
+          <div className="flex-1 relative">
+            {view === 'preview' ? <PreviewIframe /> : <CodePanel />}
+            {view === 'preview' && <EditPanel />}
+          </div>
         </section>
         <aside
           data-testid="chat-area"

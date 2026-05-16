@@ -1,0 +1,63 @@
+// Curated subset of Tailwind v4 utilities most used by the designer agent + manual edits.
+// Full list would be ~10000 classes; this is the most common ~500.
+
+const sp = ['0', '1', '2', '3', '4', '5', '6', '8', '10', '12', '16', '20', '24', '32'];
+const sides = ['p', 'px', 'py', 'pt', 'pr', 'pb', 'pl', 'm', 'mx', 'my', 'mt', 'mr', 'mb', 'ml'];
+const sizes = ['full', 'screen', 'auto', '1/2', '1/3', '2/3', '1/4', '3/4'];
+const sizeProps = ['w', 'h', 'max-w', 'min-h'];
+const colors = ['gray', 'slate', 'zinc', 'red', 'orange', 'amber', 'yellow', 'green', 'emerald', 'teal', 'sky', 'blue', 'indigo', 'violet', 'purple', 'pink', 'rose'];
+const shades = ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900'];
+
+export const TAILWIND_CLASSES: readonly string[] = [
+  // layout
+  'flex', 'inline-flex', 'grid', 'block', 'inline', 'inline-block', 'hidden', 'contents',
+  'flex-col', 'flex-row', 'flex-wrap', 'flex-1', 'flex-none', 'flex-auto',
+  'items-start', 'items-center', 'items-end', 'items-stretch', 'items-baseline',
+  'justify-start', 'justify-center', 'justify-end', 'justify-between', 'justify-around', 'justify-evenly',
+  'place-items-center', 'place-content-center',
+  'gap-0', 'gap-1', 'gap-2', 'gap-3', 'gap-4', 'gap-5', 'gap-6', 'gap-8', 'gap-10', 'gap-12',
+  'space-x-1', 'space-x-2', 'space-x-3', 'space-x-4', 'space-y-1', 'space-y-2', 'space-y-3', 'space-y-4',
+  // grid
+  'grid-cols-1', 'grid-cols-2', 'grid-cols-3', 'grid-cols-4', 'grid-cols-6', 'grid-cols-12',
+  'col-span-1', 'col-span-2', 'col-span-3', 'col-span-4', 'col-span-full',
+  // spacing
+  ...sides.flatMap((s) => sp.map((v) => `${s}-${v}`)),
+  'mx-auto', 'my-auto',
+  // sizing
+  ...sizeProps.flatMap((p) => sizes.map((v) => `${p}-${v}`)),
+  'min-h-screen', 'h-screen', 'w-full', 'h-full',
+  // typography
+  'text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl', 'text-3xl', 'text-4xl', 'text-5xl', 'text-6xl', 'text-7xl',
+  'font-thin', 'font-light', 'font-normal', 'font-medium', 'font-semibold', 'font-bold', 'font-extrabold', 'font-black',
+  'text-left', 'text-center', 'text-right', 'text-justify',
+  'leading-none', 'leading-tight', 'leading-snug', 'leading-normal', 'leading-relaxed', 'leading-loose',
+  'tracking-tighter', 'tracking-tight', 'tracking-normal', 'tracking-wide', 'tracking-wider',
+  'italic', 'not-italic', 'underline', 'no-underline', 'line-through',
+  'uppercase', 'lowercase', 'capitalize', 'normal-case',
+  // colors
+  'text-black', 'text-white', 'text-transparent',
+  'bg-black', 'bg-white', 'bg-transparent',
+  'border-black', 'border-white', 'border-transparent',
+  ...colors.flatMap((c) => shades.map((s) => `text-${c}-${s}`)),
+  ...colors.flatMap((c) => shades.map((s) => `bg-${c}-${s}`)),
+  ...colors.flatMap((c) => shades.map((s) => `border-${c}-${s}`)),
+  // border / radius
+  'border', 'border-0', 'border-2', 'border-4', 'border-t', 'border-b', 'border-l', 'border-r',
+  'rounded', 'rounded-sm', 'rounded-md', 'rounded-lg', 'rounded-xl', 'rounded-2xl', 'rounded-3xl', 'rounded-full', 'rounded-none',
+  // effects
+  'shadow', 'shadow-sm', 'shadow-md', 'shadow-lg', 'shadow-xl', 'shadow-2xl', 'shadow-inner', 'shadow-none',
+  'opacity-0', 'opacity-25', 'opacity-50', 'opacity-75', 'opacity-100',
+  'blur-sm', 'blur', 'blur-md', 'blur-lg',
+  // misc
+  'cursor-pointer', 'cursor-not-allowed', 'select-none', 'pointer-events-none', 'pointer-events-auto',
+  'overflow-hidden', 'overflow-auto', 'overflow-y-auto', 'overflow-x-auto', 'overflow-visible',
+  'relative', 'absolute', 'fixed', 'sticky',
+  'top-0', 'right-0', 'bottom-0', 'left-0', 'inset-0',
+  'z-0', 'z-10', 'z-20', 'z-50',
+  // transitions
+  'transition', 'transition-all', 'transition-colors', 'transition-opacity', 'transition-transform',
+  'duration-75', 'duration-150', 'duration-300', 'duration-500',
+  'ease-in', 'ease-out', 'ease-in-out',
+  // hover states (a few common ones)
+  'hover:bg-black', 'hover:bg-white', 'hover:opacity-90', 'hover:underline', 'hover:shadow-lg',
+];

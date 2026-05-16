@@ -9,6 +9,7 @@ import {
   findElementById,
   type AstNode,
 } from '@/lib/html/ast';
+import { TAILWIND_CLASSES } from '@/lib/html/tailwind-classes';
 
 function getTextOf(el: AstNode): string {
   const text = el.childNodes?.find((n) => n.nodeName === '#text');
@@ -92,8 +93,14 @@ export function EditPanel() {
       <input
         value={classes}
         onChange={(e) => setClasses(e.target.value)}
+        list="tw-classes"
         className="w-full p-2 text-sm font-mono border border-[color:var(--color-border)] rounded bg-transparent"
       />
+      <datalist id="tw-classes">
+        {TAILWIND_CLASSES.map((c) => (
+          <option key={c} value={c} />
+        ))}
+      </datalist>
       <button
         onClick={save}
         className="mt-2 px-4 py-2 rounded-md bg-[color:var(--color-fg)] text-[color:var(--color-bg)] text-sm"
