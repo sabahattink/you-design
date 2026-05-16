@@ -30,6 +30,8 @@ export interface WorkspaceState {
   // Build-phase critic state (M2.1).
   criticReports: Record<string, CriticReport[]>;
   isCriticRunning: boolean;
+  projectId: string | null;
+  projectName: string;
 }
 
 export interface WorkspaceActions {
@@ -57,6 +59,8 @@ export interface WorkspaceActions {
   ) => void;
   setCriticRunning: (running: boolean) => void;
   clearCriticReports: (pagePath: string) => void;
+  setProjectId: (id: string) => void;
+  setProjectName: (name: string) => void;
 }
 
 const DEFAULT_MODEL: ModelConfig = {
@@ -79,6 +83,8 @@ const INITIAL: WorkspaceState = {
   defaultModelId: DEFAULT_MODEL.id,
   criticReports: {},
   isCriticRunning: false,
+  projectId: null,
+  projectName: '',
 };
 
 function normalizeContract(raw: unknown): IntentContract | null {
@@ -184,6 +190,8 @@ export const useWorkspaceStore = create<WorkspaceState & WorkspaceActions>()(
           return { criticReports: next };
         }),
       setCriticRunning: (isCriticRunning) => set({ isCriticRunning }),
+      setProjectId: (projectId) => set({ projectId }),
+      setProjectName: (projectName) => set({ projectName }),
       clearCriticReports: (pagePath) =>
         set((s) => {
           const next = { ...s.criticReports };
@@ -204,6 +212,8 @@ export const useWorkspaceStore = create<WorkspaceState & WorkspaceActions>()(
         models: state.models,
         defaultModelId: state.defaultModelId,
         criticReports: state.criticReports,
+        projectId: state.projectId,
+        projectName: state.projectName,
       }),
     },
   ),
