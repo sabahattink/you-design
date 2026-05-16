@@ -1,0 +1,43 @@
+# syntax=docker/dockerfile:1.7
+FROM node:22-alpine AS base
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+WORKDIR /app
+
+# -----------------------------------------------------------------------------
+# Dependencies
+# -----------------------------------------------------------------------------
+FROM base AS deps
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* turbo.json tsconfig.base.json ./
+COPY apps/api/package.json ./apps/api/package.json
+COPY packages/shared/package.json ./packages/shared/package.json
+COPY packages/db/package.json ./packages/db/package.json
+COPY packages/llm/package.json ./packages/llm/package.json
+RUN pnpm install --frozen-lockfile=false
+
+# -----------------------------------------------------------------------------
+# Builder
+# -----------------------------------------------------------------------------
+FROM base AS builder
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN pnpm --filter @you-design/api... build
+
+# -----------------------------------------------------------------------------
+# Runner
+# -----------------------------------------------------------------------------
+FROM node:22-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+RUN apk add --no-cache wget && \
+    addgroup -g 1001 -S nodejs && \
+    adduser -S api -u 1001
+
+COPY --from=builder --chown=api:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=api:nodejs /app/packages ./packages
+COPY --from=builder --chown=api:nodejs /app/apps/api/dist ./apps/api/dist
+COPY --from=builder --chown=api:nodejs /app/apps/api/package.json ./apps/api/package.json
+COPY --from=builder --chown=api:nodejs /app/package.json ./package.json
+
+USER api
+EXPOSE 3001
+CMD ["node", "apps/api/dist/server.js"]

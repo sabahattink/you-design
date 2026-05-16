@@ -1,0 +1,49 @@
+{
+  "name": "you-design",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Local-first visual workspace: design once, export everywhere — no lock-in.",
+  "license": "AGPL-3.0-or-later",
+  "author": "sabahattink",
+  "homepage": "https://youdesign.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sabahattink/you-design.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sabahattink/you-design/issues"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "pnpm run format:check && turbo run typecheck",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yaml,yml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yaml,yml}\"",
+    "db:generate": "pnpm --filter @you-design/db generate",
+    "db:migrate": "pnpm --filter @you-design/db migrate",
+    "db:studio": "pnpm --filter @you-design/db studio"
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2"
+  },
+  "prettier": {
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "all",
+    "printWidth": 100,
+    "tabWidth": 2,
+    "useTabs": false,
+    "arrowParens": "always",
+    "endOfLine": "lf"
+  }
+}
