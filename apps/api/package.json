@@ -28,6 +28,7 @@
     "@you-design/shared": "workspace:*",
     "ai": "^6.0.184",
     "bullmq": "^5.34.6",
+    "drizzle-orm": "^0.38.2",
     "fastify": "^5.2.0",
     "fastify-type-provider-zod": "^4.0.2",
     "ioredis": "^5.4.2",
