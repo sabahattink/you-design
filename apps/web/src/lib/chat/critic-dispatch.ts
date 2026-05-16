@@ -5,7 +5,8 @@ import type {
   Severity,
   IssueCategory,
 } from '@you-design/shared';
-import { useWorkspaceStore, selectActiveModel } from '@/lib/workspace/store';
+import { selectModelForTask, estimateCost } from '@you-design/shared';
+import { useWorkspaceStore } from '@/lib/workspace/store';
 import { streamLlm } from '@/lib/llm/client';
 import { criticSystemPrompt, CRITIC_TOOLS } from './critic-agent';
 import { getDomain } from '@/lib/domains';
@@ -40,25 +41,44 @@ export async function runCritic(
 ): Promise<CriticReport | null> {
   const state = useWorkspaceStore.getState();
   if (!state.intentContract) return null;
-  const activeModel = selectActiveModel(state);
+  const activeModel = selectModelForTask('critic', state.models, state.defaultModelId);
   if (!activeModel) return null;
 
   const domain = getDomain(state.intentContract.domain);
 
   let issues: CriticIssue[] = [];
   try {
-    for await (const ev of streamLlm({
-      model: activeModel,
-      system: criticSystemPrompt(state.intentContract, domain, triggeredBy),
-      messages: [
-        {
-          role: 'user',
-          content: `Page path: ${pagePath}\n\nCurrent HTML:\n\n${pageHtml}`,
-        },
-      ],
-      tools: CRITIC_TOOLS,
-      max_tokens: 2048,
-    })) {
+    for await (const ev of streamLlm(
+      {
+        model: activeModel,
+        system: criticSystemPrompt(state.intentContract, domain, triggeredBy),
+        messages: [
+          {
+            role: 'user',
+            content: `Page path: ${pagePath}\n\nCurrent HTML:\n\n${pageHtml}`,
+          },
+        ],
+        tools: CRITIC_TOOLS,
+        max_tokens: 2048,
+      },
+      undefined,
+      (usage) => {
+        const cost = estimateCost(activeModel.modelName, usage.promptTokens, usage.completionTokens);
+        const store = useWorkspaceStore.getState();
+        if (cost !== null) store.appendSessionCost(cost);
+        void fetch('http://localhost:3001/api/v1/usage', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            projectId: store.projectId ?? undefined,
+            agent: 'critic',
+            modelName: activeModel.modelName,
+            promptTokens: usage.promptTokens,
+            completionTokens: usage.completionTokens,
+          }),
+        }).catch(() => {});
+      },
+    )) {
       if (ev.type === 'tool-call') {
         const part = ev.data as {
           input?: { issues?: unknown[] };

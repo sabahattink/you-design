@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { nanoid } from 'nanoid';
-import { useWorkspaceStore, selectActiveModel } from '@/lib/workspace/store';
+import { useWorkspaceStore } from '@/lib/workspace/store';
 import { ChatMessage } from './ChatMessage';
 import { CriticBubble } from './CriticBubble';
 import { Composer } from './Composer';
@@ -10,6 +10,7 @@ import { IntentContractCard } from './IntentContractCard';
 import { streamLlm } from '@/lib/llm/client';
 import { INTENT_SYSTEM_PROMPT, INTENT_TOOLS } from '@/lib/chat/intent-agent';
 import { useDesignerSend } from '@/lib/chat/useDesignerSend';
+import { selectModelForTask, estimateCost } from '@you-design/shared';
 import type { ChatMessage as ChatMessageT } from '@you-design/shared';
 
 function toApiMessages(messages: ChatMessageT[]) {
@@ -47,7 +48,10 @@ export function ChatPanel() {
   const intentMessages = useWorkspaceStore((s) => s.intentMessages);
   const buildMessages = useWorkspaceStore((s) => s.buildMessages);
   const isStreaming = useWorkspaceStore((s) => s.isStreaming);
-  const activeModel = useWorkspaceStore((s) => selectActiveModel(s));
+  const models = useWorkspaceStore((s) => s.models);
+  const defaultModelId = useWorkspaceStore((s) => s.defaultModelId);
+  const appendSessionCost = useWorkspaceStore((s) => s.appendSessionCost);
+  const activeModel = selectModelForTask('intent', models, defaultModelId);
   const appendIntent = useWorkspaceStore((s) => s.appendIntentMessage);
   const setStreaming = useWorkspaceStore((s) => s.setStreaming);
   const setContract = useWorkspaceStore((s) => s.setIntentContract);
@@ -87,6 +91,22 @@ export function ChatPanel() {
     appendIntent(userMsg);
     setStreaming(true);
 
+    const onUsage = (usage: { promptTokens: number; completionTokens: number }) => {
+      const cost = estimateCost(activeModel?.modelName ?? '', usage.promptTokens, usage.completionTokens);
+      if (cost !== null) appendSessionCost(cost);
+      void fetch('http://localhost:3001/api/v1/usage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          projectId: useWorkspaceStore.getState().projectId ?? undefined,
+          agent: 'intent',
+          modelName: activeModel?.modelName ?? '',
+          promptTokens: usage.promptTokens,
+          completionTokens: usage.completionTokens,
+        }),
+      }).catch(() => {});
+    };
+
     let assistantText = '';
     try {
       for await (const ev of streamLlm({
@@ -94,7 +114,7 @@ export function ChatPanel() {
         system: INTENT_SYSTEM_PROMPT,
         messages: toApiMessages([...intentMessages, userMsg]),
         tools: INTENT_TOOLS,
-      })) {
+      }, undefined, onUsage)) {
         if (ev.type === 'text-delta') {
           const t = deltaText(ev.data as TextDeltaPart);
           if (t) assistantText += t;

@@ -2,11 +2,12 @@
 
 import { useCallback } from 'react';
 import { nanoid } from 'nanoid';
-import { useWorkspaceStore, selectActiveModel } from '@/lib/workspace/store';
+import { useWorkspaceStore } from '@/lib/workspace/store';
 import { streamLlm } from '@/lib/llm/client';
 import { designerSystemPrompt, DESIGNER_TOOLS } from './designer-agent';
 import { dispatchDesignerTool } from './designer-dispatch';
 import { searchMemories } from '@/lib/projects/api';
+import { selectModelForTask, estimateCost } from '@you-design/shared';
 import type { ChatMessage } from '@you-design/shared';
 
 function toApiMessages(messages: ChatMessage[]) {
@@ -30,13 +31,16 @@ function toolInput(part: ToolCallPart): Record<string, unknown> {
 export function useDesignerSend(): (text: string) => Promise<void> {
   const buildMessages = useWorkspaceStore((s) => s.buildMessages);
   const contract = useWorkspaceStore((s) => s.intentContract);
-  const activeModel = useWorkspaceStore((s) => selectActiveModel(s));
+  const models = useWorkspaceStore((s) => s.models);
+  const defaultModelId = useWorkspaceStore((s) => s.defaultModelId);
+  const appendSessionCost = useWorkspaceStore((s) => s.appendSessionCost);
   const appendBuild = useWorkspaceStore((s) => s.appendBuildMessage);
   const setStreaming = useWorkspaceStore((s) => s.setStreaming);
   const projectId = useWorkspaceStore((s) => s.projectId);
 
   return useCallback(
     async (text: string): Promise<void> => {
+      const activeModel = selectModelForTask('designer', models, defaultModelId);
       if (!contract || !activeModel) return;
       const userMsg: ChatMessage = {
         id: nanoid(),
@@ -46,6 +50,22 @@ export function useDesignerSend(): (text: string) => Promise<void> {
       };
       appendBuild(userMsg);
       setStreaming(true);
+
+      const onUsage = (usage: { promptTokens: number; completionTokens: number }) => {
+        const cost = estimateCost(activeModel?.modelName ?? '', usage.promptTokens, usage.completionTokens);
+        if (cost !== null) appendSessionCost(cost);
+        void fetch('http://localhost:3001/api/v1/usage', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            projectId: useWorkspaceStore.getState().projectId ?? undefined,
+            agent: 'designer',
+            modelName: activeModel?.modelName ?? '',
+            promptTokens: usage.promptTokens,
+            completionTokens: usage.completionTokens,
+          }),
+        }).catch(() => {});
+      };
 
       let assistantText = '';
       try {
@@ -61,7 +81,7 @@ export function useDesignerSend(): (text: string) => Promise<void> {
           system: designerSystemPrompt(contract, memories),
           messages: toApiMessages([...buildMessages, userMsg]),
           tools: DESIGNER_TOOLS,
-        })) {
+        }, undefined, onUsage)) {
           if (ev.type === 'text-delta') {
             const d = ev.data as { text?: string; textDelta?: string };
             assistantText += d.text ?? d.textDelta ?? '';
@@ -109,6 +129,6 @@ export function useDesignerSend(): (text: string) => Promise<void> {
         setStreaming(false);
       }
     },
-    [contract, activeModel, buildMessages, appendBuild, setStreaming, projectId],
+    [contract, models, defaultModelId, appendSessionCost, buildMessages, appendBuild, setStreaming, projectId],
   );
 }
