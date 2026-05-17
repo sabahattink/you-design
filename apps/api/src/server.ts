@@ -12,6 +12,7 @@ import { projectsRoutes } from './routes/projects.js';
 import { llmRoutes } from './routes/llm.js';
 import { usageRoutes } from './routes/usage.js';
 import { exportsRoutes } from './routes/exports.js';
+import { analyticsRoutes } from './routes/analytics.js';
 import { redis } from './lib/redis.js';
 
 async function buildServer() {
@@ -61,6 +62,7 @@ async function buildServer() {
   await app.register(llmRoutes, { prefix: '/api/v1' });
   await app.register(usageRoutes, { prefix: '/api/v1' });
   await app.register(exportsRoutes, { prefix: '/api/v1' });
+  await app.register(analyticsRoutes, { prefix: '/api/v1' });
 
   return app;
 }
