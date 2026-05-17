@@ -9,6 +9,9 @@ export type IssueCategory = z.infer<typeof IssueCategory>;
 export const IssueStatus = z.enum(['open', 'fixed', 'dismissed']);
 export type IssueStatus = z.infer<typeof IssueStatus>;
 
+export const AgentType = z.enum(['critic', 'copywriter', 'a11y', 'dev']);
+export type AgentType = z.infer<typeof AgentType>;
+
 export const CriticIssue = z.object({
   id: z.string().min(1),
   severity: Severity,
@@ -25,6 +28,7 @@ export const CriticReport = z.object({
   id: z.string().min(1),
   pagePath: z.string(),
   triggeredBy: z.string(),
+  agentType: AgentType.default('critic'),
   issues: z.array(CriticIssue),
   createdAt: z.string().datetime(),
 });
