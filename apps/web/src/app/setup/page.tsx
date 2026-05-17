@@ -1,4 +1,5 @@
 import { ProviderConfig } from '@/components/setup/ProviderConfig';
+import { AnalyticsConfig } from '@/components/setup/AnalyticsConfig';
 
 export const metadata = {
   title: 'Setup',
@@ -14,6 +15,7 @@ export default function SetupPage() {
           your keys never leave this browser and the API server you run.
         </p>
         <ProviderConfig />
+        <AnalyticsConfig />
       </div>
     </main>
   );
