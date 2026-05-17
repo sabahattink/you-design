@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback } from 'react';
 import { useWorkspaceStore } from '@/lib/workspace/store';
-import type { ExportFormat } from '@you-design/shared';
+import type { ExportFormat, MotionExportOptions } from '@you-design/shared';
 import { injectPostHog } from './inject-posthog';
 
 const API_BASE = 'http://localhost:3001/api/v1';
@@ -77,7 +77,7 @@ export function useExport() {
   }, []);
 
   const startExport = useCallback(
-    async (format: ExportFormat) => {
+    async (format: ExportFormat, motionOptions?: MotionExportOptions) => {
       setError(null);
 
       if (format === 'html') {
@@ -94,10 +94,18 @@ export function useExport() {
       startedAt.current = Date.now();
 
       try {
+        const body: { projectId: string; format: ExportFormat; motionOptions?: MotionExportOptions } = {
+          projectId,
+          format,
+        };
+        if (motionOptions) {
+          body.motionOptions = motionOptions;
+        }
+
         const res = await fetch(`${API_BASE}/exports`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ projectId, format }),
+          body: JSON.stringify(body),
         });
         const data = (await res.json()) as { jobId?: string; error?: string };
         if (!data.jobId) {
