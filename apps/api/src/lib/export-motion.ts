@@ -74,11 +74,14 @@ export async function runMotionExport(
   format: 'mp4' | 'gif',
   opts: MotionExportOptions,
 ): Promise<string> {
+  if (!pages.length) throw new Error('At least one page required for motion export');
+
   const [width, height] = RESOLUTION[opts.resolution] ?? [1280, 720];
   const tmpDir = path.join(os.tmpdir(), `motion-${jobId}`);
   fs.mkdirSync(tmpDir, { recursive: true });
 
   const screenshotPaths: string[] = [];
+  // --no-sandbox required in containerized (non-root) environments
   const browser = await chromium.launch({ args: ['--no-sandbox'] });
   const browserPage = await browser.newPage();
   await browserPage.setViewportSize({ width, height });
@@ -99,17 +102,25 @@ export async function runMotionExport(
   fs.mkdirSync(outDir, { recursive: true });
   const mp4Path = path.join(outDir, `${jobId}.mp4`);
 
-  const ffArgs = buildFfmpegArgs(screenshotPaths, mp4Path, opts);
-  await execFileAsync('ffmpeg', ffArgs, { maxBuffer: 50 * 1024 * 1024 });
+  try {
+    const ffArgs = buildFfmpegArgs(screenshotPaths, mp4Path, opts);
+    await execFileAsync('ffmpeg', ffArgs, { maxBuffer: 50 * 1024 * 1024 });
+  } catch (err) {
+    throw new Error(`FFmpeg MP4 encoding failed: ${err instanceof Error ? err.message : String(err)}`);
+  }
 
   if (format === 'gif') {
     const gifPath = path.join(outDir, `${jobId}.gif`);
-    await execFileAsync('ffmpeg', [
-      '-i', mp4Path,
-      '-vf', 'fps=10,scale=960:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse',
-      '-loop', '0',
-      gifPath,
-    ]);
+    try {
+      await execFileAsync('ffmpeg', [
+        '-i', mp4Path,
+        '-vf', 'fps=10,scale=960:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse',
+        '-loop', '0',
+        gifPath,
+      ]);
+    } catch (err) {
+      throw new Error(`FFmpeg GIF conversion failed: ${err instanceof Error ? err.message : String(err)}`);
+    }
     fs.unlinkSync(mp4Path);
     return gifPath;
   }
