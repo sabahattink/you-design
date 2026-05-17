@@ -104,12 +104,15 @@ Detailed milestone plan: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 - **M1** ✅ Workspace + Intent (alpha) — v0.1.0-alpha
 - **multi-provider BYOK** ✅ — v0.2.0-alpha
 - **M2.1** ✅ Build-phase critic + Domain templates — v0.3.0-alpha
-- **M2.2** — Persistent memory + summaries (auth) — 1-2 weeks
-- **M2.3** — Smart router + cost tracking — 1-2 weeks
-- **M3** — Multi-format export (web + PPTX + PDF) — 3 weeks
-- **M4** — Full Multi-Agent Room (copywriter / a11y / dev) — 5 weeks
-- **M5** — Multiplayer + Living Loop — 4 weeks
-- **M6** — Plugins + Native — 4 weeks
+- **M2.2** ✅ Semantic memory (recall on designer requests) — v0.4.0-alpha
+- **M2.3** ✅ Smart router + cost tracking (per-task tier routing, usage logs) — v0.5.0-alpha
+- **M3** ✅ Multi-format export (web + PPTX + PDF) — v0.6.0-alpha
+- **M4** ✅ Multi-Agent Room (designer / copywriter / a11y / dev / critic) — v0.7.0-alpha
+- **M5a** ✅ Living Loop (PostHog analytics → Critic feedback) — v0.8.0-alpha
+- **M6a** ✅ Motion export (MP4/GIF slideshow via Playwright + FFmpeg) — v0.9.0-alpha
+- **M5b** — Multiplayer (Y.js CRDT + Hocuspocus + presence) — 4 weeks
+- **M6b** — Plugins (MCP host runtime + marketplace + sandbox) — 3 weeks
+- **M6c** — Native exporters (iOS) — 2 weeks
 
 ## Contributing
 
