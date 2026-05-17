@@ -9,9 +9,9 @@ import { ChatPanel } from '@/components/chat/ChatPanel';
 import { PageList } from '@/components/sidebar/PageList';
 import { IntentChip } from '@/components/sidebar/IntentChip';
 import { ModelPicker } from '@/components/sidebar/ModelPicker';
-import { CriticBadge } from '@/components/sidebar/CriticBadge';
+import { AgentsBadge } from '@/components/agents/AgentsBadge';
 import { ProjectSwitcher } from '@/components/sidebar/ProjectSwitcher';
-import { CriticDrawer } from '@/components/critic/CriticDrawer';
+import { AgentDrawer } from '@/components/agents/AgentDrawer';
 import { ProjectListModal } from '@/components/projects/ProjectListModal';
 import { useProjectSync } from '@/lib/projects/useProjectSync';
 import { ExportDialog } from '@/components/export/ExportDialog';
@@ -54,7 +54,7 @@ export function WorkspaceLayout() {
           <PageList />
           <div className="flex-1" />
           <IntentChip />
-          <CriticBadge onOpen={() => setCriticOpen(true)} />
+          <AgentsBadge onOpen={() => setCriticOpen(true)} />
           <ModelPicker />
         </aside>
         <section
@@ -82,7 +82,7 @@ export function WorkspaceLayout() {
           <div className="flex-1 relative">
             {view === 'preview' ? <PreviewIframe /> : <CodePanel />}
             {view === 'preview' && <EditPanel />}
-            <CriticDrawer open={criticOpen} onClose={() => setCriticOpen(false)} />
+            <AgentDrawer open={criticOpen} onClose={() => setCriticOpen(false)} />
           </div>
         </section>
         <aside
