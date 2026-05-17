@@ -23,6 +23,9 @@ RUN pnpm install --frozen-lockfile=false
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+# Re-link per-workspace node_modules from the offline store after COPY . .
+# overwrote everything except root node_modules.
+RUN pnpm install --offline --frozen-lockfile=false
 RUN pnpm --filter @you-design/web... build
 
 # -----------------------------------------------------------------------------

@@ -23,6 +23,7 @@ RUN pnpm install --frozen-lockfile=false
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+RUN pnpm install --offline --frozen-lockfile=false
 RUN pnpm --filter @you-design/collab... build
 
 # -----------------------------------------------------------------------------
