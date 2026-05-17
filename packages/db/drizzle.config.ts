@@ -6,6 +6,8 @@ export default {
     './src/schema/projects.ts',
     './src/schema/project-pages.ts',
     './src/schema/project-memories.ts',
+    './src/schema/usage-logs.ts',
+    './src/schema/export-jobs.ts',
   ],
   out: './migrations',
   dialect: 'postgresql',
