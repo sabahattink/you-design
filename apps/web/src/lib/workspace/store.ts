@@ -29,7 +29,7 @@ export interface WorkspaceState {
 
   // Build-phase critic state (M2.1).
   criticReports: Record<string, CriticReport[]>;
-  isCriticRunning: boolean;
+  agentsRunning: Partial<Record<'critic' | 'copywriter' | 'a11y' | 'dev', boolean>>;
   projectId: string | null;
   projectName: string;
   sessionCostUsd: number;
@@ -58,7 +58,7 @@ export interface WorkspaceActions {
     issueId: string,
     status: IssueStatus,
   ) => void;
-  setCriticRunning: (running: boolean) => void;
+  setAgentRunning: (agent: 'critic' | 'copywriter' | 'a11y' | 'dev', running: boolean) => void;
   clearCriticReports: (pagePath: string) => void;
   setProjectId: (id: string) => void;
   setProjectName: (name: string) => void;
@@ -85,7 +85,7 @@ const INITIAL: WorkspaceState = {
   models: [DEFAULT_MODEL],
   defaultModelId: DEFAULT_MODEL.id,
   criticReports: {},
-  isCriticRunning: false,
+  agentsRunning: {},
   projectId: null,
   projectName: '',
   sessionCostUsd: 0,
@@ -193,7 +193,10 @@ export const useWorkspaceStore = create<WorkspaceState & WorkspaceActions>()(
           }
           return { criticReports: next };
         }),
-      setCriticRunning: (isCriticRunning) => set({ isCriticRunning }),
+      setAgentRunning: (agent, running) =>
+        set((s) => ({
+          agentsRunning: { ...s.agentsRunning, [agent]: running },
+        })),
       setProjectId: (projectId) => set({ projectId }),
       setProjectName: (projectName) => set({ projectName }),
       appendSessionCost: (delta) =>
@@ -232,4 +235,8 @@ export function selectActiveModel(state: WorkspaceState): ModelConfig | null {
     state.models[0] ??
     null
   );
+}
+
+export function selectIsCriticRunning(state: WorkspaceState): boolean {
+  return state.agentsRunning['critic'] ?? false;
 }

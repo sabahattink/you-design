@@ -102,6 +102,7 @@ export async function runCritic(
     id: nanoid(),
     pagePath,
     triggeredBy,
+    agentType: 'critic' as const,
     issues,
     createdAt: new Date().toISOString(),
   };
@@ -113,13 +114,13 @@ export async function runAndStoreCritic(
   pageHtml: string,
 ): Promise<void> {
   const store = useWorkspaceStore.getState();
-  store.setCriticRunning(true);
+  store.setAgentRunning('critic', true);
   try {
     const report = await runCritic(triggeredBy, pagePath, pageHtml);
     if (report) {
       store.addCriticReport(report);
     }
   } finally {
-    useWorkspaceStore.getState().setCriticRunning(false);
+    useWorkspaceStore.getState().setAgentRunning('critic', false);
   }
 }

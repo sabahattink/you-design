@@ -18,7 +18,7 @@ const EMPTY_REPORTS: never[] = [];
 export function CriticDrawer({ open, onClose }: Props) {
   const currentPath = useWorkspaceStore((s) => s.currentPath);
   const reports = useWorkspaceStore((s) => s.criticReports[s.currentPath] ?? EMPTY_REPORTS);
-  const isCriticRunning = useWorkspaceStore((s) => s.isCriticRunning);
+  const isCriticRunning = useWorkspaceStore((s) => s.agentsRunning['critic'] ?? false);
   const updateIssueStatus = useWorkspaceStore((s) => s.updateIssueStatus);
   const sendBuild = useDesignerSend();
 

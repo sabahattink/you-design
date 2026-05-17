@@ -18,7 +18,7 @@ const DOT: Record<Severity, string> = {
 
 export function CriticBadge({ onOpen }: Props) {
   const reports = useWorkspaceStore((s) => s.criticReports[s.currentPath] ?? EMPTY_REPORTS);
-  const isCriticRunning = useWorkspaceStore((s) => s.isCriticRunning);
+  const isCriticRunning = useWorkspaceStore((s) => s.agentsRunning['critic'] ?? false);
 
   const openIssues = React.useMemo(
     () => reports.flatMap((r) => r.issues).filter((i) => i.status === 'open'),
