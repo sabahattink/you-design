@@ -7,6 +7,8 @@ import type {
   ModelConfig,
   CriticReport,
   IssueStatus,
+  AnalyticsConfig,
+  AnalyticsSummary,
 } from '@you-design/shared';
 
 export type IntentPhase = 'collecting' | 'contracted' | 'building';
@@ -30,6 +32,8 @@ export interface WorkspaceState {
   // Build-phase critic state (M2.1).
   criticReports: Record<string, CriticReport[]>;
   agentsRunning: Partial<Record<'critic' | 'copywriter' | 'a11y' | 'dev', boolean>>;
+  analyticsConfig: AnalyticsConfig | null;
+  analyticsCache: AnalyticsSummary | null;
   projectId: string | null;
   projectName: string;
   sessionCostUsd: number;
@@ -59,6 +63,8 @@ export interface WorkspaceActions {
     status: IssueStatus,
   ) => void;
   setAgentRunning: (agent: 'critic' | 'copywriter' | 'a11y' | 'dev', running: boolean) => void;
+  setAnalyticsConfig: (config: AnalyticsConfig | null) => void;
+  setAnalyticsCache: (data: AnalyticsSummary | null) => void;
   clearCriticReports: (pagePath: string) => void;
   setProjectId: (id: string) => void;
   setProjectName: (name: string) => void;
@@ -86,6 +92,8 @@ const INITIAL: WorkspaceState = {
   defaultModelId: DEFAULT_MODEL.id,
   criticReports: {},
   agentsRunning: {},
+  analyticsConfig: null,
+  analyticsCache: null,
   projectId: null,
   projectName: '',
   sessionCostUsd: 0,
@@ -197,6 +205,8 @@ export const useWorkspaceStore = create<WorkspaceState & WorkspaceActions>()(
         set((s) => ({
           agentsRunning: { ...s.agentsRunning, [agent]: running },
         })),
+      setAnalyticsConfig: (analyticsConfig) => set({ analyticsConfig }),
+      setAnalyticsCache: (analyticsCache) => set({ analyticsCache }),
       setProjectId: (projectId) => set({ projectId }),
       setProjectName: (projectName) => set({ projectName }),
       appendSessionCost: (delta) =>
@@ -221,6 +231,7 @@ export const useWorkspaceStore = create<WorkspaceState & WorkspaceActions>()(
         models: state.models,
         defaultModelId: state.defaultModelId,
         criticReports: state.criticReports,
+        analyticsConfig: state.analyticsConfig,
         projectId: state.projectId,
         projectName: state.projectName,
       }),
