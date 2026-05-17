@@ -34,6 +34,23 @@ export function normalizeIssue(raw: unknown): CriticIssue {
   };
 }
 
+function buildAnalyticsContext(
+  cache: import('@you-design/shared').AnalyticsSummary | null,
+  pagePath: string,
+): string | undefined {
+  if (!cache) return undefined;
+  const page = cache.pages.find((p) => p.path === pagePath);
+  if (!page) {
+    return `Analytics available (${cache.totalViews.toLocaleString()} total views in ${cache.period}) but no data for this specific page yet.`;
+  }
+  return (
+    `Analytics (${cache.period}): ${page.views.toLocaleString()} pageviews on "${pagePath}".` +
+    (page.ctr > 0
+      ? ` CTA click rate: ${(page.ctr * 100).toFixed(1)}%.`
+      : ' No click tracking configured.')
+  );
+}
+
 export async function runCritic(
   triggeredBy: string,
   pagePath: string,
@@ -45,13 +62,14 @@ export async function runCritic(
   if (!activeModel) return null;
 
   const domain = getDomain(state.intentContract.domain);
+  const analyticsContext = buildAnalyticsContext(state.analyticsCache, pagePath);
 
   let issues: CriticIssue[] = [];
   try {
     for await (const ev of streamLlm(
       {
         model: activeModel,
-        system: criticSystemPrompt(state.intentContract, domain, triggeredBy),
+        system: criticSystemPrompt(state.intentContract, domain, triggeredBy, analyticsContext),
         messages: [
           {
             role: 'user',

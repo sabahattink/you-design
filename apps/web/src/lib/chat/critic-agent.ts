@@ -5,6 +5,7 @@ export function criticSystemPrompt(
   contract: IntentContract,
   domain: DomainTemplate,
   triggeredBy: string,
+  analyticsContext?: string,
 ): string {
   return `You are the Honest Critic for You Design.
 
@@ -39,7 +40,7 @@ Call \`report_issues\` ONCE with all issues you find. Use:
 - category: 'intent' | 'a11y' | 'domain' | 'copy' | 'craft'
 - message: one sentence, no fluff, no emojis, no apologies
 - elementId: include the offending element's data-yd-id if you can pinpoint one
-- suggestion: a concrete fix in one sentence, optional but preferred`;
+- suggestion: a concrete fix in one sentence, optional but preferred${analyticsContext ? `\n\nREAL USER DATA (use this to make data-informed suggestions):\n${analyticsContext}` : ''}`;
 }
 
 export const CRITIC_TOOLS = [
