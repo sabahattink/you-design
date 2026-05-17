@@ -24,12 +24,15 @@ jobs:
       contents: read
       packages: write
     strategy:
+      fail-fast: false
       matrix:
         include:
           - image: web
             dockerfile: docker/Dockerfile.web
           - image: api
             dockerfile: docker/Dockerfile.api
+          - image: collab
+            dockerfile: docker/Dockerfile.collab
     steps:
       - uses: actions/checkout@v4
 
