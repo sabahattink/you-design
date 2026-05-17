@@ -96,6 +96,9 @@ importers:
       '@types/node':
         specifier: ^22.10.2
         version: 22.19.19
+      dotenv-cli:
+        specifier: ^8.0.0
+        version: 8.0.0
       tsx:
         specifier: ^4.19.2
         version: 4.22.0
@@ -136,6 +139,9 @@ importers:
       '@types/node':
         specifier: ^22.10.2
         version: 22.19.19
+      dotenv-cli:
+        specifier: ^8.0.0
+        version: 8.0.0
       tsx:
         specifier: ^4.19.2
         version: 4.22.0
