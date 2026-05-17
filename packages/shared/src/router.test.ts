@@ -3,16 +3,25 @@ import { selectModelForTask } from './router.js';
 import type { ModelConfig } from './providers.js';
 
 const fast: ModelConfig = {
-  id: 'f1', label: 'Haiku', provider: 'anthropic',
-  modelName: 'claude-haiku-4-5', tier: 'fast',
+  id: 'f1',
+  label: 'Haiku',
+  provider: 'anthropic',
+  modelName: 'claude-haiku-4-5',
+  tier: 'fast',
 };
 const standard: ModelConfig = {
-  id: 's1', label: 'Sonnet', provider: 'anthropic',
-  modelName: 'claude-sonnet-4-5', tier: 'standard',
+  id: 's1',
+  label: 'Sonnet',
+  provider: 'anthropic',
+  modelName: 'claude-sonnet-4-5',
+  tier: 'standard',
 };
 const best: ModelConfig = {
-  id: 'b1', label: 'Opus', provider: 'anthropic',
-  modelName: 'claude-opus-4-7', tier: 'best',
+  id: 'b1',
+  label: 'Opus',
+  provider: 'anthropic',
+  modelName: 'claude-opus-4-7',
+  tier: 'best',
 };
 
 describe('selectModelForTask', () => {

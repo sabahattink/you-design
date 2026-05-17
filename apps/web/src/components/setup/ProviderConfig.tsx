@@ -119,17 +119,11 @@ export function ProviderConfig() {
                 </div>
                 <div className="flex flex-col gap-1 text-xs">
                   {!isDefault && (
-                    <button
-                      onClick={() => setDefaultModel(m.id)}
-                      className="hover:underline"
-                    >
+                    <button onClick={() => setDefaultModel(m.id)} className="hover:underline">
                       Activate
                     </button>
                   )}
-                  <button
-                    onClick={() => startEdit(m)}
-                    className="hover:underline"
-                  >
+                  <button onClick={() => startEdit(m)} className="hover:underline">
                     Edit
                   </button>
                   <button
@@ -148,9 +142,7 @@ export function ProviderConfig() {
       </section>
 
       <section>
-        <h2 className="text-lg font-semibold mb-3">
-          {editingId ? 'Edit model' : 'Add a model'}
-        </h2>
+        <h2 className="text-lg font-semibold mb-3">{editingId ? 'Edit model' : 'Add a model'}</h2>
         <form onSubmit={save} className="space-y-3">
           <Field label="Display label">
             <input
@@ -253,9 +245,8 @@ export function ProviderConfig() {
       </section>
 
       <p className="text-xs text-[color:var(--color-muted)]">
-        Keys are stored only in this browser&apos;s localStorage and sent per request to the
-        local API. They are never written to the server unless you explicitly add them
-        as env vars.
+        Keys are stored only in this browser&apos;s localStorage and sent per request to the local
+        API. They are never written to the server unless you explicitly add them as env vars.
       </p>
 
       <style jsx>{`
@@ -287,9 +278,7 @@ function Field({
         {label}
       </div>
       {children}
-      {hint && (
-        <div className="text-xs text-[color:var(--color-muted)] mt-1">{hint}</div>
-      )}
+      {hint && <div className="text-xs text-[color:var(--color-muted)] mt-1">{hint}</div>}
     </label>
   );
 }

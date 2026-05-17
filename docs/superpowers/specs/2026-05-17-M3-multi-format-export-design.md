@@ -34,9 +34,9 @@ export const exportJobs = pgTable('export_jobs', {
   projectId: uuid('project_id')
     .notNull()
     .references(() => projects.id, { onDelete: 'cascade' }),
-  format: text('format').notNull(),          // 'html' | 'pdf' | 'pptx'
+  format: text('format').notNull(), // 'html' | 'pdf' | 'pptx'
   status: text('status').notNull().default('pending'), // 'pending' | 'processing' | 'done' | 'failed'
-  filePath: text('file_path'),               // absolute path on server when done
+  filePath: text('file_path'), // absolute path on server when done
   errorMsg: text('error_msg'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
@@ -186,7 +186,10 @@ export async function runPptxExport(jobId: string, pages: Page[]): Promise<strin
     const slide = prs.addSlide();
     slide.addImage({
       data: `data:image/png;base64,${screenshot.toString('base64')}`,
-      x: 0, y: 0, w: '100%', h: '100%',
+      x: 0,
+      y: 0,
+      w: '100%',
+      h: '100%',
     });
   }
 
@@ -231,6 +234,7 @@ api:
 ### Export button (`apps/web/src/components/workspace/WorkspaceLayout.tsx`)
 
 Add an "Export" button to the header:
+
 ```tsx
 <button onClick={() => setExportOpen(true)} className="...">
   Export
@@ -253,18 +257,22 @@ Add an "Export" button to the header:
 ```
 
 **HTML export logic (client-side):**
+
 ```typescript
 function exportHtml(pages: Page[]): void {
   const combined = pages.map((p) => `<!-- ${p.path} -->\n${p.html}`).join('\n\n');
   const blob = new Blob([combined], { type: 'text/html' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = 'export.html'; a.click();
+  a.href = url;
+  a.download = 'export.html';
+  a.click();
   URL.revokeObjectURL(url);
 }
 ```
 
 **PDF/PPTX export logic:**
+
 1. `POST /api/v1/exports` with `{ projectId, format, pages }`
 2. Receive `{ jobId }`
 3. Poll `GET /api/v1/exports/:jobId` every 2000ms
@@ -278,47 +286,47 @@ export function useExport(): {
   startExport: (format: ExportFormat) => Promise<void>;
   status: 'idle' | 'pending' | 'processing' | 'done' | 'failed';
   error: string | null;
-}
+};
 ```
 
 ---
 
 ## 7. New Dependencies
 
-| Package | Where | Purpose |
-|---------|-------|---------|
-| `playwright` | apps/api | Headless browser for PDF + PPTX screenshots |
-| `pdf-lib` | apps/api | Merge PDF pages from multiple Playwright renders |
-| `pptxgenjs` | apps/api | Generate PPTX slides from PNG screenshots |
+| Package      | Where    | Purpose                                          |
+| ------------ | -------- | ------------------------------------------------ |
+| `playwright` | apps/api | Headless browser for PDF + PPTX screenshots      |
+| `pdf-lib`    | apps/api | Merge PDF pages from multiple Playwright renders |
+| `pptxgenjs`  | apps/api | Generate PPTX slides from PNG screenshots        |
 
 ---
 
 ## 8. Error Handling
 
-| Failure | Behaviour |
-|---------|-----------|
-| Playwright launch fails | Job fails, errorMsg set, UI shows "Export failed" |
-| Page render timeout (>30s) | Abort, fail job |
-| Export file missing at download | 404 returned, UI shows error |
-| Poll timeout (>5 min) | Stop polling, show "Export timed out" |
+| Failure                         | Behaviour                                         |
+| ------------------------------- | ------------------------------------------------- |
+| Playwright launch fails         | Job fails, errorMsg set, UI shows "Export failed" |
+| Page render timeout (>30s)      | Abort, fail job                                   |
+| Export file missing at download | 404 returned, UI shows error                      |
+| Poll timeout (>5 min)           | Stop polling, show "Export timed out"             |
 
 ---
 
 ## 9. File Map
 
-| Action | File |
-|--------|------|
-| Create | `packages/db/src/schema/export-jobs.ts` |
-| Modify | `packages/db/src/schema/index.ts` |
-| Create | `packages/db/migrations/0002_export_jobs.sql` |
-| Create | `packages/shared/src/exports.ts` |
-| Modify | `packages/shared/src/index.ts` |
-| Create | `apps/api/src/routes/exports.ts` |
-| Modify | `apps/api/src/server.ts` |
-| Modify | `apps/api/src/worker.ts` |
-| Create | `apps/api/src/lib/export-pdf.ts` |
-| Create | `apps/api/src/lib/export-pptx.ts` |
-| Modify | `apps/api/Dockerfile` (if exists) or create |
-| Create | `apps/web/src/components/export/ExportDialog.tsx` |
-| Create | `apps/web/src/lib/export/useExport.ts` |
+| Action | File                                                    |
+| ------ | ------------------------------------------------------- |
+| Create | `packages/db/src/schema/export-jobs.ts`                 |
+| Modify | `packages/db/src/schema/index.ts`                       |
+| Create | `packages/db/migrations/0002_export_jobs.sql`           |
+| Create | `packages/shared/src/exports.ts`                        |
+| Modify | `packages/shared/src/index.ts`                          |
+| Create | `apps/api/src/routes/exports.ts`                        |
+| Modify | `apps/api/src/server.ts`                                |
+| Modify | `apps/api/src/worker.ts`                                |
+| Create | `apps/api/src/lib/export-pdf.ts`                        |
+| Create | `apps/api/src/lib/export-pptx.ts`                       |
+| Modify | `apps/api/Dockerfile` (if exists) or create             |
+| Create | `apps/web/src/components/export/ExportDialog.tsx`       |
+| Create | `apps/web/src/lib/export/useExport.ts`                  |
 | Modify | `apps/web/src/components/workspace/WorkspaceLayout.tsx` |

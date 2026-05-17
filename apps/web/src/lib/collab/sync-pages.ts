@@ -19,9 +19,7 @@ function readPageFromY(yPage: Y.Map<unknown>): Page {
   };
 }
 
-function snapshotPages(
-  yPages: Y.Map<Y.Map<unknown>>,
-): Record<string, Page> {
+function snapshotPages(yPages: Y.Map<Y.Map<unknown>>): Record<string, Page> {
   const out: Record<string, Page> = {};
   yPages.forEach((yPage, path) => {
     out[path] = readPageFromY(yPage);
@@ -42,10 +40,7 @@ function buildYPage(page: Page): Y.Map<unknown> {
   return yPage;
 }
 
-function applyPagesToY(
-  yPages: Y.Map<Y.Map<unknown>>,
-  pages: Record<string, Page>,
-): void {
+function applyPagesToY(yPages: Y.Map<Y.Map<unknown>>, pages: Record<string, Page>): void {
   // Add or update
   for (const [path, page] of Object.entries(pages)) {
     const existing = yPages.get(path);
@@ -85,10 +80,7 @@ function applyPagesToY(
   }
 }
 
-export function bindPagesSync(
-  doc: Y.Doc,
-  store: WorkspaceStore,
-): () => void {
+export function bindPagesSync(doc: Y.Doc, store: WorkspaceStore): () => void {
   const yPages = doc.getMap<Y.Map<unknown>>('pages');
   const yMeta = doc.getMap<unknown>('meta');
 
@@ -96,17 +88,12 @@ export function bindPagesSync(
     const snapshot = snapshotPages(yPages);
     const metaPath = yMeta.get('currentPath');
     const currentPath =
-      typeof metaPath === 'string' && metaPath.length > 0
-        ? metaPath
-        : store.getState().currentPath;
+      typeof metaPath === 'string' && metaPath.length > 0 ? metaPath : store.getState().currentPath;
     store.getState().__hydratePagesFromY(snapshot, currentPath);
   };
 
   // Y.Doc -> store
-  const onDeep = (
-    _events: Array<Y.YEvent<Y.AbstractType<unknown>>>,
-    txn: Y.Transaction,
-  ) => {
+  const onDeep = (_events: Array<Y.YEvent<Y.AbstractType<unknown>>>, txn: Y.Transaction) => {
     if (txn.origin === STORE_ORIGIN) return;
     hydrateStore();
   };

@@ -51,9 +51,7 @@ describe('workspace store — actions', () => {
 
   it('updates current page html', () => {
     useWorkspaceStore.getState().upsertPage(makePage());
-    useWorkspaceStore
-      .getState()
-      .updateCurrentPageHtml('<html><body><h1>New</h1></body></html>');
+    useWorkspaceStore.getState().updateCurrentPageHtml('<html><body><h1>New</h1></body></html>');
     const page = useWorkspaceStore.getState().pages['/'];
     expect(page).toBeDefined();
     expect(page?.html).toContain('New');

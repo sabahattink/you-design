@@ -77,9 +77,7 @@ export function updateElement(doc: HtmlDoc, id: string, patch: ElementPatch): vo
   const el = findElementById(doc, id);
   if (!el) return;
   if (patch.text !== undefined) {
-    el.childNodes = [
-      { nodeName: '#text', value: patch.text, parentNode: el },
-    ];
+    el.childNodes = [{ nodeName: '#text', value: patch.text, parentNode: el }];
   }
   if (patch.classes !== undefined) {
     setAttr(el, 'class', patch.classes.join(' '));

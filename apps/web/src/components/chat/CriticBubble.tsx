@@ -25,9 +25,7 @@ export function CriticBubble(props: Props) {
     const cls = SEVERITY_COLOR[props.issue.severity];
     return (
       <div className={`border-l-2 pl-3 py-1 text-xs ${cls}`}>
-        <span className="font-semibold uppercase tracking-wider mr-2">
-          {props.issue.severity}
-        </span>
+        <span className="font-semibold uppercase tracking-wider mr-2">{props.issue.severity}</span>
         <span className="text-[color:var(--color-muted)]">[{props.issue.category}]</span>{' '}
         <span className="text-[color:var(--color-fg)]">{props.issue.message}</span>
       </div>
@@ -35,9 +33,7 @@ export function CriticBubble(props: Props) {
   }
   return (
     <div className="border-l-2 border-orange-500 pl-3 py-1 text-xs text-[color:var(--color-muted)]">
-      <span className="font-semibold text-orange-500 uppercase tracking-wider mr-2">
-        Critic
-      </span>
+      <span className="font-semibold text-orange-500 uppercase tracking-wider mr-2">Critic</span>
       {props.reason}
     </div>
   );

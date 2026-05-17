@@ -12,17 +12,17 @@ Existing AI design/code tools are "output generators, sycophantic, intent-less."
 
 ## 9 Subsystems
 
-| # | Subsystem | Responsibility | Milestone |
-|---|-----------|----------------|-----------|
-| 1 | **Workspace Core** | Canvas + code editor + bidirectional sync + file tree | M1 |
-| 2 | **LLM Brain** | Multi-LLM smart router + streaming chat + agent tools + pgvector memory + BYOK | M1 (minimal) → M2 (full) |
-| 3 | **Multi-Format Pipeline** | Web + PPTX + PDF + MP4/GIF + iOS exporters + Vercel deploy + npm extraction | M3 (web/PPTX/PDF) → M6 (motion/iOS) |
-| 4 | **Multiplayer** | Y.js CRDT + Hocuspocus + cursor presence + permissions | M5 |
-| 5 | **MCP Plugin Ecosystem** | MCP host runtime + marketplace UI + sandbox | M6 |
-| 6 | **Self-Host Distribution** | Docker compose + env validation + admin UI + onboarding | M0 (skeleton) → M2 (BYOK UI) |
-| 7 | **Intent Engine + Critic** | Intent quiz + brief guardrail + domain templates + honest critic agent | M1 (minimal) → M2 (full) |
-| 8 | **Multi-Agent Room** | 5 specialized agents (designer/copy/a11y/dev/critic) + canvas annotations + arbitration | M4 |
-| 9 | **Living Loop** | Analytics integration + design git (branch/merge directions) + feedback synthesis | M5 |
+| #   | Subsystem                  | Responsibility                                                                          | Milestone                           |
+| --- | -------------------------- | --------------------------------------------------------------------------------------- | ----------------------------------- |
+| 1   | **Workspace Core**         | Canvas + code editor + bidirectional sync + file tree                                   | M1                                  |
+| 2   | **LLM Brain**              | Multi-LLM smart router + streaming chat + agent tools + pgvector memory + BYOK          | M1 (minimal) → M2 (full)            |
+| 3   | **Multi-Format Pipeline**  | Web + PPTX + PDF + MP4/GIF + iOS exporters + Vercel deploy + npm extraction             | M3 (web/PPTX/PDF) → M6 (motion/iOS) |
+| 4   | **Multiplayer**            | Y.js CRDT + Hocuspocus + cursor presence + permissions                                  | M5                                  |
+| 5   | **MCP Plugin Ecosystem**   | MCP host runtime + marketplace UI + sandbox                                             | M6                                  |
+| 6   | **Self-Host Distribution** | Docker compose + env validation + admin UI + onboarding                                 | M0 (skeleton) → M2 (BYOK UI)        |
+| 7   | **Intent Engine + Critic** | Intent quiz + brief guardrail + domain templates + honest critic agent                  | M1 (minimal) → M2 (full)            |
+| 8   | **Multi-Agent Room**       | 5 specialized agents (designer/copy/a11y/dev/critic) + canvas annotations + arbitration | M4                                  |
+| 9   | **Living Loop**            | Analytics integration + design git (branch/merge directions) + feedback synthesis       | M5                                  |
 
 ## Data Flow (high level)
 
@@ -80,26 +80,26 @@ you-design/
 
 ## Multi-LLM Routing (Subsystem 2, M2)
 
-| Task type | Default model | Why |
-|-----------|--------------|-----|
-| Judgment / honest critic | Claude Opus 4.7 | deepest reasoning |
-| Main generation | Claude Sonnet 4.6 | best coding model |
-| Fast edits, autocomplete | Claude Haiku 4.5 | 3x cheaper, ~90% capability |
-| Vision (canvas screenshot analysis) | Gemini 2.0 Flash | cheapest vision |
-| Embeddings (memory) | text-embedding-3-large | pgvector compatible dims |
+| Task type                           | Default model          | Why                         |
+| ----------------------------------- | ---------------------- | --------------------------- |
+| Judgment / honest critic            | Claude Opus 4.7        | deepest reasoning           |
+| Main generation                     | Claude Sonnet 4.6      | best coding model           |
+| Fast edits, autocomplete            | Claude Haiku 4.5       | 3x cheaper, ~90% capability |
+| Vision (canvas screenshot analysis) | Gemini 2.0 Flash       | cheapest vision             |
+| Embeddings (memory)                 | text-embedding-3-large | pgvector compatible dims    |
 
 ## Multiplayer (Subsystem 4, M5b)
 
 `apps/collab` is a standalone Node service hosting a Hocuspocus WebSocket server on **port 3002**. It is separated from `apps/api` because long-lived WebSocket connections have a different scaling profile than the stateless REST/SSE API.
 
-| Concern | Choice |
-|---------|--------|
-| CRDT | `yjs` ^13 |
-| Sync server | `@hocuspocus/server` ^2 with `@hocuspocus/extension-database` (Postgres) |
-| Client | `@hocuspocus/provider` ^2 with `y-indexeddb` for offline-first |
-| Presence | `y-protocols/awareness` (bundled with `yjs`) |
-| HTML representation | `Y.Text` per page so concurrent edits CRDT-merge |
-| Auth | None — anyone with the project ID can join (alpha; real auth in M5c) |
+| Concern             | Choice                                                                   |
+| ------------------- | ------------------------------------------------------------------------ |
+| CRDT                | `yjs` ^13                                                                |
+| Sync server         | `@hocuspocus/server` ^2 with `@hocuspocus/extension-database` (Postgres) |
+| Client              | `@hocuspocus/provider` ^2 with `y-indexeddb` for offline-first           |
+| Presence            | `y-protocols/awareness` (bundled with `yjs`)                             |
+| HTML representation | `Y.Text` per page so concurrent edits CRDT-merge                         |
+| Auth                | None — anyone with the project ID can join (alpha; real auth in M5c)     |
 
 ### Y.Doc shape
 
@@ -116,13 +116,13 @@ yDoc
 
 ### Service port map
 
-| Service | Port |
-|---------|------|
-| web (Next.js) | 3000 |
-| api (Fastify) | 3001 |
+| Service             | Port |
+| ------------------- | ---- |
+| web (Next.js)       | 3000 |
+| api (Fastify)       | 3001 |
 | collab (Hocuspocus) | 3002 |
-| postgres | 5432 |
-| redis | 6379 |
+| postgres            | 5432 |
+| redis               | 6379 |
 
 ### Persistence
 

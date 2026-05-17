@@ -114,9 +114,7 @@ export function WorkspaceLayout() {
         </aside>
       </div>
 
-      {showProjectModal && (
-        <ProjectListModal onDismiss={() => setShowProjectModal(false)} />
-      )}
+      {showProjectModal && <ProjectListModal onDismiss={() => setShowProjectModal(false)} />}
       {exportOpen && <ExportDialog onClose={() => setExportOpen(false)} />}
       <ShareDialog open={shareOpen} onClose={() => setShareOpen(false)} />
     </div>

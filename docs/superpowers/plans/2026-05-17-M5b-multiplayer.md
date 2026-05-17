@@ -12,46 +12,47 @@
 
 ## File Map
 
-| Action | File |
-|--------|------|
-| Create | `apps/collab/package.json` |
-| Create | `apps/collab/tsconfig.json` |
-| Create | `apps/collab/tsconfig.build.json` |
-| Create | `apps/collab/Dockerfile` |
-| Create | `apps/collab/.env.example` |
-| Create | `apps/collab/src/server.ts` |
-| Create | `apps/collab/src/extensions/postgres.ts` |
-| Create | `apps/collab/src/extensions/logger.ts` |
-| Create | `apps/collab/src/auth.ts` |
-| Create | `packages/db/src/schema/project-collab-docs.ts` |
-| Modify | `packages/db/src/schema/index.ts` |
-| Modify | `packages/db/drizzle.config.ts` |
-| Create | `packages/db/migrations/0003_project_collab_docs.sql` |
-| Modify | `apps/web/package.json` |
-| Create | `apps/web/src/lib/collab/identity.ts` |
-| Create | `apps/web/src/lib/collab/y-doc.ts` |
-| Create | `apps/web/src/lib/collab/provider.ts` |
-| Create | `apps/web/src/lib/collab/sync-pages.ts` |
-| Create | `apps/web/src/lib/collab/awareness.ts` |
-| Create | `apps/web/src/lib/collab/use-collab-sync.ts` |
-| Modify | `apps/web/src/lib/workspace/store.ts` |
-| Create | `apps/web/src/components/canvas/RemoteCursors.tsx` |
-| Create | `apps/web/src/components/workspace/LiveStatusPill.tsx` |
-| Create | `apps/web/src/components/workspace/ShareDialog.tsx` |
+| Action | File                                                    |
+| ------ | ------------------------------------------------------- |
+| Create | `apps/collab/package.json`                              |
+| Create | `apps/collab/tsconfig.json`                             |
+| Create | `apps/collab/tsconfig.build.json`                       |
+| Create | `apps/collab/Dockerfile`                                |
+| Create | `apps/collab/.env.example`                              |
+| Create | `apps/collab/src/server.ts`                             |
+| Create | `apps/collab/src/extensions/postgres.ts`                |
+| Create | `apps/collab/src/extensions/logger.ts`                  |
+| Create | `apps/collab/src/auth.ts`                               |
+| Create | `packages/db/src/schema/project-collab-docs.ts`         |
+| Modify | `packages/db/src/schema/index.ts`                       |
+| Modify | `packages/db/drizzle.config.ts`                         |
+| Create | `packages/db/migrations/0003_project_collab_docs.sql`   |
+| Modify | `apps/web/package.json`                                 |
+| Create | `apps/web/src/lib/collab/identity.ts`                   |
+| Create | `apps/web/src/lib/collab/y-doc.ts`                      |
+| Create | `apps/web/src/lib/collab/provider.ts`                   |
+| Create | `apps/web/src/lib/collab/sync-pages.ts`                 |
+| Create | `apps/web/src/lib/collab/awareness.ts`                  |
+| Create | `apps/web/src/lib/collab/use-collab-sync.ts`            |
+| Modify | `apps/web/src/lib/workspace/store.ts`                   |
+| Create | `apps/web/src/components/canvas/RemoteCursors.tsx`      |
+| Create | `apps/web/src/components/workspace/LiveStatusPill.tsx`  |
+| Create | `apps/web/src/components/workspace/ShareDialog.tsx`     |
 | Modify | `apps/web/src/components/workspace/WorkspaceLayout.tsx` |
-| Modify | `apps/web/src/components/canvas/PreviewIframe.tsx` |
-| Modify | `apps/web/.env.example` |
-| Modify | `docker-compose.yml` |
-| Modify | `docs/ARCHITECTURE.md` |
-| Modify | `README.md` |
-| Modify | `turbo.json` |
-| Modify | `package.json` |
+| Modify | `apps/web/src/components/canvas/PreviewIframe.tsx`      |
+| Modify | `apps/web/.env.example`                                 |
+| Modify | `docker-compose.yml`                                    |
+| Modify | `docs/ARCHITECTURE.md`                                  |
+| Modify | `README.md`                                             |
+| Modify | `turbo.json`                                            |
+| Modify | `package.json`                                          |
 
 ---
 
 ## Task 1: DB — project_collab_docs schema + migration
 
 **Files:**
+
 - Create: `packages/db/src/schema/project-collab-docs.ts`
 - Modify: `packages/db/src/schema/index.ts`
 - Modify: `packages/db/drizzle.config.ts`
@@ -109,6 +110,7 @@ git commit -m "feat(db): project_collab_docs schema + migration 0003"
 ## Task 2: apps/collab scaffold (Hocuspocus server)
 
 **Files:**
+
 - Create: `apps/collab/package.json`
 - Create: `apps/collab/tsconfig.json`
 - Create: `apps/collab/tsconfig.build.json`
@@ -267,12 +269,14 @@ git commit -m "feat(collab): Hocuspocus WebSocket server backed by Postgres"
 ## Task 3: Workspace — collab deps + identity helper
 
 **Files:**
+
 - Modify: `apps/web/package.json`
 - Create: `apps/web/src/lib/collab/identity.ts`
 
 - [ ] **Step 1: Add deps to `apps/web/package.json`**
 
 Under `dependencies`:
+
 ```json
 "@hocuspocus/provider": "^2.13.5",
 "yjs": "^13.6.18",
@@ -286,8 +290,18 @@ Under `dependencies`:
 const STORAGE_KEY = 'you-design.collab.identity.v1';
 
 const COLORS = [
-  '#e11d48', '#f97316', '#eab308', '#22c55e', '#14b8a6', '#0ea5e9',
-  '#6366f1', '#8b5cf6', '#d946ef', '#ec4899', '#64748b', '#84cc16',
+  '#e11d48',
+  '#f97316',
+  '#eab308',
+  '#22c55e',
+  '#14b8a6',
+  '#0ea5e9',
+  '#6366f1',
+  '#8b5cf6',
+  '#d946ef',
+  '#ec4899',
+  '#64748b',
+  '#84cc16',
 ] as const;
 
 export interface Identity {
@@ -340,6 +354,7 @@ git commit -m "feat(web): collab deps (yjs, hocuspocus, y-indexeddb) + identity 
 ## Task 4: Y.Doc singleton + provider
 
 **Files:**
+
 - Create: `apps/web/src/lib/collab/y-doc.ts`
 - Create: `apps/web/src/lib/collab/provider.ts`
 
@@ -356,8 +371,7 @@ export interface ProviderBundle {
   persistence: IndexeddbPersistence;
 }
 
-const COLLAB_URL =
-  process.env.NEXT_PUBLIC_COLLAB_URL ?? 'ws://localhost:3002';
+const COLLAB_URL = process.env.NEXT_PUBLIC_COLLAB_URL ?? 'ws://localhost:3002';
 
 export function createProvider(projectId: string): ProviderBundle {
   const doc = new Y.Doc();
@@ -429,18 +443,21 @@ git commit -m "feat(web): HocuspocusProvider + Y.Doc singleton with IndexedDB pe
 ## Task 5: sync-pages — Zustand ↔ Y.Doc mirror
 
 **Files:**
+
 - Modify: `apps/web/src/lib/workspace/store.ts`
 - Create: `apps/web/src/lib/collab/sync-pages.ts`
 
 - [ ] **Step 1: Extend store — read `store.ts` first, then add**
 
 To `WorkspaceState`:
+
 ```typescript
 collabStatus: 'idle' | 'connecting' | 'connected' | 'offline';
 remoteCursors: Record<string, RemoteCursor>;
 ```
 
 To `WorkspaceActions`:
+
 ```typescript
 __hydratePagesFromY: (next: Record<string, Page>, currentPath: string) => void;
 setCollabStatus: (s: WorkspaceState['collabStatus']) => void;
@@ -450,6 +467,7 @@ setRemoteCursors: (next: Record<string, RemoteCursor>) => void;
 Define `RemoteCursor` in a new local type or import from `./collab/awareness.ts` once Task 6 lands. For Task 5, stub it as `interface RemoteCursor { id: string; displayName: string; color: string; }`.
 
 Implementation of `__hydratePagesFromY`:
+
 ```typescript
 __hydratePagesFromY: (next, currentPath) =>
   set((state) => {
@@ -502,10 +520,7 @@ function snapshotPages(yPages: Y.Map<Y.Map<unknown>>): Record<string, Page> {
   return out;
 }
 
-function writeLocalPagesToY(
-  yPages: Y.Map<Y.Map<unknown>>,
-  pages: Record<string, Page>,
-): void {
+function writeLocalPagesToY(yPages: Y.Map<Y.Map<unknown>>, pages: Record<string, Page>): void {
   // Add or update
   Object.entries(pages).forEach(([path, page]) => {
     let yPage = yPages.get(path);
@@ -584,6 +599,7 @@ git commit -m "feat(web): bidirectional Zustand <-> Y.Doc page sync"
 ## Task 6: Awareness + cursor presence
 
 **Files:**
+
 - Create: `apps/web/src/lib/collab/awareness.ts`
 - Create: `apps/web/src/components/canvas/RemoteCursors.tsx`
 - Modify: `apps/web/src/components/canvas/PreviewIframe.tsx`
@@ -609,10 +625,7 @@ export interface RemoteCursor {
 
 type WorkspaceStore = UseBoundStore<StoreApi<WorkspaceState & WorkspaceActions>>;
 
-export function bindAwareness(
-  provider: HocuspocusProvider,
-  store: WorkspaceStore,
-): () => void {
+export function bindAwareness(provider: HocuspocusProvider, store: WorkspaceStore): () => void {
   const identity = getOrCreateIdentity();
   const awareness = provider.awareness;
   awareness?.setLocalStateField('user', identity);
@@ -727,6 +740,7 @@ git commit -m "feat(web): awareness layer + remote cursor overlay on canvas"
 ## Task 7: useCollabSync + LiveStatusPill + ShareDialog + wiring
 
 **Files:**
+
 - Create: `apps/web/src/lib/collab/use-collab-sync.ts`
 - Create: `apps/web/src/components/workspace/LiveStatusPill.tsx`
 - Create: `apps/web/src/components/workspace/ShareDialog.tsx`
@@ -792,13 +806,19 @@ export function LiveStatusPill() {
   if (status === 'idle') return null;
   const count = Object.keys(cursors).length + 1;
   const dot =
-    status === 'connected' ? 'bg-emerald-500'
-    : status === 'connecting' ? 'bg-amber-500'
-    : 'bg-zinc-400';
+    status === 'connected'
+      ? 'bg-emerald-500'
+      : status === 'connecting'
+        ? 'bg-amber-500'
+        : 'bg-zinc-400';
   const label =
-    status === 'offline' ? 'Offline (edits saved locally)'
-    : status === 'connecting' ? 'Connecting…'
-    : count > 1 ? `Live • ${count} people` : 'Live';
+    status === 'offline'
+      ? 'Offline (edits saved locally)'
+      : status === 'connecting'
+        ? 'Connecting…'
+        : count > 1
+          ? `Live • ${count} people`
+          : 'Live';
   return (
     <div className="inline-flex items-center gap-1.5 rounded-full border bg-white/80 px-2 py-0.5 text-xs">
       <span className={`h-2 w-2 rounded-full ${dot}`} />
@@ -831,12 +851,24 @@ export function ShareDialog({ open, onClose }: ShareDialogProps) {
     setTimeout(() => setCopied(false), 1500);
   };
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
-      <div className="w-[420px] rounded-lg bg-white p-5 shadow-lg" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+      onClick={onClose}
+    >
+      <div
+        className="w-[420px] rounded-lg bg-white p-5 shadow-lg"
+        onClick={(e) => e.stopPropagation()}
+      >
         <h2 className="text-lg font-semibold">Share project</h2>
-        <p className="mt-1 text-sm text-zinc-600">Anyone with this link can edit. Auth + roles arrive in M5c.</p>
+        <p className="mt-1 text-sm text-zinc-600">
+          Anyone with this link can edit. Auth + roles arrive in M5c.
+        </p>
         <div className="mt-3 flex gap-2">
-          <input readOnly value={url} className="flex-1 rounded border bg-zinc-50 px-2 py-1.5 text-sm" />
+          <input
+            readOnly
+            value={url}
+            className="flex-1 rounded border bg-zinc-50 px-2 py-1.5 text-sm"
+          />
           <button onClick={copy} className="rounded bg-zinc-900 px-3 py-1.5 text-sm text-white">
             {copied ? 'Copied' : 'Copy'}
           </button>
@@ -860,6 +892,7 @@ export function ShareDialog({ open, onClose }: ShareDialogProps) {
 - [ ] **Step 5: Modify `apps/web/.env.example`**
 
 Append:
+
 ```
 # Multiplayer (M5b)
 NEXT_PUBLIC_COLLAB_URL=ws://localhost:3002
@@ -878,6 +911,7 @@ git commit -m "feat(web): useCollabSync, LiveStatusPill, ShareDialog wired into 
 ## Task 8: Docker, Turbo, docs, root scripts
 
 **Files:**
+
 - Create: `apps/collab/Dockerfile`
 - Modify: `docker-compose.yml`
 - Modify: `turbo.json`
@@ -898,7 +932,7 @@ collab:
     DATABASE_URL: postgresql://youdesign:youdesign@postgres:5432/youdesign
     COLLAB_PORT: 3002
   ports:
-    - "3002:3002"
+    - '3002:3002'
   depends_on:
     postgres:
       condition: service_healthy
@@ -936,6 +970,7 @@ git commit -m "chore(collab): Docker, Turbo, scripts, docs"
 ## Task 9: Smoke + tests + tag
 
 **Files:**
+
 - Create: `apps/web/src/lib/collab/__tests__/sync-pages.test.ts`
 - Modify: `CHANGELOG.md`
 
@@ -997,6 +1032,7 @@ pnpm dev:all
 ## [0.10.0-alpha] — 2026-05-?? — Multiplayer (M5b)
 
 ### Added
+
 - `apps/collab` Hocuspocus WebSocket server (port 3002) backed by Postgres.
 - `project_collab_docs` Drizzle schema + migration 0003.
 - Web collab module: Y.Doc singleton, IndexedDB persistence, identity helper,
@@ -1005,6 +1041,7 @@ pnpm dev:all
 - Root scripts: `pnpm dev:collab`, `pnpm dev:all`.
 
 ### Known limitations
+
 - No real auth — anyone with a project ID can join. (Deferred to M5c.)
 - Critic / chat / agent state are per-user only.
 ```

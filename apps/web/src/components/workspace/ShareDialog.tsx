@@ -66,10 +66,7 @@ export function ShareDialog({ open, onClose }: ShareDialogProps) {
           </p>
         )}
         <div className="mt-4 flex justify-end">
-          <button
-            onClick={onClose}
-            className="text-sm text-zinc-500 hover:text-zinc-900"
-          >
+          <button onClick={onClose} className="text-sm text-zinc-500 hover:text-zinc-900">
             Close
           </button>
         </div>

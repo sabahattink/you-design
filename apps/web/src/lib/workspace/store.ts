@@ -62,11 +62,7 @@ export interface WorkspaceActions {
   setDefaultModel: (id: string) => void;
 
   addCriticReport: (report: CriticReport) => void;
-  updateIssueStatus: (
-    reportId: string,
-    issueId: string,
-    status: IssueStatus,
-  ) => void;
+  updateIssueStatus: (reportId: string, issueId: string, status: IssueStatus) => void;
   setAgentRunning: (agent: 'critic' | 'copywriter' | 'a11y' | 'dev', running: boolean) => void;
   setAnalyticsConfig: (config: AnalyticsConfig | null) => void;
   setAnalyticsCache: (data: AnalyticsSummary | null) => void;
@@ -77,10 +73,7 @@ export interface WorkspaceActions {
 
   setCollabStatus: (s: CollabStatus) => void;
   setRemoteCursors: (next: Record<string, RemoteCursor>) => void;
-  __hydratePagesFromY: (
-    next: Record<string, Page>,
-    currentPath: string,
-  ) => void;
+  __hydratePagesFromY: (next: Record<string, Page>, currentPath: string) => void;
 }
 
 const DEFAULT_MODEL: ModelConfig = {
@@ -120,7 +113,7 @@ function normalizeContract(raw: unknown): IntentContract | null {
   const persona =
     typeof personaRaw === 'string'
       ? { role: personaRaw }
-      : (personaRaw as { role: string } | undefined) ?? { role: 'unknown' };
+      : ((personaRaw as { role: string } | undefined) ?? { role: 'unknown' });
   const successMetric = r.successMetric as string | undefined;
   const successMetrics = Array.isArray(r.successMetrics)
     ? (r.successMetrics as Array<{ name: string; target: string }>)
@@ -143,22 +136,18 @@ export const useWorkspaceStore = create<WorkspaceState & WorkspaceActions>()(
       ...INITIAL,
       reset: () => set(INITIAL),
       setIntentPhase: (intentPhase) => set({ intentPhase }),
-      appendIntentMessage: (msg) =>
-        set((s) => ({ intentMessages: [...s.intentMessages, msg] })),
+      appendIntentMessage: (msg) => set((s) => ({ intentMessages: [...s.intentMessages, msg] })),
       setIntentContract: (raw) => set({ intentContract: normalizeContract(raw) }),
-      appendBuildMessage: (msg) =>
-        set((s) => ({ buildMessages: [...s.buildMessages, msg] })),
+      appendBuildMessage: (msg) => set((s) => ({ buildMessages: [...s.buildMessages, msg] })),
       setStreaming: (isStreaming) => set({ isStreaming }),
-      upsertPage: (page) =>
-        set((s) => ({ pages: { ...s.pages, [page.path]: page } })),
+      upsertPage: (page) => set((s) => ({ pages: { ...s.pages, [page.path]: page } })),
       removePage: (path) =>
         set((s) => {
           const next = { ...s.pages };
           delete next[path];
           return { pages: next };
         }),
-      setCurrentPath: (currentPath) =>
-        set({ currentPath, selectedElementId: null }),
+      setCurrentPath: (currentPath) => set({ currentPath, selectedElementId: null }),
       setSelectedElement: (selectedElementId) => set({ selectedElementId }),
       updateCurrentPageHtml: (html) => {
         const path = get().currentPath;
@@ -184,8 +173,7 @@ export const useWorkspaceStore = create<WorkspaceState & WorkspaceActions>()(
           const next = s.models.filter((m) => m.id !== id);
           return {
             models: next,
-            defaultModelId:
-              s.defaultModelId === id ? (next[0]?.id ?? null) : s.defaultModelId,
+            defaultModelId: s.defaultModelId === id ? (next[0]?.id ?? null) : s.defaultModelId,
           };
         }),
       setDefaultModel: (id) => set({ defaultModelId: id }),
@@ -207,9 +195,7 @@ export const useWorkspaceStore = create<WorkspaceState & WorkspaceActions>()(
                 ? r
                 : {
                     ...r,
-                    issues: r.issues.map((i) =>
-                      i.id === issueId ? { ...i, status } : i,
-                    ),
+                    issues: r.issues.map((i) => (i.id === issueId ? { ...i, status } : i)),
                   },
             );
           }
@@ -223,8 +209,7 @@ export const useWorkspaceStore = create<WorkspaceState & WorkspaceActions>()(
       setAnalyticsCache: (analyticsCache) => set({ analyticsCache }),
       setProjectId: (projectId) => set({ projectId }),
       setProjectName: (projectName) => set({ projectName }),
-      appendSessionCost: (delta) =>
-        set((s) => ({ sessionCostUsd: s.sessionCostUsd + delta })),
+      appendSessionCost: (delta) => set((s) => ({ sessionCostUsd: s.sessionCostUsd + delta })),
       clearCriticReports: (pagePath) =>
         set((s) => {
           const next = { ...s.criticReports };
@@ -262,10 +247,7 @@ export const useWorkspaceStore = create<WorkspaceState & WorkspaceActions>()(
   ),
 );
 
-function pagesShallowEqual(
-  a: Record<string, Page>,
-  b: Record<string, Page>,
-): boolean {
+function pagesShallowEqual(a: Record<string, Page>, b: Record<string, Page>): boolean {
   const aKeys = Object.keys(a);
   const bKeys = Object.keys(b);
   if (aKeys.length !== bKeys.length) return false;
@@ -288,11 +270,7 @@ function pagesShallowEqual(
 
 export function selectActiveModel(state: WorkspaceState): ModelConfig | null {
   if (!state.defaultModelId) return state.models[0] ?? null;
-  return (
-    state.models.find((m) => m.id === state.defaultModelId) ??
-    state.models[0] ??
-    null
-  );
+  return state.models.find((m) => m.id === state.defaultModelId) ?? state.models[0] ?? null;
 }
 
 export function selectIsCriticRunning(state: WorkspaceState): boolean {

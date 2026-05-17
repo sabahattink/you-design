@@ -2,13 +2,7 @@
 
 import * as React from 'react';
 import { useWorkspaceStore } from '@/lib/workspace/store';
-import {
-  parseHtml,
-  updateElement,
-  toHtml,
-  findElementById,
-  type AstNode,
-} from '@/lib/html/ast';
+import { parseHtml, updateElement, toHtml, findElementById, type AstNode } from '@/lib/html/ast';
 import { TAILWIND_CLASSES } from '@/lib/html/tailwind-classes';
 
 function getTextOf(el: AstNode): string {
@@ -65,9 +59,7 @@ export function EditPanel() {
     <div className="absolute right-0 top-0 h-full w-80 bg-[color:var(--color-bg)] border-l border-[color:var(--color-border)] p-4 z-10 shadow-xl flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-xs uppercase text-[color:var(--color-muted)]">
-            Element
-          </div>
+          <div className="text-xs uppercase text-[color:var(--color-muted)]">Element</div>
           <div className="font-mono text-sm">&lt;{tag}&gt;</div>
         </div>
         <button

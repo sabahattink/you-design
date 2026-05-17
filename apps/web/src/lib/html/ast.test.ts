@@ -27,9 +27,7 @@ describe('html ast — ensureYdIds', () => {
   });
 
   it('does not overwrite existing ids', () => {
-    const doc = parseHtml(
-      '<html><body><h1 data-yd-id="abc">Hi</h1></body></html>',
-    );
+    const doc = parseHtml('<html><body><h1 data-yd-id="abc">Hi</h1></body></html>');
     ensureYdIds(doc);
     const h1 = findElementById(doc, 'abc');
     expect(h1).not.toBeNull();
@@ -38,34 +36,26 @@ describe('html ast — ensureYdIds', () => {
 
 describe('html ast — mutations', () => {
   it('updates element text', () => {
-    const doc = parseHtml(
-      '<html><body><h1 data-yd-id="a">Old</h1></body></html>',
-    );
+    const doc = parseHtml('<html><body><h1 data-yd-id="a">Old</h1></body></html>');
     updateElement(doc, 'a', { text: 'New' });
     expect(toHtml(doc)).toContain('>New<');
   });
 
   it('updates element classes', () => {
-    const doc = parseHtml(
-      '<html><body><h1 data-yd-id="a" class="text-xl">X</h1></body></html>',
-    );
+    const doc = parseHtml('<html><body><h1 data-yd-id="a" class="text-xl">X</h1></body></html>');
     updateElement(doc, 'a', { classes: ['text-2xl', 'font-bold'] });
     expect(toHtml(doc)).toMatch(/class="text-2xl font-bold"/);
   });
 
   it('adds a child', () => {
-    const doc = parseHtml(
-      '<html><body data-yd-id="body"></body></html>',
-    );
+    const doc = parseHtml('<html><body data-yd-id="body"></body></html>');
     addChild(doc, 'body', '<p>New</p>');
     expect(toHtml(doc)).toContain('<p');
     expect(toHtml(doc)).toContain('New');
   });
 
   it('removes element', () => {
-    const doc = parseHtml(
-      '<html><body><h1 data-yd-id="a">Bye</h1></body></html>',
-    );
+    const doc = parseHtml('<html><body><h1 data-yd-id="a">Bye</h1></body></html>');
     removeElement(doc, 'a');
     expect(toHtml(doc)).not.toContain('Bye');
   });

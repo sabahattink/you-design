@@ -12,22 +12,23 @@
 
 ## File Map
 
-| Action | File | Responsibility |
-|--------|------|----------------|
-| Modify | `packages/shared/src/exports.ts` | Add `'mp4'`/`'gif'` to `ExportFormat`, new `MotionExportOptions` schema, extend `CreateExportBody` |
-| Create | `apps/api/src/lib/export-motion.ts` | Playwright screenshots → FFmpeg stitch → MP4/GIF |
-| Create | `apps/api/src/lib/export-motion.test.ts` | Unit tests for pure `buildFfmpegArgs` |
-| Modify | `apps/api/src/worker.ts` | Handle `'mp4'` / `'gif'` formats in export worker |
-| Modify | `apps/api/src/routes/exports.ts` | Pass `motionOptions` to job; add mp4/gif content-types |
-| Modify | `docker/Dockerfile.api` | Add `ffmpeg` to apt-get in runner stage |
-| Modify | `apps/web/src/lib/export/useExport.ts` | Accept `motionOptions?` in `startExport`, forward in POST body |
-| Modify | `apps/web/src/components/export/ExportDialog.tsx` | Add mp4/gif options + inline motion settings panel |
+| Action | File                                              | Responsibility                                                                                     |
+| ------ | ------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Modify | `packages/shared/src/exports.ts`                  | Add `'mp4'`/`'gif'` to `ExportFormat`, new `MotionExportOptions` schema, extend `CreateExportBody` |
+| Create | `apps/api/src/lib/export-motion.ts`               | Playwright screenshots → FFmpeg stitch → MP4/GIF                                                   |
+| Create | `apps/api/src/lib/export-motion.test.ts`          | Unit tests for pure `buildFfmpegArgs`                                                              |
+| Modify | `apps/api/src/worker.ts`                          | Handle `'mp4'` / `'gif'` formats in export worker                                                  |
+| Modify | `apps/api/src/routes/exports.ts`                  | Pass `motionOptions` to job; add mp4/gif content-types                                             |
+| Modify | `docker/Dockerfile.api`                           | Add `ffmpeg` to apt-get in runner stage                                                            |
+| Modify | `apps/web/src/lib/export/useExport.ts`            | Accept `motionOptions?` in `startExport`, forward in POST body                                     |
+| Modify | `apps/web/src/components/export/ExportDialog.tsx` | Add mp4/gif options + inline motion settings panel                                                 |
 
 ---
 
 ## Task 1: Extend shared types
 
 **Files:**
+
 - Modify: `packages/shared/src/exports.ts`
 
 - [ ] **Step 1: Replace the file contents**
@@ -87,6 +88,7 @@ git commit -m "feat(shared): add mp4/gif formats + MotionExportOptions schema"
 ## Task 2: Create API motion exporter
 
 **Files:**
+
 - Create: `apps/api/src/lib/export-motion.ts`
 - Create: `apps/api/src/lib/export-motion.test.ts`
 
@@ -203,13 +205,20 @@ export function buildFfmpegArgs(
 
   if (n === 1) {
     return [
-      '-loop', '1',
-      '-t', String(durationPerPage),
-      '-i', screenshotPaths[0]!,
-      '-vcodec', 'libx264',
-      '-pix_fmt', 'yuv420p',
-      '-r', String(fps),
-      '-y', outPath,
+      '-loop',
+      '1',
+      '-t',
+      String(durationPerPage),
+      '-i',
+      screenshotPaths[0]!,
+      '-vcodec',
+      'libx264',
+      '-pix_fmt',
+      'yuv420p',
+      '-r',
+      String(fps),
+      '-y',
+      outPath,
     ];
   }
 
@@ -230,12 +239,18 @@ export function buildFfmpegArgs(
   filterComplex = filterComplex.replace(/;$/, '');
 
   args.push(
-    '-filter_complex', filterComplex,
-    '-map', '[v]',
-    '-vcodec', 'libx264',
-    '-pix_fmt', 'yuv420p',
-    '-r', String(fps),
-    '-y', outPath,
+    '-filter_complex',
+    filterComplex,
+    '-map',
+    '[v]',
+    '-vcodec',
+    'libx264',
+    '-pix_fmt',
+    'yuv420p',
+    '-r',
+    String(fps),
+    '-y',
+    outPath,
   );
 
   return args;
@@ -278,9 +293,12 @@ export async function runMotionExport(
   if (format === 'gif') {
     const gifPath = path.join(outDir, `${jobId}.gif`);
     await execFileAsync('ffmpeg', [
-      '-i', mp4Path,
-      '-vf', 'fps=10,scale=960:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse',
-      '-loop', '0',
+      '-i',
+      mp4Path,
+      '-vf',
+      'fps=10,scale=960:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse',
+      '-loop',
+      '0',
       gifPath,
     ]);
     fs.unlinkSync(mp4Path);
@@ -319,6 +337,7 @@ git commit -m "feat(api): motion export — Playwright screenshots + FFmpeg xfad
 ## Task 3: Wire motion into worker + routes
 
 **Files:**
+
 - Modify: `apps/api/src/worker.ts`
 - Modify: `apps/api/src/routes/exports.ts`
 
@@ -447,14 +466,15 @@ export async function exportsRoutes(app: FastifyInstance) {
     const { projectId, format, motionOptions } = parsed.data;
 
     const pages = await db
-      .select({ path: schema.projectPages.path, title: schema.projectPages.title, html: schema.projectPages.html })
+      .select({
+        path: schema.projectPages.path,
+        title: schema.projectPages.title,
+        html: schema.projectPages.html,
+      })
       .from(schema.projectPages)
       .where(eq(schema.projectPages.projectId, projectId));
 
-    const [job] = await db
-      .insert(schema.exportJobs)
-      .values({ projectId, format })
-      .returning();
+    const [job] = await db.insert(schema.exportJobs).values({ projectId, format }).returning();
 
     await exportQueue.add('export', {
       jobId: job!.id,
@@ -471,10 +491,7 @@ export async function exportsRoutes(app: FastifyInstance) {
   // GET /exports/:jobId — status
   app.get('/exports/:jobId', async (req, reply) => {
     const { jobId } = req.params as { jobId: string };
-    const [row] = await db
-      .select()
-      .from(schema.exportJobs)
-      .where(eq(schema.exportJobs.id, jobId));
+    const [row] = await db.select().from(schema.exportJobs).where(eq(schema.exportJobs.id, jobId));
     if (!row) {
       reply.code(404);
       return { error: 'NOT_FOUND' };
@@ -485,12 +502,12 @@ export async function exportsRoutes(app: FastifyInstance) {
   // GET /exports/:jobId/download — serve file
   app.get('/exports/:jobId/download', async (req, reply) => {
     const { jobId } = req.params as { jobId: string };
-    const [row] = await db
-      .select()
-      .from(schema.exportJobs)
-      .where(eq(schema.exportJobs.id, jobId));
+    const [row] = await db.select().from(schema.exportJobs).where(eq(schema.exportJobs.id, jobId));
 
-    if (!row) { reply.code(404); return { error: 'NOT_FOUND' }; }
+    if (!row) {
+      reply.code(404);
+      return { error: 'NOT_FOUND' };
+    }
     if (row.status !== 'done' || !row.filePath) {
       reply.code(409);
       return { error: 'NOT_READY', status: row.status };
@@ -502,11 +519,15 @@ export async function exportsRoutes(app: FastifyInstance) {
 
     const ext = path.extname(row.filePath).slice(1);
     const contentType =
-      ext === 'pdf'  ? 'application/pdf' :
-      ext === 'pptx' ? 'application/vnd.openxmlformats-officedocument.presentationml.presentation' :
-      ext === 'mp4'  ? 'video/mp4' :
-      ext === 'gif'  ? 'image/gif' :
-      'text/html';
+      ext === 'pdf'
+        ? 'application/pdf'
+        : ext === 'pptx'
+          ? 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+          : ext === 'mp4'
+            ? 'video/mp4'
+            : ext === 'gif'
+              ? 'image/gif'
+              : 'text/html';
 
     reply.header('Content-Disposition', `attachment; filename="export.${ext}"`);
     reply.header('Content-Type', contentType);
@@ -535,6 +556,7 @@ git commit -m "feat(api): wire mp4/gif into export worker and routes"
 ## Task 4: Add FFmpeg to Dockerfile
 
 **Files:**
+
 - Modify: `docker/Dockerfile.api`
 
 - [ ] **Step 1: Add `ffmpeg` to the runner stage apt-get install**
@@ -574,6 +596,7 @@ git commit -m "chore(docker): add ffmpeg to api runner image"
 ## Task 5: Extend useExport hook
 
 **Files:**
+
 - Modify: `apps/web/src/lib/export/useExport.ts`
 
 - [ ] **Step 1: Replace the file contents**
@@ -613,7 +636,12 @@ export function useExport() {
     const combined = allPages
       .map((p) => {
         const html = analyticsConfig
-          ? injectPostHog(p.html, analyticsConfig.postHogApiKey, analyticsConfig.postHogHost, p.path)
+          ? injectPostHog(
+              p.html,
+              analyticsConfig.postHogApiKey,
+              analyticsConfig.postHogHost,
+              p.path,
+            )
           : p.html;
         return `<!-- Page: ${p.path} -->\n${html}`;
       })
@@ -729,6 +757,7 @@ git commit -m "feat(web): extend useExport to forward motionOptions in export PO
 ## Task 6: Extend ExportDialog with motion settings
 
 **Files:**
+
 - Modify: `apps/web/src/components/export/ExportDialog.tsx`
 
 - [ ] **Step 1: Replace the file contents**

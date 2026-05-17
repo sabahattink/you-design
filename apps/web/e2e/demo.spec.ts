@@ -2,9 +2,8 @@ import { test, expect } from '@playwright/test';
 
 function sseEvents(events: Array<{ event: string; data: unknown }>): string {
   return (
-    events
-      .map((e) => `event: ${e.event}\ndata: ${JSON.stringify(e.data)}\n\n`)
-      .join('') + 'event: finish\ndata: {"finishReason":"stop"}\n\n'
+    events.map((e) => `event: ${e.event}\ndata: ${JSON.stringify(e.data)}\n\n`).join('') +
+    'event: finish\ndata: {"finishReason":"stop"}\n\n'
   );
 }
 
@@ -83,8 +82,7 @@ test('intent quiz with domain -> approve -> mocked designer writes -> critic fin
                       {
                         severity: 'warning',
                         category: 'copy',
-                        message:
-                          'Hero says "Welcome!" — drifts from confident/minimal emotion.',
+                        message: 'Hero says "Welcome!" — drifts from confident/minimal emotion.',
                         suggestion: 'Replace with an outcome-focused headline.',
                       },
                     ]
@@ -108,7 +106,10 @@ test('intent quiz with domain -> approve -> mocked designer writes -> critic fin
   await expect(page.getByText('Quick — who is this for?')).toBeVisible();
 
   for (let i = 0; i < 5; i += 1) {
-    await page.getByRole('textbox').first().fill(`answer ${i + 1}`);
+    await page
+      .getByRole('textbox')
+      .first()
+      .fill(`answer ${i + 1}`);
     await page.getByRole('button', { name: 'Send' }).click();
     if (i < 4) {
       await expect(page.getByText('Next question please.').first()).toBeVisible({
@@ -122,11 +123,14 @@ test('intent quiz with domain -> approve -> mocked designer writes -> critic fin
 
   const iframe = page.frameLocator('iframe[title="Preview"]');
   await expect(iframe.getByText('Welcome!')).toBeVisible({ timeout: 15_000 });
-  await expect(
-    page.getByText('drifts from confident/minimal emotion.'),
-  ).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText('drifts from confident/minimal emotion.')).toBeVisible({
+    timeout: 15_000,
+  });
 
-  await page.getByRole('button', { name: /Critic/i }).first().click();
+  await page
+    .getByRole('button', { name: /Critic/i })
+    .first()
+    .click();
   await page.getByRole('button', { name: 'Fix' }).first().click();
 
   await expect(iframe.getByText('Ship faster.')).toBeVisible({ timeout: 15_000 });

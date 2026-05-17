@@ -40,7 +40,7 @@ While the project is in `alpha`, breaking changes may land in any minor version.
   - `RemoteCursors` overlay inside `PreviewIframe`: dot + display-name pill
     per remote user, filtered by current page.
   - Preview iframe inject script now emits throttled (50 ms) `pointermove`
-    + `pointerleave` so the parent can relay cursor coordinates to awareness.
+    - `pointerleave` so the parent can relay cursor coordinates to awareness.
 - **Identity** — per-browser UUID + display name + color from a 12-color
   palette, persisted in `localStorage`.
 - **Root scripts**: `dev:web`, `dev:api`, `dev:collab`, `dev:all`.

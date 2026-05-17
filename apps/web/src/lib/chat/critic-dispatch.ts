@@ -1,10 +1,5 @@
 import { nanoid } from 'nanoid';
-import type {
-  CriticIssue,
-  CriticReport,
-  Severity,
-  IssueCategory,
-} from '@you-design/shared';
+import type { CriticIssue, CriticReport, Severity, IssueCategory } from '@you-design/shared';
 import { selectModelForTask, estimateCost } from '@you-design/shared';
 import { useWorkspaceStore } from '@/lib/workspace/store';
 import { streamLlm } from '@/lib/llm/client';
@@ -81,7 +76,11 @@ export async function runCritic(
       },
       undefined,
       (usage) => {
-        const cost = estimateCost(activeModel.modelName, usage.promptTokens, usage.completionTokens);
+        const cost = estimateCost(
+          activeModel.modelName,
+          usage.promptTokens,
+          usage.completionTokens,
+        );
         const store = useWorkspaceStore.getState();
         if (cost !== null) store.appendSessionCost(cost);
         void fetch('http://localhost:3001/api/v1/usage', {

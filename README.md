@@ -46,16 +46,16 @@ Open `http://localhost:3000/setup` and add the model you want to use. Then visit
 
 ### Supported providers
 
-| Provider | How |
-|----------|-----|
-| **Anthropic Claude** | API key (built-in) |
-| **OpenAI** | API key (built-in) |
-| **Google Gemini** | API key (built-in) |
-| **Ollama** | OpenAI-compatible, base URL `http://localhost:11434/v1` |
-| **Groq** | OpenAI-compatible, base URL `https://api.groq.com/openai/v1` |
-| **OpenRouter** | OpenAI-compatible, base URL `https://openrouter.ai/api/v1` |
-| **LM Studio** | OpenAI-compatible, base URL `http://localhost:1234/v1` |
-| **vLLM / Text Generation WebUI / any OpenAI-shaped server** | Custom base URL |
+| Provider                                                    | How                                                          |
+| ----------------------------------------------------------- | ------------------------------------------------------------ |
+| **Anthropic Claude**                                        | API key (built-in)                                           |
+| **OpenAI**                                                  | API key (built-in)                                           |
+| **Google Gemini**                                           | API key (built-in)                                           |
+| **Ollama**                                                  | OpenAI-compatible, base URL `http://localhost:11434/v1`      |
+| **Groq**                                                    | OpenAI-compatible, base URL `https://api.groq.com/openai/v1` |
+| **OpenRouter**                                              | OpenAI-compatible, base URL `https://openrouter.ai/api/v1`   |
+| **LM Studio**                                               | OpenAI-compatible, base URL `http://localhost:1234/v1`       |
+| **vLLM / Text Generation WebUI / any OpenAI-shaped server** | Custom base URL                                              |
 
 Keys are stored in your browser's localStorage and sent per request to the local API server. Nothing is written to disk on the server unless you set them as env vars.
 
@@ -87,20 +87,20 @@ pnpm format           # prettier
 
 ## Stack
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | Next.js 15 + React 19 + TypeScript |
-| UI | Tailwind v4 |
-| Canvas | iframe srcdoc (Tailwind CDN injected) |
-| Code editor | Monaco |
-| State | Zustand + persist (localStorage) |
-| HTML AST | parse5 |
-| Backend | Fastify 5 + Zod + Pino |
-| DB | Postgres 16 + pgvector + Drizzle (M2+) |
-| Queue | BullMQ + Redis 7 (M3+) |
-| LLM | Vercel AI SDK + @ai-sdk/{anthropic,openai,google} + any OpenAI-compatible endpoint |
-| Self-host | Docker compose |
-| E2E | Playwright (mocked LLM) |
+| Layer       | Technology                                                                         |
+| ----------- | ---------------------------------------------------------------------------------- |
+| Frontend    | Next.js 15 + React 19 + TypeScript                                                 |
+| UI          | Tailwind v4                                                                        |
+| Canvas      | iframe srcdoc (Tailwind CDN injected)                                              |
+| Code editor | Monaco                                                                             |
+| State       | Zustand + persist (localStorage)                                                   |
+| HTML AST    | parse5                                                                             |
+| Backend     | Fastify 5 + Zod + Pino                                                             |
+| DB          | Postgres 16 + pgvector + Drizzle (M2+)                                             |
+| Queue       | BullMQ + Redis 7 (M3+)                                                             |
+| LLM         | Vercel AI SDK + @ai-sdk/{anthropic,openai,google} + any OpenAI-compatible endpoint |
+| Self-host   | Docker compose                                                                     |
+| E2E         | Playwright (mocked LLM)                                                            |
 
 ## Roadmap
 

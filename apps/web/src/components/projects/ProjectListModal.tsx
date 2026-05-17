@@ -35,7 +35,14 @@ export function ProjectListModal({ onDismiss }: Props) {
     setIntentPhase(full.intentPhase as 'collecting' | 'contracted' | 'building');
     if (full.intentContract) setIntentContract(full.intentContract);
     for (const p of full.pages) {
-      upsertPage({ id: p.path, path: p.path, title: p.title, html: p.html, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+      upsertPage({
+        id: p.path,
+        path: p.path,
+        title: p.title,
+        html: p.html,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
     }
     onDismiss();
   };
@@ -63,7 +70,9 @@ export function ProjectListModal({ onDismiss }: Props) {
         <div className="flex-1 overflow-y-auto p-2">
           {loading && <p className="text-xs p-2 text-[color:var(--color-muted)]">Loading…</p>}
           {!loading && projects.length === 0 && (
-            <p className="text-xs p-2 text-[color:var(--color-muted)]">No projects yet. Create one below.</p>
+            <p className="text-xs p-2 text-[color:var(--color-muted)]">
+              No projects yet. Create one below.
+            </p>
           )}
           {projects.map((p) => (
             <button

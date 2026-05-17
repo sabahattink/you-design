@@ -24,15 +24,15 @@ The existing Zustand store keeps the shape it has today. A new sync layer mirror
 
 ## 2. Tech Choices
 
-| Concern | Choice | Rationale |
-|---------|--------|-----------|
-| CRDT | `yjs` ^13 | Battle-tested, small, handles text + maps + arrays. Architecture pin. |
-| Sync server | `@hocuspocus/server` ^2 | Y.js-native, Fastify-friendly, has Postgres extension. Architecture pin. |
-| Client | `@hocuspocus/provider` ^2 | Reconnect, awareness, status events out of the box. |
-| Local persistence | `y-indexeddb` ^9 | Offline-first; works while Hocuspocus is down. |
-| Awareness | `y-protocols/awareness` (bundled with `yjs`) | Standard. |
-| HTML representation | `Y.Text` per page | True character-level CRDT merges; survives concurrent AI rewrites. |
-| Server transport | WebSocket on a dedicated app | Long-lived connections don't fit Fastify's REST/SSE shape. |
+| Concern             | Choice                                       | Rationale                                                                |
+| ------------------- | -------------------------------------------- | ------------------------------------------------------------------------ |
+| CRDT                | `yjs` ^13                                    | Battle-tested, small, handles text + maps + arrays. Architecture pin.    |
+| Sync server         | `@hocuspocus/server` ^2                      | Y.js-native, Fastify-friendly, has Postgres extension. Architecture pin. |
+| Client              | `@hocuspocus/provider` ^2                    | Reconnect, awareness, status events out of the box.                      |
+| Local persistence   | `y-indexeddb` ^9                             | Offline-first; works while Hocuspocus is down.                           |
+| Awareness           | `y-protocols/awareness` (bundled with `yjs`) | Standard.                                                                |
+| HTML representation | `Y.Text` per page                            | True character-level CRDT merges; survives concurrent AI rewrites.       |
+| Server transport    | WebSocket on a dedicated app                 | Long-lived connections don't fit Fastify's REST/SSE shape.               |
 
 ---
 
@@ -124,17 +124,17 @@ Each client publishes a single awareness state on connect and on movement:
 ```typescript
 interface AwarenessState {
   user: {
-    id: string;            // browser-generated UUID, persisted in localStorage
-    displayName: string;   // editable in workspace header
-    color: string;         // assigned from a 12-color palette
+    id: string; // browser-generated UUID, persisted in localStorage
+    displayName: string; // editable in workspace header
+    color: string; // assigned from a 12-color palette
   };
   cursor: {
     pagePath: string;
-    elementId: string | null;  // selected element on canvas, if any
-    x: number | null;          // viewport-relative; null if pointer not over canvas
+    elementId: string | null; // selected element on canvas, if any
+    x: number | null; // viewport-relative; null if pointer not over canvas
     y: number | null;
   } | null;
-  isTyping: boolean;     // true while user is actively editing in EditPanel
+  isTyping: boolean; // true while user is actively editing in EditPanel
 }
 ```
 
@@ -165,7 +165,7 @@ function bindPagesSync(doc: Y.Doc, store: WorkspaceStoreApi): () => void {
 
   // Y.Doc -> store: observe deeply, project to Page[] and call store.setState
   const yObserver = (events: Y.YEvent<any>[]) => {
-    store.getState().__hydratePagesFromY(yPages);  // see Section 8
+    store.getState().__hydratePagesFromY(yPages); // see Section 8
   };
   yPages.observeDeep(yObserver);
 
@@ -194,7 +194,7 @@ function bindPagesSync(doc: Y.Doc, store: WorkspaceStoreApi): () => void {
 interface WorkspaceState {
   // ...existing
   collabStatus: 'idle' | 'connecting' | 'connected' | 'offline';
-  remoteCursors: Record<string, AwarenessState>;  // keyed by user.id
+  remoteCursors: Record<string, AwarenessState>; // keyed by user.id
 }
 
 interface WorkspaceActions {
@@ -262,13 +262,13 @@ Mounted inside `PreviewIframe`'s container at the same coordinate space as the c
 
 A small "Live • 3 people" pill in the workspace header:
 
-| State | Pill |
-|-------|------|
-| `idle` | hidden |
-| `connecting` | "Connecting…" (amber dot) |
-| `connected` (n=1) | "Live" (green dot) |
-| `connected` (n>1) | "Live • N people" with avatar stack |
-| `offline` | "Offline (edits saved locally)" (gray dot) |
+| State             | Pill                                       |
+| ----------------- | ------------------------------------------ |
+| `idle`            | hidden                                     |
+| `connecting`      | "Connecting…" (amber dot)                  |
+| `connected` (n=1) | "Live" (green dot)                         |
+| `connected` (n>1) | "Live • N people" with avatar stack        |
+| `offline`         | "Offline (edits saved locally)" (gray dot) |
 
 New component: `apps/web/src/components/workspace/LiveStatusPill.tsx`. Tooltip lists `displayName`s.
 
@@ -279,7 +279,7 @@ New component: `apps/web/src/components/workspace/LiveStatusPill.tsx`. Tooltip l
 The header gains a **Share** button next to **Export**. It opens a `ShareDialog` with:
 
 - The project URL (`<APP_URL>/app?project=<id>`) — copyable.
-- A muted note: *"Anyone with this link can edit. Auth + roles arrive in M5c."*
+- A muted note: _"Anyone with this link can edit. Auth + roles arrive in M5c."_
 - A toggle "Stop sharing" — for now wired to a no-op (room is still public); the toggle's presence sets the UX expectation for M5c.
 
 ---
@@ -344,7 +344,7 @@ collab:
     - DATABASE_URL=postgresql://youdesign:youdesign@postgres:5432/youdesign
     - COLLAB_PORT=3002
   ports:
-    - "3002:3002"
+    - '3002:3002'
   depends_on:
     postgres:
       condition: service_healthy
@@ -366,50 +366,50 @@ collab:
 
 ## 14. Risks
 
-| Risk | Mitigation |
-|------|-----------|
-| AI HTML rewrites produce huge Y.Text diffs | Wrap `updateCurrentPageHtml` in a single `doc.transact()`; benchmark with 50 KB HTML before merging. |
-| IndexedDB and Y.Doc disagree after a crash | Y.js guarantees convergence — but document recovery steps in `docs/ARCHITECTURE.md`. |
-| Server-side memory growth | Hocuspocus keeps in-memory Y.Docs per active room. Cap concurrent rooms via env; document the limit. |
-| Drift between Zustand `pages` and Y.Doc | All page writes go through actions; actions write through to Y.Doc; tests assert that Y.Doc and store stay in lockstep on a fuzz test. |
-| Privacy: anyone with project ID joins | Banner in ShareDialog. Make it impossible to miss. |
+| Risk                                       | Mitigation                                                                                                                             |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| AI HTML rewrites produce huge Y.Text diffs | Wrap `updateCurrentPageHtml` in a single `doc.transact()`; benchmark with 50 KB HTML before merging.                                   |
+| IndexedDB and Y.Doc disagree after a crash | Y.js guarantees convergence — but document recovery steps in `docs/ARCHITECTURE.md`.                                                   |
+| Server-side memory growth                  | Hocuspocus keeps in-memory Y.Docs per active room. Cap concurrent rooms via env; document the limit.                                   |
+| Drift between Zustand `pages` and Y.Doc    | All page writes go through actions; actions write through to Y.Doc; tests assert that Y.Doc and store stay in lockstep on a fuzz test. |
+| Privacy: anyone with project ID joins      | Banner in ShareDialog. Make it impossible to miss.                                                                                     |
 
 ---
 
 ## 15. File Map
 
-| Action | File |
-|--------|------|
-| Create | `apps/collab/package.json` |
-| Create | `apps/collab/tsconfig.json` |
-| Create | `apps/collab/src/server.ts` |
-| Create | `apps/collab/src/extensions/postgres.ts` |
-| Create | `apps/collab/src/extensions/logger.ts` |
-| Create | `apps/collab/src/auth.ts` |
-| Create | `apps/collab/Dockerfile` |
-| Create | `packages/db/src/schema/project-collab-docs.ts` |
-| Modify | `packages/db/src/schema/index.ts` |
-| Modify | `packages/db/drizzle.config.ts` |
-| Create | `packages/db/migrations/0003_project_collab_docs.sql` |
+| Action | File                                                                                      |
+| ------ | ----------------------------------------------------------------------------------------- |
+| Create | `apps/collab/package.json`                                                                |
+| Create | `apps/collab/tsconfig.json`                                                               |
+| Create | `apps/collab/src/server.ts`                                                               |
+| Create | `apps/collab/src/extensions/postgres.ts`                                                  |
+| Create | `apps/collab/src/extensions/logger.ts`                                                    |
+| Create | `apps/collab/src/auth.ts`                                                                 |
+| Create | `apps/collab/Dockerfile`                                                                  |
+| Create | `packages/db/src/schema/project-collab-docs.ts`                                           |
+| Modify | `packages/db/src/schema/index.ts`                                                         |
+| Modify | `packages/db/drizzle.config.ts`                                                           |
+| Create | `packages/db/migrations/0003_project_collab_docs.sql`                                     |
 | Modify | `apps/web/package.json` (add `yjs`, `@hocuspocus/provider`, `y-indexeddb`, `y-protocols`) |
-| Create | `apps/web/src/lib/collab/y-doc.ts` |
-| Create | `apps/web/src/lib/collab/provider.ts` |
-| Create | `apps/web/src/lib/collab/sync-pages.ts` |
-| Create | `apps/web/src/lib/collab/awareness.ts` |
-| Create | `apps/web/src/lib/collab/identity.ts` |
-| Create | `apps/web/src/lib/collab/use-collab-sync.ts` |
-| Modify | `apps/web/src/lib/workspace/store.ts` (collabStatus, remoteCursors, hydrate action) |
-| Create | `apps/web/src/components/canvas/RemoteCursors.tsx` |
-| Create | `apps/web/src/components/workspace/LiveStatusPill.tsx` |
-| Create | `apps/web/src/components/workspace/ShareDialog.tsx` |
-| Modify | `apps/web/src/components/workspace/WorkspaceLayout.tsx` |
-| Modify | `apps/web/src/components/canvas/PreviewIframe.tsx` (cursor capture) |
-| Modify | `apps/web/.env.example` (`NEXT_PUBLIC_COLLAB_URL`) |
-| Modify | `apps/collab/.env.example` |
-| Modify | `docker-compose.yml` (collab service) |
-| Modify | `docs/ARCHITECTURE.md` (Realtime section, port map) |
-| Modify | `README.md` (Quickstart adds `pnpm dev:collab`) |
-| Modify | `turbo.json` (pipeline includes `@you-design/collab`) |
-| Modify | `pnpm-workspace.yaml` (already globs `apps/*` — verify) |
+| Create | `apps/web/src/lib/collab/y-doc.ts`                                                        |
+| Create | `apps/web/src/lib/collab/provider.ts`                                                     |
+| Create | `apps/web/src/lib/collab/sync-pages.ts`                                                   |
+| Create | `apps/web/src/lib/collab/awareness.ts`                                                    |
+| Create | `apps/web/src/lib/collab/identity.ts`                                                     |
+| Create | `apps/web/src/lib/collab/use-collab-sync.ts`                                              |
+| Modify | `apps/web/src/lib/workspace/store.ts` (collabStatus, remoteCursors, hydrate action)       |
+| Create | `apps/web/src/components/canvas/RemoteCursors.tsx`                                        |
+| Create | `apps/web/src/components/workspace/LiveStatusPill.tsx`                                    |
+| Create | `apps/web/src/components/workspace/ShareDialog.tsx`                                       |
+| Modify | `apps/web/src/components/workspace/WorkspaceLayout.tsx`                                   |
+| Modify | `apps/web/src/components/canvas/PreviewIframe.tsx` (cursor capture)                       |
+| Modify | `apps/web/.env.example` (`NEXT_PUBLIC_COLLAB_URL`)                                        |
+| Modify | `apps/collab/.env.example`                                                                |
+| Modify | `docker-compose.yml` (collab service)                                                     |
+| Modify | `docs/ARCHITECTURE.md` (Realtime section, port map)                                       |
+| Modify | `README.md` (Quickstart adds `pnpm dev:collab`)                                           |
+| Modify | `turbo.json` (pipeline includes `@you-design/collab`)                                     |
+| Modify | `pnpm-workspace.yaml` (already globs `apps/*` — verify)                                   |
 
 Estimated: 7 phases, ~28 tasks, 30 file touches. Detailed task breakdown lives in the M5b implementation plan.

@@ -23,8 +23,7 @@ export interface UsageInfo {
 }
 
 const API_BASE =
-  (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_URL) ||
-  'http://localhost:3001';
+  (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_URL) || 'http://localhost:3001';
 
 export async function* streamLlm(
   req: LlmRequest,

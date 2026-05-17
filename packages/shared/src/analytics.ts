@@ -1,12 +1,14 @@
 import { z } from 'zod';
 
 export const AnalyticsSummary = z.object({
-  pages: z.array(z.object({
-    path: z.string(),
-    views: z.number().int(),
-    clicks: z.number().int(),
-    ctr: z.number(),
-  })),
+  pages: z.array(
+    z.object({
+      path: z.string(),
+      views: z.number().int(),
+      clicks: z.number().int(),
+      ctr: z.number(),
+    }),
+  ),
   totalViews: z.number().int(),
   period: z.string(),
   fetchedAt: z.number(),

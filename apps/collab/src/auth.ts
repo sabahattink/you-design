@@ -6,9 +6,7 @@ export interface AuthContext {
   projectId: string;
 }
 
-export async function authenticate(payload: {
-  documentName: string;
-}): Promise<AuthContext> {
+export async function authenticate(payload: { documentName: string }): Promise<AuthContext> {
   const { documentName } = payload;
 
   const project = await db.query.projects.findFirst({

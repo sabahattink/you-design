@@ -9,8 +9,7 @@ export interface ProviderBundle {
 }
 
 const COLLAB_URL =
-  (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_COLLAB_URL) ||
-  'ws://localhost:3002';
+  (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_COLLAB_URL) || 'ws://localhost:3002';
 
 export function createProvider(projectId: string): ProviderBundle {
   const doc = new Y.Doc();

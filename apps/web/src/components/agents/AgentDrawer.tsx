@@ -58,7 +58,13 @@ export function AgentDrawer({ open, onClose }: Props) {
     const page = pages[currentPath];
     if (!page) return;
     if (activeTab === 'copywriter') {
-      void runAgent('copywriter', COPYWRITER_SYSTEM_PROMPT, COPYWRITER_TOOLS, currentPath, page.html);
+      void runAgent(
+        'copywriter',
+        COPYWRITER_SYSTEM_PROMPT,
+        COPYWRITER_TOOLS,
+        currentPath,
+        page.html,
+      );
     } else if (activeTab === 'a11y') {
       void runAgent('a11y', A11Y_SYSTEM_PROMPT, A11Y_TOOLS, currentPath, page.html);
     } else if (activeTab === 'dev') {

@@ -12,26 +12,27 @@
 
 ## File Map
 
-| Action | File |
-|--------|------|
-| Modify | `packages/shared/src/critic.ts` |
-| Modify | `apps/web/src/lib/workspace/store.ts` |
-| Modify | `apps/web/src/lib/chat/critic-dispatch.ts` |
-| Create | `apps/web/src/lib/chat/copywriter-agent.ts` |
-| Create | `apps/web/src/lib/chat/a11y-agent.ts` |
-| Create | `apps/web/src/lib/chat/dev-agent.ts` |
-| Create | `apps/web/src/lib/chat/agent-dispatch.ts` |
-| Create | `apps/web/src/components/agents/AgentsBadge.tsx` |
-| Create | `apps/web/src/components/agents/AgentDrawer.tsx` |
+| Action | File                                                    |
+| ------ | ------------------------------------------------------- |
+| Modify | `packages/shared/src/critic.ts`                         |
+| Modify | `apps/web/src/lib/workspace/store.ts`                   |
+| Modify | `apps/web/src/lib/chat/critic-dispatch.ts`              |
+| Create | `apps/web/src/lib/chat/copywriter-agent.ts`             |
+| Create | `apps/web/src/lib/chat/a11y-agent.ts`                   |
+| Create | `apps/web/src/lib/chat/dev-agent.ts`                    |
+| Create | `apps/web/src/lib/chat/agent-dispatch.ts`               |
+| Create | `apps/web/src/components/agents/AgentsBadge.tsx`        |
+| Create | `apps/web/src/components/agents/AgentDrawer.tsx`        |
 | Modify | `apps/web/src/components/workspace/WorkspaceLayout.tsx` |
-| Delete | `apps/web/src/components/sidebar/CriticBadge.tsx` |
-| Delete | `apps/web/src/components/critic/CriticDrawer.tsx` |
+| Delete | `apps/web/src/components/sidebar/CriticBadge.tsx`       |
+| Delete | `apps/web/src/components/critic/CriticDrawer.tsx`       |
 
 ---
 
 ## Task 1: Shared — AgentType + agentType on CriticReport
 
 **Files:**
+
 - Modify: `packages/shared/src/critic.ts`
 - Test: `packages/shared/src/critic.test.ts`
 
@@ -44,23 +45,34 @@ import { describe, it, expect } from 'vitest';
 import { CriticReport, AgentType } from './critic';
 
 const baseIssue = {
-  id: 'i1', severity: 'warning' as const, category: 'copy' as const,
-  message: 'test', status: 'open' as const, createdAt: new Date().toISOString(),
+  id: 'i1',
+  severity: 'warning' as const,
+  category: 'copy' as const,
+  message: 'test',
+  status: 'open' as const,
+  createdAt: new Date().toISOString(),
 };
 
 describe('CriticReport agentType', () => {
   it('defaults agentType to critic when omitted', () => {
     const report = CriticReport.parse({
-      id: 'r1', pagePath: '/', triggeredBy: 'test',
-      issues: [baseIssue], createdAt: new Date().toISOString(),
+      id: 'r1',
+      pagePath: '/',
+      triggeredBy: 'test',
+      issues: [baseIssue],
+      createdAt: new Date().toISOString(),
     });
     expect(report.agentType).toBe('critic');
   });
 
   it('accepts copywriter agentType', () => {
     const report = CriticReport.parse({
-      id: 'r2', pagePath: '/', triggeredBy: 'test', agentType: 'copywriter',
-      issues: [], createdAt: new Date().toISOString(),
+      id: 'r2',
+      pagePath: '/',
+      triggeredBy: 'test',
+      agentType: 'copywriter',
+      issues: [],
+      createdAt: new Date().toISOString(),
     });
     expect(report.agentType).toBe('copywriter');
   });
@@ -142,12 +154,14 @@ git commit -m "feat(shared): AgentType enum + agentType field on CriticReport"
 ## Task 2: Store — agentsRunning replaces isCriticRunning
 
 **Files:**
+
 - Modify: `apps/web/src/lib/workspace/store.ts`
 - Modify: `apps/web/src/lib/chat/critic-dispatch.ts`
 
 - [ ] **Step 1: Read `apps/web/src/lib/workspace/store.ts`**
 
 The file currently has:
+
 ```typescript
 isCriticRunning: boolean;          // in WorkspaceState
 setCriticRunning: (running: boolean) => void;  // in WorkspaceActions
@@ -158,21 +172,25 @@ setCriticRunning: (isCriticRunning) => set({ isCriticRunning }),  // in create
 - [ ] **Step 2: Update store — replace isCriticRunning with agentsRunning**
 
 In `WorkspaceState`, replace `isCriticRunning: boolean` with:
+
 ```typescript
 agentsRunning: Partial<Record<'critic' | 'copywriter' | 'a11y' | 'dev', boolean>>;
 ```
 
 In `WorkspaceActions`, replace `setCriticRunning` with:
+
 ```typescript
 setAgentRunning: (agent: 'critic' | 'copywriter' | 'a11y' | 'dev', running: boolean) => void;
 ```
 
 In `INITIAL`, replace `isCriticRunning: false` with:
+
 ```typescript
 agentsRunning: {},
 ```
 
 In the `create` block, replace `setCriticRunning: ...` with:
+
 ```typescript
 setAgentRunning: (agent, running) =>
   set((s) => ({
@@ -181,6 +199,7 @@ setAgentRunning: (agent, running) =>
 ```
 
 Add a backward-compatible selector at the bottom of the file (after `selectActiveModel`):
+
 ```typescript
 export function selectIsCriticRunning(state: WorkspaceState): boolean {
   return state.agentsRunning['critic'] ?? false;
@@ -192,6 +211,7 @@ Do NOT add `agentsRunning` to `partialize` — it's ephemeral.
 - [ ] **Step 3: Update `apps/web/src/lib/chat/critic-dispatch.ts`**
 
 In `runAndStoreCritic`, replace:
+
 ```typescript
 store.setCriticRunning(true);
 // ...
@@ -199,6 +219,7 @@ useWorkspaceStore.getState().setCriticRunning(false);
 ```
 
 With:
+
 ```typescript
 store.setAgentRunning('critic', true);
 // ...
@@ -206,15 +227,16 @@ useWorkspaceStore.getState().setAgentRunning('critic', false);
 ```
 
 Also update the `CriticReport` construction to include `agentType`:
+
 ```typescript
-  return {
-    id: nanoid(),
-    pagePath,
-    triggeredBy,
-    agentType: 'critic' as const,
-    issues,
-    createdAt: new Date().toISOString(),
-  };
+return {
+  id: nanoid(),
+  pagePath,
+  triggeredBy,
+  agentType: 'critic' as const,
+  issues,
+  createdAt: new Date().toISOString(),
+};
 ```
 
 - [ ] **Step 4: Typecheck**
@@ -224,6 +246,7 @@ cd H:\60_OSS\you-design && pnpm --filter @you-design/web typecheck
 ```
 
 Fix any reference to `isCriticRunning` or `setCriticRunning` in other files:
+
 - `apps/web/src/components/sidebar/CriticBadge.tsx` — uses `isCriticRunning` → will be replaced in Task 5, skip for now
 - `apps/web/src/components/critic/CriticDrawer.tsx` — uses `isCriticRunning` → will be replaced in Task 6, skip for now
 - Any other files: update to `agentsRunning['critic'] ?? false`
@@ -243,6 +266,7 @@ git commit -m "feat(web): agentsRunning map replaces isCriticRunning, selectIsCr
 ## Task 3: Three new agent prompt files
 
 **Files:**
+
 - Create: `apps/web/src/lib/chat/copywriter-agent.ts`
 - Create: `apps/web/src/lib/chat/a11y-agent.ts`
 - Create: `apps/web/src/lib/chat/dev-agent.ts`
@@ -340,13 +364,20 @@ git commit -m "feat(web): copywriter, a11y, dev agent system prompts"
 ## Task 4: Generic agent dispatcher
 
 **Files:**
+
 - Create: `apps/web/src/lib/chat/agent-dispatch.ts`
 
 - [ ] **Step 1: Create `apps/web/src/lib/chat/agent-dispatch.ts`**
 
 ```typescript
 import { nanoid } from 'nanoid';
-import type { AgentType, CriticIssue, CriticReport, Severity, IssueCategory } from '@you-design/shared';
+import type {
+  AgentType,
+  CriticIssue,
+  CriticReport,
+  Severity,
+  IssueCategory,
+} from '@you-design/shared';
 import { selectModelForTask, estimateCost } from '@you-design/shared';
 import { useWorkspaceStore } from '@/lib/workspace/store';
 import { streamLlm } from '@/lib/llm/client';
@@ -390,26 +421,22 @@ export async function runAgent(
       max_tokens: 2048,
     };
 
-    for await (const ev of streamLlm(
-      req,
-      undefined,
-      (usage) => {
-        const cost = estimateCost(activeModel.modelName, usage.promptTokens, usage.completionTokens);
-        const store = useWorkspaceStore.getState();
-        if (cost !== null) store.appendSessionCost(cost);
-        void fetch('http://localhost:3001/api/v1/usage', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            projectId: store.projectId ?? undefined,
-            agent: agentType,
-            modelName: activeModel.modelName,
-            promptTokens: usage.promptTokens,
-            completionTokens: usage.completionTokens,
-          }),
-        }).catch(() => {});
-      },
-    )) {
+    for await (const ev of streamLlm(req, undefined, (usage) => {
+      const cost = estimateCost(activeModel.modelName, usage.promptTokens, usage.completionTokens);
+      const store = useWorkspaceStore.getState();
+      if (cost !== null) store.appendSessionCost(cost);
+      void fetch('http://localhost:3001/api/v1/usage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          projectId: store.projectId ?? undefined,
+          agent: agentType,
+          modelName: activeModel.modelName,
+          promptTokens: usage.promptTokens,
+          completionTokens: usage.completionTokens,
+        }),
+      }).catch(() => {});
+    })) {
       if (ev.type === 'tool-call') {
         const part = ev.data as {
           input?: { issues?: unknown[] };
@@ -456,6 +483,7 @@ git commit -m "feat(web): generic runAgent dispatcher for all agent types"
 ## Task 5: AgentsBadge (replaces CriticBadge)
 
 **Files:**
+
 - Create: `apps/web/src/components/agents/AgentsBadge.tsx`
 - Delete: `apps/web/src/components/sidebar/CriticBadge.tsx`
 
@@ -545,6 +573,7 @@ git commit -m "feat(web): AgentsBadge replaces CriticBadge, shows all agents' is
 ## Task 6: AgentDrawer (replaces CriticDrawer)
 
 **Files:**
+
 - Create: `apps/web/src/components/agents/AgentDrawer.tsx`
 - Delete: `apps/web/src/components/critic/CriticDrawer.tsx`
 
@@ -718,36 +747,45 @@ git commit -m "feat(web): AgentDrawer replaces CriticDrawer — tabbed Critic/Co
 ## Task 7: WorkspaceLayout + final cleanup
 
 **Files:**
+
 - Modify: `apps/web/src/components/workspace/WorkspaceLayout.tsx`
 
 - [ ] **Step 1: Read `apps/web/src/components/workspace/WorkspaceLayout.tsx` then update imports**
 
 Replace:
+
 ```typescript
 import { CriticBadge } from '@/components/sidebar/CriticBadge';
 import { CriticDrawer } from '@/components/critic/CriticDrawer';
 ```
 
 With:
+
 ```typescript
 import { AgentsBadge } from '@/components/agents/AgentsBadge';
 import { AgentDrawer } from '@/components/agents/AgentDrawer';
 ```
 
 Replace in JSX:
+
 ```tsx
 <CriticBadge onOpen={() => setCriticOpen(true)} />
 ```
+
 With:
+
 ```tsx
 <AgentsBadge onOpen={() => setCriticOpen(true)} />
 ```
 
 Replace:
+
 ```tsx
 <CriticDrawer open={criticOpen} onClose={() => setCriticOpen(false)} />
 ```
+
 With:
+
 ```tsx
 <AgentDrawer open={criticOpen} onClose={() => setCriticOpen(false)} />
 ```
@@ -755,6 +793,7 @@ With:
 - [ ] **Step 2: Fix any remaining isCriticRunning references**
 
 Search for remaining references:
+
 ```bash
 cd H:\60_OSS\you-design && grep -r "isCriticRunning\|setCriticRunning\|CriticBadge\|CriticDrawer" apps/web/src/ --include="*.ts" --include="*.tsx"
 ```
@@ -785,6 +824,7 @@ git push && git push --tags
 ## Self-Review
 
 **Spec coverage:**
+
 - ✅ `AgentType` enum ('critic'|'copywriter'|'a11y'|'dev') (Task 1)
 - ✅ `agentType` on `CriticReport` with default 'critic' (Task 1)
 - ✅ `agentsRunning` replaces `isCriticRunning` (Task 2)
@@ -805,6 +845,7 @@ git push && git push --tags
 - ✅ WorkspaceLayout — swaps components (Task 7)
 
 **Type consistency:**
+
 - `AgentType` defined in Task 1, used in Tasks 2, 4, 5, 6 ✅
 - `runAgent(agentType, systemPrompt, tools, pagePath, pageHtml)` defined in Task 4, called in Task 6 ✅
 - `setAgentRunning(agent, running)` defined in Task 2, called in Tasks 4, 6 ✅

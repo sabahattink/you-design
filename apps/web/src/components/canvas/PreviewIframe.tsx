@@ -16,19 +16,13 @@ function withTailwindAndScript(html: string): string {
   let body = toHtml(doc);
   if (!body.includes('cdn.tailwindcss.com')) {
     if (body.includes('<head>')) {
-      body = body.replace(
-        '<head>',
-        `<head><script src="${TAILWIND_CDN}"></script>`,
-      );
+      body = body.replace('<head>', `<head><script src="${TAILWIND_CDN}"></script>`);
     } else {
       body = `<head><script src="${TAILWIND_CDN}"></script></head>` + body;
     }
   }
   if (body.includes('</body>')) {
-    body = body.replace(
-      '</body>',
-      `<script>${INJECT_SCRIPT}</script></body>`,
-    );
+    body = body.replace('</body>', `<script>${INJECT_SCRIPT}</script></body>`);
   } else {
     body = body + `<script>${INJECT_SCRIPT}</script>`;
   }
@@ -93,9 +87,7 @@ export function PreviewIframe({ collabProvider }: PreviewIframeProps = {}) {
   const setSelected = useWorkspaceStore((s) => s.setSelectedElement);
   const setCurrentPath = useWorkspaceStore((s) => s.setCurrentPath);
 
-  const [bounds, setBounds] = React.useState<
-    SelectMessage['bounds'] | null
-  >(null);
+  const [bounds, setBounds] = React.useState<SelectMessage['bounds'] | null>(null);
 
   React.useEffect(() => {
     function onMessage(e: MessageEvent) {
@@ -124,8 +116,7 @@ export function PreviewIframe({ collabProvider }: PreviewIframeProps = {}) {
     return (
       <div className="h-full grid place-items-center">
         <div className="text-sm text-[color:var(--color-muted)] text-center px-6 max-w-md">
-          No page yet — finish the intent quiz and the designer agent will
-          generate one.
+          No page yet — finish the intent quiz and the designer agent will generate one.
         </div>
       </div>
     );

@@ -56,9 +56,7 @@ export function CriticIssueCard({ reportId, issue, onFix }: Props) {
             #{issue.elementId}
           </button>
         )}
-        {issue.status === 'fixed' && (
-          <span className="text-green-600 text-xs">✓ fixed</span>
-        )}
+        {issue.status === 'fixed' && <span className="text-green-600 text-xs">✓ fixed</span>}
       </div>
       <div>{issue.message}</div>
       {issue.suggestion && (

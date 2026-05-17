@@ -3,11 +3,7 @@ import { eq, desc, sql } from 'drizzle-orm';
 import { embed } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
 import { db, schema } from '@you-design/db';
-import {
-  CreateProjectBody,
-  ProjectPatch,
-  MemoryStoreBody,
-} from '@you-design/shared';
+import { CreateProjectBody, ProjectPatch, MemoryStoreBody } from '@you-design/shared';
 
 export async function projectsRoutes(app: FastifyInstance) {
   // GET /projects
@@ -59,10 +55,7 @@ export async function projectsRoutes(app: FastifyInstance) {
   // GET /projects/:id
   app.get('/projects/:id', async (req, reply) => {
     const { id } = req.params as { id: string };
-    const [project] = await db
-      .select()
-      .from(schema.projects)
-      .where(eq(schema.projects.id, id));
+    const [project] = await db.select().from(schema.projects).where(eq(schema.projects.id, id));
     if (!project) {
       reply.code(404);
       return { error: 'NOT_FOUND' };
@@ -119,7 +112,10 @@ export async function projectsRoutes(app: FastifyInstance) {
   // DELETE /projects/:id
   app.delete('/projects/:id', async (req, reply) => {
     const { id } = req.params as { id: string };
-    const result = await db.delete(schema.projects).where(eq(schema.projects.id, id)).returning({ id: schema.projects.id });
+    const result = await db
+      .delete(schema.projects)
+      .where(eq(schema.projects.id, id))
+      .returning({ id: schema.projects.id });
     if (result.length === 0) {
       reply.code(404);
       return { error: 'NOT_FOUND' };

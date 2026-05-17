@@ -41,9 +41,9 @@ export default function HomePage() {
             works <span className="text-[color:var(--color-accent)]">multi-agent</span>.
           </h1>
           <p className="mt-8 text-lg text-[color:var(--color-muted)] max-w-2xl">
-            A local-first, AGPL-licensed, AI-assisted visual design + code workspace. Picks up
-            where Figma + V0 + Bolt fall short: no sycophancy, multi-format export, post-deploy
-            analytics feedback loop.
+            A local-first, AGPL-licensed, AI-assisted visual design + code workspace. Picks up where
+            Figma + V0 + Bolt fall short: no sycophancy, multi-format export, post-deploy analytics
+            feedback loop.
           </p>
 
           <div className="mt-12 flex flex-wrap gap-3">

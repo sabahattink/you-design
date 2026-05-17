@@ -31,8 +31,7 @@ export async function storeBuildMemory(
   openAiKey?: string,
 ): Promise<void> {
   const topTags = extractTopTags(html);
-  const persona =
-    typeof contract.persona === 'string' ? contract.persona : contract.persona.role;
+  const persona = typeof contract.persona === 'string' ? contract.persona : contract.persona.role;
   const summary =
     `Page "${pagePath}": ${contract.domain} design for ${persona}. ` +
     `Goal: ${contract.primaryAction}. Emotion: ${contract.emotion}. ` +

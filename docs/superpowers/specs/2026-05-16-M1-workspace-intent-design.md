@@ -33,23 +33,24 @@ Five weeks. No multiplayer. No domain templates. No PPTX export. No multi-LLM. J
 
 ## Architecture Decisions (resolved during brainstorm)
 
-| Decision | Choice | Reason |
-|----------|--------|--------|
-| Canvas model | **HTML iframe rendering** | Code is single source of truth; pixel-perfect preview |
-| Iframe runtime | **Plain HTML + Tailwind via srcdoc** | Instant render, low RAM, perfect alignment with M3 exporters |
-| AST tooling | **parse5 / hast** | Battle-tested HTML AST, immutable transforms |
-| Intent quiz UX | **Conversational chat** | Honest critic can challenge vague answers naturally |
-| First domain | **General (no domain)** | Reduce scope; critic still works on intent semantics |
-| Page structure | **Multi-page HTML files + path-based routing** | More realistic; navigation between pages is core UX |
-| Persistence | **localStorage (anonymous)** | No auth complexity; refresh-safe; device-isolated |
-| Code editor | **Monaco** | Standard, low-friction |
-| LLM | **Claude Sonnet 4.6 only** (single provider in M1) | Best coding model; router comes in M2 |
+| Decision       | Choice                                             | Reason                                                       |
+| -------------- | -------------------------------------------------- | ------------------------------------------------------------ |
+| Canvas model   | **HTML iframe rendering**                          | Code is single source of truth; pixel-perfect preview        |
+| Iframe runtime | **Plain HTML + Tailwind via srcdoc**               | Instant render, low RAM, perfect alignment with M3 exporters |
+| AST tooling    | **parse5 / hast**                                  | Battle-tested HTML AST, immutable transforms                 |
+| Intent quiz UX | **Conversational chat**                            | Honest critic can challenge vague answers naturally          |
+| First domain   | **General (no domain)**                            | Reduce scope; critic still works on intent semantics         |
+| Page structure | **Multi-page HTML files + path-based routing**     | More realistic; navigation between pages is core UX          |
+| Persistence    | **localStorage (anonymous)**                       | No auth complexity; refresh-safe; device-isolated            |
+| Code editor    | **Monaco**                                         | Standard, low-friction                                       |
+| LLM            | **Claude Sonnet 4.6 only** (single provider in M1) | Best coding model; router comes in M2                        |
 
 ## System Components
 
 ### 1. `apps/web/src/app/app/page.tsx` — Workspace shell
 
 Three-pane layout:
+
 - **Left sidebar (224px):** Page list, file tree, intent contract chip
 - **Center:** Canvas iframe (full width minus panels) with edit overlay
 - **Right (320px):** Chat panel (intent agent, then designer agent, with critic interrupts)
@@ -66,9 +67,9 @@ interface WorkspaceStore {
   intentContract: IntentContract | null;
 
   // Building phase
-  pages: Record<string, Page>;       // key = path ("/", "/about", "/pricing")
+  pages: Record<string, Page>; // key = path ("/", "/about", "/pricing")
   currentPath: string;
-  selectedElementId: string | null;  // data-yd-id of clicked element
+  selectedElementId: string | null; // data-yd-id of clicked element
 
   // Chat
   buildMessages: ChatMessage[];
@@ -88,6 +89,7 @@ interface WorkspaceStore {
 ### 3. `apps/web/src/components/canvas/PreviewIframe.tsx` — Canvas
 
 The iframe renders the current page's HTML via `srcdoc`. A small injected script:
+
 - Walks the DOM, assigns `data-yd-id` to every element (UUID generated client-side if not present in source)
 - Listens for clicks → `postMessage({ type: 'select', id })` to parent
 - Listens for `parent.postMessage({ type: 'highlight', id })` → draws a styled outline
@@ -97,6 +99,7 @@ The parent component shows an absolute-positioned overlay on top of the iframe w
 ### 4. `apps/web/src/components/canvas/EditPanel.tsx` — Inline element editor
 
 When `selectedElementId` is set:
+
 - Shows the selected element's tag, classes, text content
 - Allows editing inline (text input, class autocomplete from Tailwind list)
 - Save → `store.updateElement(id, patch)` → store re-renders HTML → iframe srcdoc updates
@@ -107,7 +110,7 @@ When `selectedElementId` is set:
 import { parse, serialize } from 'parse5';
 
 export function parseHtml(html: string): Document;
-export function ensureYdIds(doc: Document): Document;  // adds data-yd-id to every element
+export function ensureYdIds(doc: Document): Document; // adds data-yd-id to every element
 export function findElementById(doc: Document, id: string): Element | null;
 export function updateElement(doc: Document, id: string, patch: ElementPatch): Document;
 export function addChild(doc: Document, parentId: string, html: string): Document;
@@ -120,6 +123,7 @@ All transforms return new documents (immutable).
 ### 6. `apps/web/src/lib/chat/intent-agent.ts` — Intent agent (M1 minimal)
 
 A system prompt that:
+
 - Asks one question at a time, conversationally
 - Has 4 internal slots: `persona`, `primaryAction`, `emotion`, `successMetric`
 - After each user reply, parses to fill slots, asks follow-up if unclear
@@ -127,6 +131,7 @@ A system prompt that:
 - Once all 4 slots are filled, summarizes contract and offers approval
 
 Tool calls:
+
 - `record_slot(slot: string, value: string)` — fills a slot
 - `challenge(reason: string)` — emits a critic warning, asks for refinement
 - `summarize_contract(contract: IntentContract)` — proposes contract for approval
@@ -136,6 +141,7 @@ Tool calls:
 After intent approval, takes over the chat. Generates HTML pages.
 
 Tool calls:
+
 - `write_page(path: string, html: string)` — creates/replaces a page
 - `update_element(pageId: string, elementId: string, patch: ElementPatch)`
 - `add_element(pageId: string, parentId: string, html: string)`
@@ -143,6 +149,7 @@ Tool calls:
 - `list_pages()` — for self-awareness
 
 System prompt emphasizes:
+
 - Output is HTML + Tailwind only (no JSX, no external CSS)
 - Respect the intent contract (persona, emotion, primary action)
 - Generate semantic HTML (h1/h2/section/nav/main/footer)
@@ -152,6 +159,7 @@ System prompt emphasizes:
 ### 8. `apps/api/src/routes/llm.ts` — LLM proxy endpoint
 
 POST `/api/v1/llm/stream` — SSE endpoint that proxies to Anthropic.
+
 - Body: `{ messages: ChatMessage[], tools: ToolDef[], system: string }`
 - Streams tokens + tool calls back to client
 - API key from env (M1 server-side only; M2 introduces BYOK from UI)
@@ -284,6 +292,7 @@ packages/shared/src/
 > You are the Intent Agent for You Design. Your job is to extract a precise intent contract from a vague user brief through conversation. You have 4 slots: persona, primaryAction, emotion, successMetric.
 >
 > Rules:
+>
 > - Ask ONE question at a time. Never multiple.
 > - If the user answers vaguely ("for everyone", "be cool", "make money"), call the `challenge` tool with a specific reason. Then re-ask with sharper framing.
 > - Once a slot is reasonably specific, record it with `record_slot`.
@@ -296,6 +305,7 @@ packages/shared/src/
 > You are the Designer Agent for You Design. The intent contract has been approved. Your job is to generate HTML+Tailwind pages that fulfill it.
 >
 > Rules:
+>
 > - Output HTML + Tailwind v4 classes only. No inline styles. No external CSS. No JSX.
 > - Semantic HTML: use `<header>`, `<main>`, `<section>`, `<nav>`, `<footer>` correctly.
 > - Default a11y: alt text on images, ARIA where appropriate, sufficient color contrast.
@@ -337,16 +347,16 @@ packages/shared/src/
 
 ## Risks & Open Questions
 
-| Risk | Mitigation |
-|------|------------|
-| LLM streams malformed HTML mid-stream → iframe broken | Buffer until each tag closes; or render only on tool call boundaries |
-| Tailwind v4 JIT requires build step (canvas can't compile) | Ship Tailwind CDN script inside iframe srcdoc + safelist of classes |
-| `data-yd-id` collisions across page re-renders | nanoid + stable across edits (preserve id on update) |
-| Iframe-to-parent postMessage origin spoofing | Use unique random token per session, validate every message |
-| Chat context grows unbounded | Trim to last N turns; M2 adds vector memory |
-| User pastes own HTML — yd-ids missing | `ensureYdIds()` runs on every page load + every external write |
-| Tool call schema drift between client and agent | Generate schemas from shared Zod types (single source) |
-| Anthropic rate limits | Server-side queue; surface friendly error in chat |
+| Risk                                                       | Mitigation                                                           |
+| ---------------------------------------------------------- | -------------------------------------------------------------------- |
+| LLM streams malformed HTML mid-stream → iframe broken      | Buffer until each tag closes; or render only on tool call boundaries |
+| Tailwind v4 JIT requires build step (canvas can't compile) | Ship Tailwind CDN script inside iframe srcdoc + safelist of classes  |
+| `data-yd-id` collisions across page re-renders             | nanoid + stable across edits (preserve id on update)                 |
+| Iframe-to-parent postMessage origin spoofing               | Use unique random token per session, validate every message          |
+| Chat context grows unbounded                               | Trim to last N turns; M2 adds vector memory                          |
+| User pastes own HTML — yd-ids missing                      | `ensureYdIds()` runs on every page load + every external write       |
+| Tool call schema drift between client and agent            | Generate schemas from shared Zod types (single source)               |
+| Anthropic rate limits                                      | Server-side queue; surface friendly error in chat                    |
 
 ### Open questions (defer to implementation, decide as encountered)
 
@@ -372,13 +382,13 @@ packages/shared/src/
 
 ## Timeline (5 weeks)
 
-| Week | Focus |
-|------|-------|
-| 1 | Workspace shell + Zustand store + localStorage + iframe rendering |
-| 2 | parse5 AST utilities + data-yd-id injection + click-to-select + edit panel |
-| 3 | LLM SSE proxy + Vercel AI SDK + intent agent (chat + tool calls) |
-| 4 | Designer agent + multi-page support + sidebar page list + navigation |
-| 5 | Polish: streaming buffering, error recovery, E2E test, demo recording |
+| Week | Focus                                                                      |
+| ---- | -------------------------------------------------------------------------- |
+| 1    | Workspace shell + Zustand store + localStorage + iframe rendering          |
+| 2    | parse5 AST utilities + data-yd-id injection + click-to-select + edit panel |
+| 3    | LLM SSE proxy + Vercel AI SDK + intent agent (chat + tool calls)           |
+| 4    | Designer agent + multi-page support + sidebar page list + navigation       |
+| 5    | Polish: streaming buffering, error recovery, E2E test, demo recording      |
 
 Each week ends with a `feat:` commit and a tagged checkpoint on GitHub.
 

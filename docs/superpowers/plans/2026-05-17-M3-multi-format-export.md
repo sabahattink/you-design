@@ -12,22 +12,22 @@
 
 ## File Map
 
-| Action | File |
-|--------|------|
-| Create | `packages/db/src/schema/export-jobs.ts` |
-| Modify | `packages/db/src/schema/index.ts` |
-| Create | `packages/db/migrations/0002_export_jobs.sql` |
-| Create | `packages/shared/src/exports.ts` |
-| Modify | `packages/shared/src/index.ts` |
-| Create | `apps/api/src/lib/html-inject.ts` |
-| Create | `apps/api/src/lib/export-pdf.ts` |
-| Create | `apps/api/src/lib/export-pptx.ts` |
-| Create | `apps/api/src/routes/exports.ts` |
-| Modify | `apps/api/src/server.ts` |
-| Modify | `apps/api/src/worker.ts` |
-| Modify | `docker/Dockerfile.api` |
-| Create | `apps/web/src/lib/export/useExport.ts` |
-| Create | `apps/web/src/components/export/ExportDialog.tsx` |
+| Action | File                                                    |
+| ------ | ------------------------------------------------------- |
+| Create | `packages/db/src/schema/export-jobs.ts`                 |
+| Modify | `packages/db/src/schema/index.ts`                       |
+| Create | `packages/db/migrations/0002_export_jobs.sql`           |
+| Create | `packages/shared/src/exports.ts`                        |
+| Modify | `packages/shared/src/index.ts`                          |
+| Create | `apps/api/src/lib/html-inject.ts`                       |
+| Create | `apps/api/src/lib/export-pdf.ts`                        |
+| Create | `apps/api/src/lib/export-pptx.ts`                       |
+| Create | `apps/api/src/routes/exports.ts`                        |
+| Modify | `apps/api/src/server.ts`                                |
+| Modify | `apps/api/src/worker.ts`                                |
+| Modify | `docker/Dockerfile.api`                                 |
+| Create | `apps/web/src/lib/export/useExport.ts`                  |
+| Create | `apps/web/src/components/export/ExportDialog.tsx`       |
 | Modify | `apps/web/src/components/workspace/WorkspaceLayout.tsx` |
 
 ---
@@ -35,6 +35,7 @@
 ## Task 1: DB — export_jobs schema + migration
 
 **Files:**
+
 - Create: `packages/db/src/schema/export-jobs.ts`
 - Modify: `packages/db/src/schema/index.ts`
 - Create: `packages/db/migrations/0002_export_jobs.sql`
@@ -71,6 +72,7 @@ export * from './export-jobs.js';
 - [ ] **Step 3: Generate or write migration**
 
 Try:
+
 ```bash
 cd H:\60_OSS\you-design\packages\db && pnpm drizzle-kit generate
 ```
@@ -100,6 +102,7 @@ END $$;
 ```
 
 Update `packages/db/migrations/meta/_journal.json` — add entry:
+
 ```json
 { "idx": 2, "version": "7", "when": <current_timestamp_ms>, "tag": "0002_export_jobs", "breakpoints": true }
 ```
@@ -125,6 +128,7 @@ git commit -m "feat(db): export_jobs schema + migration"
 ## Task 2: Shared — exports.ts types
 
 **Files:**
+
 - Create: `packages/shared/src/exports.ts`
 - Modify: `packages/shared/src/index.ts`
 
@@ -169,6 +173,7 @@ git commit -m "feat(shared): export format and job status Zod schemas"
 ## Task 3: API — install deps + html-inject + export-pdf + export-pptx
 
 **Files:**
+
 - Modify: `apps/api/package.json`
 - Create: `apps/api/src/lib/html-inject.ts`
 - Create: `apps/api/src/lib/export-pdf.ts`
@@ -224,7 +229,10 @@ export async function runPdfExport(jobId: string, pages: PageData[]): Promise<st
   try {
     for (const pg of pages) {
       const bPage = await browser.newPage();
-      await bPage.setContent(injectTailwind(pg.html), { waitUntil: 'networkidle', timeout: 30_000 });
+      await bPage.setContent(injectTailwind(pg.html), {
+        waitUntil: 'networkidle',
+        timeout: 30_000,
+      });
       const buf = await bPage.pdf({ format: 'A4', printBackground: true });
       pdfBuffers.push(buf);
       await bPage.close();
@@ -271,7 +279,10 @@ export async function runPptxExport(jobId: string, pages: PageData[]): Promise<s
     for (const pg of pages) {
       const bPage = await browser.newPage();
       await bPage.setViewportSize({ width: 1280, height: 960 });
-      await bPage.setContent(injectTailwind(pg.html), { waitUntil: 'networkidle', timeout: 30_000 });
+      await bPage.setContent(injectTailwind(pg.html), {
+        waitUntil: 'networkidle',
+        timeout: 30_000,
+      });
       const buf = await bPage.screenshot({ fullPage: false, type: 'png' });
       screenshots.push(buf);
       await bPage.close();
@@ -288,7 +299,10 @@ export async function runPptxExport(jobId: string, pages: PageData[]): Promise<s
     const slide = prs.addSlide();
     slide.addImage({
       data: `data:image/png;base64,${shot.toString('base64')}`,
-      x: 0, y: 0, w: '100%', h: '100%',
+      x: 0,
+      y: 0,
+      w: '100%',
+      h: '100%',
     });
   }
 
@@ -321,6 +335,7 @@ git commit -m "feat(api): Playwright + pdf-lib + pptxgenjs deps, export helpers"
 ## Task 4: API — exports route + server registration
 
 **Files:**
+
 - Create: `apps/api/src/routes/exports.ts`
 - Modify: `apps/api/src/server.ts`
 
@@ -347,15 +362,16 @@ export async function exportsRoutes(app: FastifyInstance) {
 
     // Fetch pages from DB for the job payload
     const pages = await db
-      .select({ path: schema.projectPages.path, title: schema.projectPages.title, html: schema.projectPages.html })
+      .select({
+        path: schema.projectPages.path,
+        title: schema.projectPages.title,
+        html: schema.projectPages.html,
+      })
       .from(schema.projectPages)
       .where(eq(schema.projectPages.projectId, projectId));
 
     // Insert job row
-    const [job] = await db
-      .insert(schema.exportJobs)
-      .values({ projectId, format })
-      .returning();
+    const [job] = await db.insert(schema.exportJobs).values({ projectId, format }).returning();
 
     // Enqueue
     await exportQueue.add('export', {
@@ -372,10 +388,7 @@ export async function exportsRoutes(app: FastifyInstance) {
   // GET /exports/:jobId — status
   app.get('/exports/:jobId', async (req, reply) => {
     const { jobId } = req.params as { jobId: string };
-    const [row] = await db
-      .select()
-      .from(schema.exportJobs)
-      .where(eq(schema.exportJobs.id, jobId));
+    const [row] = await db.select().from(schema.exportJobs).where(eq(schema.exportJobs.id, jobId));
     if (!row) {
       reply.code(404);
       return { error: 'NOT_FOUND' };
@@ -391,10 +404,7 @@ export async function exportsRoutes(app: FastifyInstance) {
   // GET /exports/:jobId/download — serve file
   app.get('/exports/:jobId/download', async (req, reply) => {
     const { jobId } = req.params as { jobId: string };
-    const [row] = await db
-      .select()
-      .from(schema.exportJobs)
-      .where(eq(schema.exportJobs.id, jobId));
+    const [row] = await db.select().from(schema.exportJobs).where(eq(schema.exportJobs.id, jobId));
 
     if (!row) {
       reply.code(404);
@@ -411,9 +421,11 @@ export async function exportsRoutes(app: FastifyInstance) {
 
     const ext = path.extname(row.filePath).slice(1);
     const contentType =
-      ext === 'pdf' ? 'application/pdf' :
-      ext === 'pptx' ? 'application/vnd.openxmlformats-officedocument.presentationml.presentation' :
-      'text/html';
+      ext === 'pdf'
+        ? 'application/pdf'
+        : ext === 'pptx'
+          ? 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+          : 'text/html';
 
     reply.header('Content-Disposition', `attachment; filename="export.${ext}"`);
     reply.header('Content-Type', contentType);
@@ -437,11 +449,13 @@ export const llmQueue = new Queue('llm-queue', { connection: redis });
 - [ ] **Step 3: Register in `apps/api/src/server.ts`**
 
 Add import:
+
 ```typescript
 import { exportsRoutes } from './routes/exports.js';
 ```
 
 Add registration after usageRoutes:
+
 ```typescript
 await app.register(exportsRoutes, { prefix: '/api/v1' });
 ```
@@ -465,6 +479,7 @@ git commit -m "feat(api): exports routes POST/GET status/GET download"
 ## Task 5: API — wire export worker
 
 **Files:**
+
 - Modify: `apps/api/src/worker.ts`
 
 - [ ] **Step 1: Rewrite `apps/api/src/worker.ts`**
@@ -577,6 +592,7 @@ git commit -m "feat(api): export worker — PDF via Playwright + pdf-lib, PPTX v
 ## Task 6: Docker — Playwright in API image
 
 **Files:**
+
 - Modify: `docker/Dockerfile.api`
 
 - [ ] **Step 1: Read current `docker/Dockerfile.api`**
@@ -658,6 +674,7 @@ git commit -m "feat(docker): switch API runner to Debian-slim, install Playwrigh
 ## Task 7: Web — useExport hook + ExportDialog
 
 **Files:**
+
 - Create: `apps/web/src/lib/export/useExport.ts`
 - Create: `apps/web/src/components/export/ExportDialog.tsx`
 
@@ -692,9 +709,7 @@ export function useExport() {
 
   const exportHtml = useCallback(() => {
     const allPages = Object.values(pages);
-    const combined = allPages
-      .map((p) => `<!-- Page: ${p.path} -->\n${p.html}`)
-      .join('\n\n');
+    const combined = allPages.map((p) => `<!-- Page: ${p.path} -->\n${p.html}`).join('\n\n');
     const blob = new Blob([combined], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -902,33 +917,40 @@ git commit -m "feat(web): useExport hook + ExportDialog component"
 ## Task 8: Web — Export button in WorkspaceLayout + final checks
 
 **Files:**
+
 - Modify: `apps/web/src/components/workspace/WorkspaceLayout.tsx`
 
 - [ ] **Step 1: Read `apps/web/src/components/workspace/WorkspaceLayout.tsx` then add Export button**
 
 Add import at top:
+
 ```typescript
 import { ExportDialog } from '@/components/export/ExportDialog';
 ```
 
 Add state inside component:
+
 ```typescript
-  const [exportOpen, setExportOpen] = React.useState(false);
+const [exportOpen, setExportOpen] = React.useState(false);
 ```
 
 In the header, after the cost badge span, add:
+
 ```tsx
-        <button
-          onClick={() => setExportOpen(true)}
-          className="ml-2 text-xs px-2 py-0.5 rounded border border-[color:var(--color-border)] hover:bg-[color:var(--color-border)]"
-        >
-          Export
-        </button>
+<button
+  onClick={() => setExportOpen(true)}
+  className="ml-2 text-xs px-2 py-0.5 rounded border border-[color:var(--color-border)] hover:bg-[color:var(--color-border)]"
+>
+  Export
+</button>
 ```
 
 At the end of the outer `<div className="h-screen flex flex-col">`, before the closing tag, add:
+
 ```tsx
-      {exportOpen && <ExportDialog onClose={() => setExportOpen(false)} />}
+{
+  exportOpen && <ExportDialog onClose={() => setExportOpen(false)} />;
+}
 ```
 
 - [ ] **Step 2: Full typecheck**
@@ -969,6 +991,7 @@ git push && git push --tags
 ## Self-Review
 
 **Spec coverage:**
+
 - ✅ export_jobs table (Task 1)
 - ✅ Shared ExportFormat + ExportJobStatus schemas (Task 2)
 - ✅ Playwright + pdf-lib + pptxgenjs installed, html-inject helper (Task 3)
@@ -987,6 +1010,7 @@ git push && git push --tags
 - ✅ ExportDialog conditional render (Task 8)
 
 **Type consistency:**
+
 - `ExportFormat` defined in Task 2, used in Tasks 4, 5, 7 ✅
 - `ExportJobData { jobId, projectId, format, pages }` defined in Task 5 worker, matches Task 4 enqueue payload ✅
 - `runPdfExport(jobId, pages)` defined in Task 3, called in Task 5 ✅

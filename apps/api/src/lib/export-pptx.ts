@@ -26,7 +26,10 @@ export async function runPptxExport(jobId: string, pages: PageData[]): Promise<s
     for (const pg of pages) {
       const bPage = await browser.newPage();
       await bPage.setViewportSize({ width: 1280, height: 960 });
-      await bPage.setContent(injectTailwind(pg.html), { waitUntil: 'networkidle', timeout: 30_000 });
+      await bPage.setContent(injectTailwind(pg.html), {
+        waitUntil: 'networkidle',
+        timeout: 30_000,
+      });
       const buf = await bPage.screenshot({ fullPage: false, type: 'png' });
       screenshots.push(buf);
       await bPage.close();
@@ -43,7 +46,10 @@ export async function runPptxExport(jobId: string, pages: PageData[]): Promise<s
     const slide = prs.addSlide();
     slide.addImage({
       data: `data:image/png;base64,${shot.toString('base64')}`,
-      x: 0, y: 0, w: '100%', h: '100%',
+      x: 0,
+      y: 0,
+      w: '100%',
+      h: '100%',
     });
   }
 

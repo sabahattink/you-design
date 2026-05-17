@@ -71,8 +71,7 @@ export const DESIGNER_TOOLS = [
   },
   {
     name: 'update_element',
-    description:
-      'Patch a single element identified by its data-yd-id on a given page path.',
+    description: 'Patch a single element identified by its data-yd-id on a given page path.',
     input_schema: {
       type: 'object',
       properties: {
@@ -95,8 +94,7 @@ export const DESIGNER_TOOLS = [
   },
   {
     name: 'add_element',
-    description:
-      'Append a new HTML fragment inside a parent element (by id) on a given page.',
+    description: 'Append a new HTML fragment inside a parent element (by id) on a given page.',
     input_schema: {
       type: 'object',
       properties: {

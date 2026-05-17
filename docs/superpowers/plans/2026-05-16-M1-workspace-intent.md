@@ -18,56 +18,56 @@
 
 ### New files (apps/web)
 
-| Path | Responsibility |
-|------|----------------|
-| `src/lib/workspace/store.ts` | Zustand store + persist middleware |
-| `src/lib/workspace/types.ts` | Page, IntentContract, ChatMessage, ToolCall types (re-exports shared) |
-| `src/lib/html/ast.ts` | parse5 wrappers: parse, ensureYdIds, findById, update, add, remove, serialize |
-| `src/lib/html/tailwind-classes.ts` | Static list (~5KB JSON) of common Tailwind utility classes |
-| `src/lib/chat/intent-agent.ts` | Intent agent system prompt + tool definitions + slot tracker |
-| `src/lib/chat/designer-agent.ts` | Designer agent system prompt + tool definitions |
-| `src/lib/chat/stream.ts` | SSE client (parses Anthropic event stream from API) |
-| `src/lib/llm/client.ts` | POST `/api/v1/llm/stream` and yield tokens + tool calls |
-| `src/components/canvas/PreviewIframe.tsx` | Iframe wrapper, srcdoc binding, postMessage listener |
-| `src/components/canvas/inject-script.ts` | String of JS injected into iframe (click + bounds + nav intercept) |
-| `src/components/canvas/SelectionOverlay.tsx` | Absolute-positioned outline drawn over the iframe |
-| `src/components/canvas/EditPanel.tsx` | Right-side sliding panel: tag, text, classes for selected element |
-| `src/components/canvas/CodePanel.tsx` | Monaco editor bound to current page HTML |
-| `src/components/chat/ChatPanel.tsx` | Combined intent+designer chat UI |
-| `src/components/chat/ChatMessage.tsx` | Single bubble (user / agent / critic / tool) |
-| `src/components/chat/CriticBubble.tsx` | Special styling for `challenge` tool calls |
-| `src/components/chat/IntentContractCard.tsx` | Shows summarized contract + Approve button |
-| `src/components/chat/Composer.tsx` | Input box with send/enter handling |
-| `src/components/sidebar/PageList.tsx` | List of pages with add/select/delete |
-| `src/components/sidebar/IntentChip.tsx` | Tiny chip showing locked-in intent contract |
-| `src/components/sidebar/AddPageDialog.tsx` | Modal for adding a page with a path |
-| `src/components/workspace/WorkspaceLayout.tsx` | Three-pane layout root |
+| Path                                           | Responsibility                                                                |
+| ---------------------------------------------- | ----------------------------------------------------------------------------- |
+| `src/lib/workspace/store.ts`                   | Zustand store + persist middleware                                            |
+| `src/lib/workspace/types.ts`                   | Page, IntentContract, ChatMessage, ToolCall types (re-exports shared)         |
+| `src/lib/html/ast.ts`                          | parse5 wrappers: parse, ensureYdIds, findById, update, add, remove, serialize |
+| `src/lib/html/tailwind-classes.ts`             | Static list (~5KB JSON) of common Tailwind utility classes                    |
+| `src/lib/chat/intent-agent.ts`                 | Intent agent system prompt + tool definitions + slot tracker                  |
+| `src/lib/chat/designer-agent.ts`               | Designer agent system prompt + tool definitions                               |
+| `src/lib/chat/stream.ts`                       | SSE client (parses Anthropic event stream from API)                           |
+| `src/lib/llm/client.ts`                        | POST `/api/v1/llm/stream` and yield tokens + tool calls                       |
+| `src/components/canvas/PreviewIframe.tsx`      | Iframe wrapper, srcdoc binding, postMessage listener                          |
+| `src/components/canvas/inject-script.ts`       | String of JS injected into iframe (click + bounds + nav intercept)            |
+| `src/components/canvas/SelectionOverlay.tsx`   | Absolute-positioned outline drawn over the iframe                             |
+| `src/components/canvas/EditPanel.tsx`          | Right-side sliding panel: tag, text, classes for selected element             |
+| `src/components/canvas/CodePanel.tsx`          | Monaco editor bound to current page HTML                                      |
+| `src/components/chat/ChatPanel.tsx`            | Combined intent+designer chat UI                                              |
+| `src/components/chat/ChatMessage.tsx`          | Single bubble (user / agent / critic / tool)                                  |
+| `src/components/chat/CriticBubble.tsx`         | Special styling for `challenge` tool calls                                    |
+| `src/components/chat/IntentContractCard.tsx`   | Shows summarized contract + Approve button                                    |
+| `src/components/chat/Composer.tsx`             | Input box with send/enter handling                                            |
+| `src/components/sidebar/PageList.tsx`          | List of pages with add/select/delete                                          |
+| `src/components/sidebar/IntentChip.tsx`        | Tiny chip showing locked-in intent contract                                   |
+| `src/components/sidebar/AddPageDialog.tsx`     | Modal for adding a page with a path                                           |
+| `src/components/workspace/WorkspaceLayout.tsx` | Three-pane layout root                                                        |
 
 ### New files (apps/api)
 
-| Path | Responsibility |
-|------|----------------|
-| `src/routes/llm.ts` | POST `/api/v1/llm/stream` — SSE proxy to Anthropic |
-| `src/lib/anthropic.ts` | Anthropic client init (singleton) |
+| Path                   | Responsibility                                     |
+| ---------------------- | -------------------------------------------------- |
+| `src/routes/llm.ts`    | POST `/api/v1/llm/stream` — SSE proxy to Anthropic |
+| `src/lib/anthropic.ts` | Anthropic client init (singleton)                  |
 
 ### New files (packages/shared)
 
-| Path | Responsibility |
-|------|----------------|
+| Path          | Responsibility                                              |
+| ------------- | ----------------------------------------------------------- |
 | `src/chat.ts` | ChatMessage, ToolCall, ToolResult, ElementPatch zod schemas |
 
 ### Modified files
 
-| Path | Change |
-|------|--------|
-| `apps/web/src/app/app/page.tsx` | Replace placeholder with `<WorkspaceLayout />` |
-| `apps/web/package.json` | Add deps |
-| `apps/api/package.json` | Add deps |
-| `apps/api/src/server.ts` | Register `llm` route |
-| `apps/api/src/config.ts` | Make `ANTHROPIC_API_KEY` required (was optional) |
-| `packages/shared/src/index.ts` | Export `chat.ts` |
-| `compose.yml` | Pass `ANTHROPIC_API_KEY` to api service |
-| `.env.example` | Already has the key (no change) |
+| Path                            | Change                                           |
+| ------------------------------- | ------------------------------------------------ |
+| `apps/web/src/app/app/page.tsx` | Replace placeholder with `<WorkspaceLayout />`   |
+| `apps/web/package.json`         | Add deps                                         |
+| `apps/api/package.json`         | Add deps                                         |
+| `apps/api/src/server.ts`        | Register `llm` route                             |
+| `apps/api/src/config.ts`        | Make `ANTHROPIC_API_KEY` required (was optional) |
+| `packages/shared/src/index.ts`  | Export `chat.ts`                                 |
+| `compose.yml`                   | Pass `ANTHROPIC_API_KEY` to api service          |
+| `.env.example`                  | Already has the key (no change)                  |
 
 ---
 
@@ -76,6 +76,7 @@
 ### Task 1.1: Install web dependencies
 
 **Files:**
+
 - Modify: `apps/web/package.json`
 
 - [ ] **Step 1: Add deps to apps/web/package.json**
@@ -107,6 +108,7 @@ git commit -m "chore(web): add zustand, parse5, monaco, ai sdk, nanoid for M1"
 ### Task 1.2: Install API dependencies
 
 **Files:**
+
 - Modify: `apps/api/package.json`
 
 - [ ] **Step 1: Add deps**
@@ -133,6 +135,7 @@ git commit -m "chore(api): add anthropic sdk and ai sdk for M1 LLM proxy"
 ### Task 1.3: Shared chat types
 
 **Files:**
+
 - Create: `packages/shared/src/chat.ts`
 - Modify: `packages/shared/src/index.ts`
 
@@ -251,6 +254,7 @@ git commit -m "feat(shared): add chat, ToolCall, ToolResult, ElementPatch, Page 
 ### Task 1.4: Workspace store (Zustand) — types and initial state
 
 **Files:**
+
 - Create: `apps/web/src/lib/workspace/store.ts`
 - Create: `apps/web/src/lib/workspace/store.test.ts`
 
@@ -341,14 +345,11 @@ export const useWorkspaceStore = create<WorkspaceState & WorkspaceActions>()(
       ...INITIAL,
       reset: () => set(INITIAL),
       setIntentPhase: (intentPhase) => set({ intentPhase }),
-      appendIntentMessage: (msg) =>
-        set((s) => ({ intentMessages: [...s.intentMessages, msg] })),
+      appendIntentMessage: (msg) => set((s) => ({ intentMessages: [...s.intentMessages, msg] })),
       setIntentContract: (intentContract) => set({ intentContract }),
-      appendBuildMessage: (msg) =>
-        set((s) => ({ buildMessages: [...s.buildMessages, msg] })),
+      appendBuildMessage: (msg) => set((s) => ({ buildMessages: [...s.buildMessages, msg] })),
       setStreaming: (isStreaming) => set({ isStreaming }),
-      upsertPage: (page) =>
-        set((s) => ({ pages: { ...s.pages, [page.path]: page } })),
+      upsertPage: (page) => set((s) => ({ pages: { ...s.pages, [page.path]: page } })),
       removePage: (path) =>
         set((s) => {
           const next = { ...s.pages };
@@ -400,6 +401,7 @@ git commit -m "feat(web): zustand workspace store with localStorage persistence"
 ### Task 1.5: Workspace store — actions
 
 **Files:**
+
 - Modify: `apps/web/src/lib/workspace/store.test.ts`
 
 - [ ] **Step 1: Add action tests**
@@ -437,9 +439,7 @@ describe('workspace store — actions', () => {
       updatedAt: new Date().toISOString(),
     };
     useWorkspaceStore.getState().upsertPage(page);
-    useWorkspaceStore.getState().updateCurrentPageHtml(
-      '<html><body><h1>New</h1></body></html>',
-    );
+    useWorkspaceStore.getState().updateCurrentPageHtml('<html><body><h1>New</h1></body></html>');
     expect(useWorkspaceStore.getState().pages['/'].html).toContain('New');
   });
 
@@ -473,6 +473,7 @@ git commit -m "test(web): cover workspace store actions"
 ### Task 1.6: WorkspaceLayout — three-pane shell
 
 **Files:**
+
 - Create: `apps/web/src/components/workspace/WorkspaceLayout.tsx`
 - Modify: `apps/web/src/app/app/page.tsx`
 
@@ -506,9 +507,7 @@ export function WorkspaceLayout() {
           data-testid="canvas-area"
           className="flex-1 grid place-items-center bg-[color:var(--color-bg)] min-w-0"
         >
-          <div className="text-[color:var(--color-muted)] text-sm">
-            Canvas (will render iframe)
-          </div>
+          <div className="text-[color:var(--color-muted)] text-sm">Canvas (will render iframe)</div>
         </section>
         <aside
           data-testid="chat-area"
@@ -558,6 +557,7 @@ git commit -m "feat(web): three-pane WorkspaceLayout consuming Zustand store"
 ### Task 2.1: parse5 AST helpers — basic parse and serialize
 
 **Files:**
+
 - Create: `apps/web/src/lib/html/ast.ts`
 - Create: `apps/web/src/lib/html/ast.test.ts`
 
@@ -613,6 +613,7 @@ git commit -m "feat(web): parse5 wrapper for HTML AST parse/serialize"
 ### Task 2.2: ensureYdIds — assign data-yd-id to every element
 
 **Files:**
+
 - Modify: `apps/web/src/lib/html/ast.ts`
 - Modify: `apps/web/src/lib/html/ast.test.ts`
 
@@ -632,9 +633,7 @@ describe('html ast — ensureYdIds', () => {
   });
 
   it('does not duplicate existing ids', () => {
-    const doc = parseHtml(
-      '<html><body><h1 data-yd-id="abc">Hi</h1></body></html>',
-    );
+    const doc = parseHtml('<html><body><h1 data-yd-id="abc">Hi</h1></body></html>');
     ensureYdIds(doc);
     const h1 = findElementById(doc, 'abc');
     expect(h1).not.toBeNull();
@@ -712,6 +711,7 @@ git commit -m "feat(web): ensureYdIds and findElementById helpers"
 ### Task 2.3: updateElement, addChild, removeElement
 
 **Files:**
+
 - Modify: `apps/web/src/lib/html/ast.ts`
 - Modify: `apps/web/src/lib/html/ast.test.ts`
 
@@ -816,6 +816,7 @@ git commit -m "feat(web): updateElement, addChild, removeElement AST mutators"
 ### Task 2.4: Iframe inject script (click detection + bounds)
 
 **Files:**
+
 - Create: `apps/web/src/components/canvas/inject-script.ts`
 
 - [ ] **Step 1: Implement**
@@ -866,6 +867,7 @@ git commit -m "feat(web): iframe inject script for click + navigate postMessage"
 ### Task 2.5: PreviewIframe component
 
 **Files:**
+
 - Create: `apps/web/src/components/canvas/PreviewIframe.tsx`
 
 - [ ] **Step 1: Implement**
@@ -878,23 +880,16 @@ import { useWorkspaceStore } from '@/lib/workspace/store';
 import { INJECT_SCRIPT } from './inject-script';
 import { parseHtml, ensureYdIds, toHtml } from '@/lib/html/ast';
 
-const TAILWIND_CDN =
-  'https://cdn.tailwindcss.com';
+const TAILWIND_CDN = 'https://cdn.tailwindcss.com';
 
 function withTailwindAndScript(html: string): string {
   const doc = parseHtml(html);
   ensureYdIds(doc);
   let body = toHtml(doc);
   if (!body.includes('cdn.tailwindcss.com')) {
-    body = body.replace(
-      /<head>/,
-      `<head><script src="${TAILWIND_CDN}"></script>`,
-    );
+    body = body.replace(/<head>/, `<head><script src="${TAILWIND_CDN}"></script>`);
   }
-  body = body.replace(
-    /<\/body>/,
-    `<script>${INJECT_SCRIPT}</script></body>`,
-  );
+  body = body.replace(/<\/body>/, `<script>${INJECT_SCRIPT}</script></body>`);
   return body;
 }
 
@@ -962,7 +957,7 @@ import { PreviewIframe } from '@/components/canvas/PreviewIframe';
 // ... inside layout:
 <section data-testid="canvas-area" className="flex-1 relative bg-white min-w-0">
   <PreviewIframe />
-</section>
+</section>;
 ```
 
 - [ ] **Step 3: Manual verify**
@@ -989,7 +984,9 @@ Easier: temporarily add this to layout for manual test:
       updatedAt: new Date().toISOString(),
     });
   }}
->seed</button>
+>
+  seed
+</button>
 ```
 
 Click → iframe should show "Hi" headline. Click on "Hi" → selection outline appears.
@@ -1006,6 +1003,7 @@ git commit -m "feat(web): PreviewIframe with Tailwind CDN + selection overlay"
 ### Task 2.6: EditPanel component
 
 **Files:**
+
 - Create: `apps/web/src/components/canvas/EditPanel.tsx`
 
 - [ ] **Step 1: Implement**
@@ -1127,6 +1125,7 @@ git commit -m "feat(web): EditPanel with text and class editing wired to AST"
 ### Task 3.1: API config — require ANTHROPIC_API_KEY
 
 **Files:**
+
 - Modify: `apps/api/src/config.ts`
 
 - [ ] **Step 1: Make key required**
@@ -1155,6 +1154,7 @@ git commit -m "feat(api): require ANTHROPIC_API_KEY for M1"
 ### Task 3.2: Anthropic client singleton
 
 **Files:**
+
 - Create: `apps/api/src/lib/anthropic.ts`
 
 - [ ] **Step 1: Implement**
@@ -1178,6 +1178,7 @@ git commit -m "feat(api): anthropic client singleton"
 ### Task 3.3: LLM SSE proxy route
 
 **Files:**
+
 - Create: `apps/api/src/routes/llm.ts`
 - Modify: `apps/api/src/server.ts`
 
@@ -1295,6 +1296,7 @@ git commit -m "feat(api): SSE proxy /api/v1/llm/stream to Anthropic"
 ### Task 3.4: Client LLM stream consumer
 
 **Files:**
+
 - Create: `apps/web/src/lib/llm/client.ts`
 
 - [ ] **Step 1: Implement**
@@ -1359,6 +1361,7 @@ git commit -m "feat(web): SSE consumer for /api/v1/llm/stream"
 ### Task 3.5: Intent agent — system prompt and tool defs
 
 **Files:**
+
 - Create: `apps/web/src/lib/chat/intent-agent.ts`
 
 - [ ] **Step 1: Implement**
@@ -1406,7 +1409,8 @@ export const INTENT_TOOLS = [
   },
   {
     name: 'challenge',
-    description: 'Issue a critic challenge when the user answer is too vague. Include a specific reason.',
+    description:
+      'Issue a critic challenge when the user answer is too vague. Include a specific reason.',
     input_schema: {
       type: 'object',
       properties: {
@@ -1444,6 +1448,7 @@ git commit -m "feat(web): intent agent system prompt and tool definitions"
 ### Task 3.6: ChatPanel — render messages
 
 **Files:**
+
 - Create: `apps/web/src/components/chat/ChatPanel.tsx`
 - Create: `apps/web/src/components/chat/ChatMessage.tsx`
 - Create: `apps/web/src/components/chat/CriticBubble.tsx`
@@ -1461,9 +1466,7 @@ export function ChatMessage({ msg }: { msg: ChatMessageT }) {
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div
         className={`max-w-[80%] px-3 py-2 rounded-lg text-sm whitespace-pre-wrap ${
-          isUser
-            ? 'bg-[color:var(--color-accent)] text-white'
-            : 'bg-[color:var(--color-border)]'
+          isUser ? 'bg-[color:var(--color-accent)] text-white' : 'bg-[color:var(--color-border)]'
         }`}
       >
         {msg.content}
@@ -1481,9 +1484,7 @@ import * as React from 'react';
 export function CriticBubble({ reason }: { reason: string }) {
   return (
     <div className="border-l-2 border-orange-500 pl-3 py-1 text-xs text-[color:var(--color-muted)]">
-      <span className="font-semibold text-orange-500 uppercase tracking-wider mr-2">
-        Critic
-      </span>
+      <span className="font-semibold text-orange-500 uppercase tracking-wider mr-2">Critic</span>
       {reason}
     </div>
   );
@@ -1566,9 +1567,7 @@ export function ChatPanel() {
     <div className="h-full flex flex-col">
       <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-2">
         {intentMessages.length === 0 && (
-          <div className="text-sm text-[color:var(--color-muted)]">
-            Quick — who is this for?
-          </div>
+          <div className="text-sm text-[color:var(--color-muted)]">Quick — who is this for?</div>
         )}
         {intentMessages.map((m) =>
           m.role === 'critic' ? (
@@ -1607,6 +1606,7 @@ git commit -m "feat(web): ChatPanel + ChatMessage + CriticBubble + Composer"
 ### Task 3.7: Wire intent agent — send + tool handlers
 
 **Files:**
+
 - Modify: `apps/web/src/components/chat/ChatPanel.tsx`
 
 - [ ] **Step 1: Implement send + intent loop**
@@ -1704,9 +1704,7 @@ export function ChatPanel() {
     <div className="h-full flex flex-col">
       <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-2">
         {intentMessages.length === 0 && (
-          <div className="text-sm text-[color:var(--color-muted)]">
-            Quick — who is this for?
-          </div>
+          <div className="text-sm text-[color:var(--color-muted)]">Quick — who is this for?</div>
         )}
         {intentMessages.map((m) =>
           m.role === 'critic' ? (
@@ -1736,6 +1734,7 @@ git commit -m "feat(web): wire intent agent — send, stream, handle tool calls"
 ### Task 3.8: IntentContractCard with Approve
 
 **Files:**
+
 - Create: `apps/web/src/components/chat/IntentContractCard.tsx`
 
 - [ ] **Step 1: Implement**
@@ -1828,6 +1827,7 @@ git commit -m "feat(web): IntentContractCard with approve action, normalize cont
 ### Task 4.1: Designer agent system prompt + tools
 
 **Files:**
+
 - Create: `apps/web/src/lib/chat/designer-agent.ts`
 
 - [ ] **Step 1: Implement**
@@ -1886,8 +1886,7 @@ export const DESIGNER_TOOLS = [
   },
   {
     name: 'update_element',
-    description:
-      'Patch a single element identified by its data-yd-id on a given page path.',
+    description: 'Patch a single element identified by its data-yd-id on a given page path.',
     input_schema: {
       type: 'object',
       properties: {
@@ -1907,8 +1906,7 @@ export const DESIGNER_TOOLS = [
   },
   {
     name: 'add_element',
-    description:
-      'Append a new HTML fragment inside a parent element (by id) on a given page.',
+    description: 'Append a new HTML fragment inside a parent element (by id) on a given page.',
     input_schema: {
       type: 'object',
       properties: {
@@ -1941,6 +1939,7 @@ git commit -m "feat(web): designer agent system prompt + tools"
 ### Task 4.2: Designer tool dispatcher
 
 **Files:**
+
 - Create: `apps/web/src/lib/chat/designer-dispatch.ts`
 
 - [ ] **Step 1: Implement**
@@ -2025,6 +2024,7 @@ git commit -m "feat(web): designer tool dispatcher to workspace store"
 ### Task 4.3: ChatPanel — building phase
 
 **Files:**
+
 - Modify: `apps/web/src/components/chat/ChatPanel.tsx`
 
 - [ ] **Step 1: Add building-phase send handler**
@@ -2195,18 +2195,13 @@ export function ChatPanel() {
     <div className="h-full flex flex-col">
       <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-2">
         {intentPhase !== 'building' && intentMessages.length === 0 && (
-          <div className="text-sm text-[color:var(--color-muted)]">
-            Quick — who is this for?
-          </div>
+          <div className="text-sm text-[color:var(--color-muted)]">Quick — who is this for?</div>
         )}
         {messages.map((m) =>
           m.role === 'critic' ? (
             <CriticBubble key={m.id} reason={m.content} />
           ) : m.role === 'tool' ? (
-            <div
-              key={m.id}
-              className="text-xs text-[color:var(--color-muted)] italic"
-            >
+            <div key={m.id} className="text-xs text-[color:var(--color-muted)] italic">
               {m.content}
             </div>
           ) : (
@@ -2244,6 +2239,7 @@ git commit -m "feat(web): designer phase in ChatPanel, auto-trigger first-page g
 ### Task 4.4: PageList sidebar
 
 **Files:**
+
 - Create: `apps/web/src/components/sidebar/PageList.tsx`
 - Create: `apps/web/src/components/sidebar/IntentChip.tsx`
 - Modify: `apps/web/src/components/workspace/WorkspaceLayout.tsx`
@@ -2319,9 +2315,15 @@ export function IntentChip() {
         Intent
       </div>
       <div className="text-xs space-y-0.5">
-        <div><span className="text-[color:var(--color-muted)]">For:</span> {contract.persona.role}</div>
-        <div><span className="text-[color:var(--color-muted)]">Action:</span> {contract.primaryAction}</div>
-        <div><span className="text-[color:var(--color-muted)]">Feel:</span> {contract.emotion}</div>
+        <div>
+          <span className="text-[color:var(--color-muted)]">For:</span> {contract.persona.role}
+        </div>
+        <div>
+          <span className="text-[color:var(--color-muted)]">Action:</span> {contract.primaryAction}
+        </div>
+        <div>
+          <span className="text-[color:var(--color-muted)]">Feel:</span> {contract.emotion}
+        </div>
       </div>
     </div>
   );
@@ -2350,6 +2352,7 @@ git commit -m "feat(web): PageList + IntentChip in sidebar"
 ### Task 4.5: Streaming HTML buffering (close-tag heuristic)
 
 **Files:**
+
 - Modify: `apps/web/src/lib/chat/designer-dispatch.ts`
 
 The risk: designer LLM may emit invalid mid-stream HTML if we render token-by-token. Our current dispatch only runs on `final` tool_use, so this is already safe. But add a guard for malformed HTML.
@@ -2390,6 +2393,7 @@ git commit -m "fix(web): guard write_page against unparseable HTML"
 ### Task 5.1: Tailwind class autocomplete list
 
 **Files:**
+
 - Create: `apps/web/src/lib/html/tailwind-classes.ts`
 
 - [ ] **Step 1: Implement static list**
@@ -2399,15 +2403,44 @@ git commit -m "fix(web): guard write_page against unparseable HTML"
 // Full list would be ~10000 classes; this is ~500 of the most common.
 export const TAILWIND_CLASSES = [
   // layout
-  'flex', 'inline-flex', 'grid', 'block', 'inline', 'inline-block', 'hidden',
-  'flex-col', 'flex-row', 'flex-wrap', 'flex-1', 'flex-none',
-  'items-start', 'items-center', 'items-end', 'items-stretch',
-  'justify-start', 'justify-center', 'justify-end', 'justify-between', 'justify-around',
-  'gap-0', 'gap-1', 'gap-2', 'gap-3', 'gap-4', 'gap-5', 'gap-6', 'gap-8', 'gap-10', 'gap-12',
+  'flex',
+  'inline-flex',
+  'grid',
+  'block',
+  'inline',
+  'inline-block',
+  'hidden',
+  'flex-col',
+  'flex-row',
+  'flex-wrap',
+  'flex-1',
+  'flex-none',
+  'items-start',
+  'items-center',
+  'items-end',
+  'items-stretch',
+  'justify-start',
+  'justify-center',
+  'justify-end',
+  'justify-between',
+  'justify-around',
+  'gap-0',
+  'gap-1',
+  'gap-2',
+  'gap-3',
+  'gap-4',
+  'gap-5',
+  'gap-6',
+  'gap-8',
+  'gap-10',
+  'gap-12',
 
   // spacing
   ...['p', 'px', 'py', 'pt', 'pr', 'pb', 'pl', 'm', 'mx', 'my', 'mt', 'mr', 'mb', 'ml'].flatMap(
-    (p) => ['0', '1', '2', '3', '4', '5', '6', '8', '10', '12', '16', '20', '24', '32'].map((v) => `${p}-${v}`),
+    (p) =>
+      ['0', '1', '2', '3', '4', '5', '6', '8', '10', '12', '16', '20', '24', '32'].map(
+        (v) => `${p}-${v}`,
+      ),
   ),
   'mx-auto',
 
@@ -2415,42 +2448,92 @@ export const TAILWIND_CLASSES = [
   ...['w', 'h', 'max-w', 'min-h'].flatMap((p) =>
     ['full', 'screen', 'auto', '1/2', '1/3', '2/3', '1/4', '3/4'].map((v) => `${p}-${v}`),
   ),
-  'min-h-screen', 'h-screen',
+  'min-h-screen',
+  'h-screen',
 
   // typography
-  'text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl', 'text-3xl', 'text-4xl', 'text-5xl', 'text-6xl',
-  'font-thin', 'font-light', 'font-normal', 'font-medium', 'font-semibold', 'font-bold', 'font-extrabold',
-  'text-left', 'text-center', 'text-right',
-  'leading-none', 'leading-tight', 'leading-snug', 'leading-normal', 'leading-relaxed',
-  'tracking-tight', 'tracking-normal', 'tracking-wide',
+  'text-xs',
+  'text-sm',
+  'text-base',
+  'text-lg',
+  'text-xl',
+  'text-2xl',
+  'text-3xl',
+  'text-4xl',
+  'text-5xl',
+  'text-6xl',
+  'font-thin',
+  'font-light',
+  'font-normal',
+  'font-medium',
+  'font-semibold',
+  'font-bold',
+  'font-extrabold',
+  'text-left',
+  'text-center',
+  'text-right',
+  'leading-none',
+  'leading-tight',
+  'leading-snug',
+  'leading-normal',
+  'leading-relaxed',
+  'tracking-tight',
+  'tracking-normal',
+  'tracking-wide',
 
   // color
   ...['text', 'bg', 'border'].flatMap((p) =>
-    ['black', 'white', 'transparent'].flatMap((c) =>
-      [`${p}-${c}`],
-    ),
+    ['black', 'white', 'transparent'].flatMap((c) => [`${p}-${c}`]),
   ),
   ...['text', 'bg', 'border'].flatMap((p) =>
     ['gray', 'red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'purple', 'pink'].flatMap((c) =>
-      ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900'].map((s) => `${p}-${c}-${s}`),
+      ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900'].map(
+        (s) => `${p}-${c}-${s}`,
+      ),
     ),
   ),
 
   // border / radius
-  'border', 'border-0', 'border-2', 'border-4',
-  'rounded', 'rounded-sm', 'rounded-md', 'rounded-lg', 'rounded-xl', 'rounded-2xl', 'rounded-full',
+  'border',
+  'border-0',
+  'border-2',
+  'border-4',
+  'rounded',
+  'rounded-sm',
+  'rounded-md',
+  'rounded-lg',
+  'rounded-xl',
+  'rounded-2xl',
+  'rounded-full',
 
   // effects
-  'shadow', 'shadow-sm', 'shadow-md', 'shadow-lg', 'shadow-xl', 'shadow-2xl', 'shadow-none',
-  'opacity-0', 'opacity-25', 'opacity-50', 'opacity-75', 'opacity-100',
+  'shadow',
+  'shadow-sm',
+  'shadow-md',
+  'shadow-lg',
+  'shadow-xl',
+  'shadow-2xl',
+  'shadow-none',
+  'opacity-0',
+  'opacity-25',
+  'opacity-50',
+  'opacity-75',
+  'opacity-100',
 
   // misc
-  'cursor-pointer', 'select-none', 'pointer-events-none',
-  'overflow-hidden', 'overflow-auto', 'overflow-y-auto',
-  'transition', 'transition-all', 'duration-150', 'duration-300',
+  'cursor-pointer',
+  'select-none',
+  'pointer-events-none',
+  'overflow-hidden',
+  'overflow-auto',
+  'overflow-y-auto',
+  'transition',
+  'transition-all',
+  'duration-150',
+  'duration-300',
 ] as const;
 
-export type TailwindClass = typeof TAILWIND_CLASSES[number];
+export type TailwindClass = (typeof TAILWIND_CLASSES)[number];
 ```
 
 - [ ] **Step 2: Commit**
@@ -2463,6 +2546,7 @@ git commit -m "feat(web): static Tailwind class autocomplete list"
 ### Task 5.2: Class autocomplete in EditPanel
 
 **Files:**
+
 - Modify: `apps/web/src/components/canvas/EditPanel.tsx`
 
 - [ ] **Step 1: Add basic autocomplete (datalist)**
@@ -2501,6 +2585,7 @@ git commit -m "feat(web): datalist-backed Tailwind class hints in EditPanel"
 ### Task 5.3: CodePanel — Monaco for current page HTML
 
 **Files:**
+
 - Create: `apps/web/src/components/canvas/CodePanel.tsx`
 - Modify: `apps/web/src/components/workspace/WorkspaceLayout.tsx`
 
@@ -2578,7 +2663,7 @@ const [view, setView] = React.useState<'preview' | 'code'>('preview');
     {view === 'preview' ? <PreviewIframe /> : <CodePanel />}
     {view === 'preview' && <EditPanel />}
   </div>
-</section>
+</section>;
 ```
 
 - [ ] **Step 3: Commit**
@@ -2591,6 +2676,7 @@ git commit -m "feat(web): Monaco-backed CodePanel + preview/code tab toggle"
 ### Task 5.4: Playwright E2E for full demo
 
 **Files:**
+
 - Create: `apps/web/playwright.config.ts`
 - Create: `apps/web/e2e/demo.spec.ts`
 
@@ -2717,9 +2803,7 @@ test('intent quiz -> approve -> mocked designer writes homepage -> click to edit
 });
 
 function sseEvents(events: Array<{ event: string; data: unknown }>): string {
-  return events
-    .map((e) => `event: ${e.event}\ndata: ${JSON.stringify(e.data)}\n\n`)
-    .join('');
+  return events.map((e) => `event: ${e.event}\ndata: ${JSON.stringify(e.data)}\n\n`).join('');
 }
 ```
 
@@ -2741,13 +2825,14 @@ git commit -m "test(web): E2E Playwright for M1 demo path (mocked LLM)"
 ### Task 5.5: README update with M1 demo notes
 
 **Files:**
+
 - Modify: `README.md`
 
 - [ ] **Step 1: Replace Quick Start section**
 
 Change the Quick Start block to:
 
-```markdown
+````markdown
 ## Quick Start (M1 — alpha)
 
 Requires: Node 22, pnpm 9, Docker 25+, an Anthropic API key.
@@ -2761,6 +2846,7 @@ docker compose -f compose.dev.yml up -d        # Postgres + Redis (dev mode)
 pnpm install
 pnpm dev
 ```
+````
 
 Open http://localhost:3000/app and try the demo flow:
 
@@ -2770,7 +2856,8 @@ Open http://localhost:3000/app and try the demo flow:
 4. The designer agent generates the homepage; click any element to edit
 5. Ask the chat to "add a pricing page"
 6. Refresh — your workspace persists in localStorage
-```
+
+````
 
 - [ ] **Step 2: Update Roadmap section**
 
@@ -2781,11 +2868,12 @@ Change M1 entry from "(5 weeks)" to "(in progress)" — and mark M0 ✅.
 ```bash
 git add README.md
 git commit -m "docs: M1 demo instructions in README"
-```
+````
 
 ### Task 5.6: Tag v0.1.0-alpha
 
 **Files:**
+
 - (no file changes — git tag)
 
 - [ ] **Step 1: Verify CI green on main**
@@ -2812,6 +2900,7 @@ GitHub release page should show v0.1.0-alpha with auto-generated notes.
 ## Self-Review (post-write)
 
 Checked against spec:
+
 - ✅ Demo Definition: every step covered by tasks 1.6, 2.5, 2.6, 3.x, 4.x, 5.4
 - ✅ Three-pane layout: 1.6
 - ✅ HTML AST + data-yd-id: 2.1-2.3

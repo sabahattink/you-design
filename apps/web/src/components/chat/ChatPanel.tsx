@@ -92,7 +92,11 @@ export function ChatPanel() {
     setStreaming(true);
 
     const onUsage = (usage: { promptTokens: number; completionTokens: number }) => {
-      const cost = estimateCost(activeModel?.modelName ?? '', usage.promptTokens, usage.completionTokens);
+      const cost = estimateCost(
+        activeModel?.modelName ?? '',
+        usage.promptTokens,
+        usage.completionTokens,
+      );
       if (cost !== null) appendSessionCost(cost);
       void fetch('http://localhost:3001/api/v1/usage', {
         method: 'POST',
@@ -109,12 +113,16 @@ export function ChatPanel() {
 
     let assistantText = '';
     try {
-      for await (const ev of streamLlm({
-        model: activeModel,
-        system: INTENT_SYSTEM_PROMPT,
-        messages: toApiMessages([...intentMessages, userMsg]),
-        tools: INTENT_TOOLS,
-      }, undefined, onUsage)) {
+      for await (const ev of streamLlm(
+        {
+          model: activeModel,
+          system: INTENT_SYSTEM_PROMPT,
+          messages: toApiMessages([...intentMessages, userMsg]),
+          tools: INTENT_TOOLS,
+        },
+        undefined,
+        onUsage,
+      )) {
         if (ev.type === 'text-delta') {
           const t = deltaText(ev.data as TextDeltaPart);
           if (t) assistantText += t;
@@ -157,11 +165,7 @@ export function ChatPanel() {
         });
       }
     } catch (err) {
-      noteCritic(
-        appendIntent,
-        'Network error',
-        err instanceof Error ? err.message : String(err),
-      );
+      noteCritic(appendIntent, 'Network error', err instanceof Error ? err.message : String(err));
     } finally {
       setStreaming(false);
     }
@@ -169,11 +173,7 @@ export function ChatPanel() {
 
   const triggered = React.useRef(false);
   React.useEffect(() => {
-    if (
-      intentPhase === 'building' &&
-      buildMessages.length === 0 &&
-      !triggered.current
-    ) {
+    if (intentPhase === 'building' && buildMessages.length === 0 && !triggered.current) {
       triggered.current = true;
       void sendBuild('Generate the homepage now.');
     }
@@ -201,18 +201,13 @@ export function ChatPanel() {
     <div className="h-full flex flex-col min-h-0">
       <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-2">
         {intentPhase === 'collecting' && intentMessages.length === 0 && (
-          <div className="text-sm text-[color:var(--color-muted)]">
-            Quick — who is this for?
-          </div>
+          <div className="text-sm text-[color:var(--color-muted)]">Quick — who is this for?</div>
         )}
         {messages.map((m) =>
           m.role === 'critic' ? (
             <CriticBubble key={m.id} reason={m.content} />
           ) : m.role === 'tool' ? (
-            <div
-              key={m.id}
-              className="text-xs text-[color:var(--color-muted)] italic"
-            >
+            <div key={m.id} className="text-xs text-[color:var(--color-muted)] italic">
               › {m.content}
             </div>
           ) : (

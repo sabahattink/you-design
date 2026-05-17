@@ -31,10 +31,7 @@ function normalizeIdentity(raw: unknown): Identity | null {
   return { id: r.id, displayName: r.displayName, color: r.color };
 }
 
-export function bindAwareness(
-  provider: HocuspocusProvider,
-  store: WorkspaceStore,
-): () => void {
+export function bindAwareness(provider: HocuspocusProvider, store: WorkspaceStore): () => void {
   const awareness = provider.awareness;
   if (!awareness) return () => undefined;
 

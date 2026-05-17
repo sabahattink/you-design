@@ -3,9 +3,9 @@ import type { ModelConfig } from './providers.js';
 export type TaskType = 'intent' | 'critic' | 'designer' | 'memory';
 
 const TASK_TIER: Record<TaskType, 'fast' | 'standard' | 'best'> = {
-  intent:   'fast',
-  critic:   'fast',
-  memory:   'fast',
+  intent: 'fast',
+  critic: 'fast',
+  memory: 'fast',
   designer: 'standard',
 };
 

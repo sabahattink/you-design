@@ -7,9 +7,7 @@ export function ChatMessage({ msg }: { msg: ChatMessageT }) {
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div
         className={`max-w-[85%] px-3 py-2 rounded-lg text-sm whitespace-pre-wrap ${
-          isUser
-            ? 'bg-[color:var(--color-accent)] text-white'
-            : 'bg-[color:var(--color-border)]'
+          isUser ? 'bg-[color:var(--color-accent)] text-white' : 'bg-[color:var(--color-border)]'
         }`}
       >
         {msg.content}

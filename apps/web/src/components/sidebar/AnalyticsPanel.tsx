@@ -43,16 +43,16 @@ export function AnalyticsPanel() {
 
   React.useEffect(() => {
     if (!analyticsConfig) return;
-    const stale =
-      !analyticsCache ||
-      Date.now() - analyticsCache.fetchedAt > CACHE_TTL_MS;
+    const stale = !analyticsCache || Date.now() - analyticsCache.fetchedAt > CACHE_TTL_MS;
     if (stale) void fetchData();
   }, [analyticsConfig]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!analyticsConfig) {
     return (
       <div className="p-2 border-t border-[color:var(--color-border)] text-xs text-[color:var(--color-muted)]">
-        <a href="/setup" className="hover:underline">Configure analytics →</a>
+        <a href="/setup" className="hover:underline">
+          Configure analytics →
+        </a>
       </div>
     );
   }
@@ -73,9 +73,7 @@ export function AnalyticsPanel() {
         </button>
       </div>
 
-      {error && (
-        <p className="text-[10px] text-red-500 break-words">{error}</p>
-      )}
+      {error && <p className="text-[10px] text-red-500 break-words">{error}</p>}
 
       {analyticsCache && !error && (
         <div className="flex flex-col gap-0.5">
@@ -86,7 +84,9 @@ export function AnalyticsPanel() {
               className="flex items-center justify-between text-[10px] hover:bg-[color:var(--color-border)] px-1 rounded w-full text-left"
             >
               <span className="truncate text-[color:var(--color-muted)]">{p.path}</span>
-              <span className="shrink-0 text-[color:var(--color-fg)]">{p.views.toLocaleString()} views</span>
+              <span className="shrink-0 text-[color:var(--color-fg)]">
+                {p.views.toLocaleString()} views
+              </span>
             </button>
           ))}
           <div className="text-[10px] text-[color:var(--color-muted)] mt-1">

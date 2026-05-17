@@ -110,9 +110,12 @@ export async function runMotionExport(
   if (format === 'gif') {
     const gifPath = path.join(outDir, `${jobId}.gif`);
     await execFileAsync('ffmpeg', [
-      '-i', outPath,
-      '-vf', `fps=10,scale=960:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse`,
-      '-loop', '0',
+      '-i',
+      outPath,
+      '-vf',
+      `fps=10,scale=960:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse`,
+      '-loop',
+      '0',
       gifPath,
     ]);
     fs.unlinkSync(outPath);
@@ -133,8 +136,20 @@ async function stitchWithFfmpeg(
   if (n === 1) {
     // Single page: just encode as static video
     await execFileAsync('ffmpeg', [
-      '-loop', '1', '-t', String(durationPerPage), '-i', screenshotPaths[0]!,
-      '-vcodec', 'libx264', '-pix_fmt', 'yuv420p', '-r', String(fps), '-y', outPath,
+      '-loop',
+      '1',
+      '-t',
+      String(durationPerPage),
+      '-i',
+      screenshotPaths[0]!,
+      '-vcodec',
+      'libx264',
+      '-pix_fmt',
+      'yuv420p',
+      '-r',
+      String(fps),
+      '-y',
+      outPath,
     ]);
     return;
   }
@@ -162,9 +177,17 @@ async function stitchWithFfmpeg(
   filterComplex = filterComplex.replace(/;$/, '');
 
   args.push(
-    '-filter_complex', filterComplex,
-    '-map', '[v]',
-    '-vcodec', 'libx264', '-pix_fmt', 'yuv420p', '-r', String(fps), '-y',
+    '-filter_complex',
+    filterComplex,
+    '-map',
+    '[v]',
+    '-vcodec',
+    'libx264',
+    '-pix_fmt',
+    'yuv420p',
+    '-r',
+    String(fps),
+    '-y',
     outPath,
   );
 
@@ -274,15 +297,15 @@ Add Motion button to the export toolbar (next to PDF / PPTX buttons):
 
 ## 6. File Map
 
-| Action | File |
-|--------|------|
-| Modify | `packages/shared/src/exports.ts` |
-| Modify | `packages/shared/src/index.ts` |
-| Create | `apps/api/src/lib/export-motion.ts` |
-| Modify | `apps/api/src/worker.ts` |
-| Modify | `apps/api/src/routes/exports.ts` |
-| Modify | `docker/Dockerfile.api` |
-| Modify | `apps/web/src/lib/export/useExport.ts` |
+| Action | File                                                    |
+| ------ | ------------------------------------------------------- |
+| Modify | `packages/shared/src/exports.ts`                        |
+| Modify | `packages/shared/src/index.ts`                          |
+| Create | `apps/api/src/lib/export-motion.ts`                     |
+| Modify | `apps/api/src/worker.ts`                                |
+| Modify | `apps/api/src/routes/exports.ts`                        |
+| Modify | `docker/Dockerfile.api`                                 |
+| Modify | `apps/web/src/lib/export/useExport.ts`                  |
 | Create | `apps/web/src/components/export/MotionExportDialog.tsx` |
 | Modify | `apps/web/src/components/workspace/WorkspaceLayout.tsx` |
 

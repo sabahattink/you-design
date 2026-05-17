@@ -16,7 +16,10 @@ export async function analyticsRoutes(app: FastifyInstance) {
 
     if (!q.postHogApiKey || !q.postHogProjectId) {
       reply.code(400);
-      return { error: 'MISSING_PARAMS', message: 'postHogApiKey and postHogProjectId are required' };
+      return {
+        error: 'MISSING_PARAMS',
+        message: 'postHogApiKey and postHogProjectId are required',
+      };
     }
 
     const host = q.postHogHost ?? 'https://app.posthog.com';
@@ -24,23 +27,20 @@ export async function analyticsRoutes(app: FastifyInstance) {
     const period = `Last ${days} days`;
 
     try {
-      const res = await fetch(
-        `${host}/api/projects/${q.postHogProjectId}/insights/trend/`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${q.postHogApiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            events: [{ id: '$pageview', name: '$pageview', type: 'events' }],
-            breakdown: '$current_url',
-            breakdown_type: 'event',
-            date_from: `-${days}d`,
-            display: 'ActionsTable',
-          }),
+      const res = await fetch(`${host}/api/projects/${q.postHogProjectId}/insights/trend/`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${q.postHogApiKey}`,
+          'Content-Type': 'application/json',
         },
-      );
+        body: JSON.stringify({
+          events: [{ id: '$pageview', name: '$pageview', type: 'events' }],
+          breakdown: '$current_url',
+          breakdown_type: 'event',
+          date_from: `-${days}d`,
+          display: 'ActionsTable',
+        }),
+      });
 
       if (!res.ok) {
         const text = await res.text();
