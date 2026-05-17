@@ -16,14 +16,15 @@ const DOT: Record<Severity, string> = {
   info: 'bg-sky-500',
 };
 
-export function CriticBadge({ onOpen }: Props) {
+export function AgentsBadge({ onOpen }: Props) {
   const reports = useWorkspaceStore((s) => s.criticReports[s.currentPath] ?? EMPTY_REPORTS);
-  const isCriticRunning = useWorkspaceStore((s) => s.agentsRunning['critic'] ?? false);
+  const agentsRunning = useWorkspaceStore((s) => s.agentsRunning);
 
   const openIssues = React.useMemo(
     () => reports.flatMap((r) => r.issues).filter((i) => i.status === 'open'),
     [reports],
   );
+
   const highestSeverity: Severity | null = React.useMemo(() => {
     for (const sev of ORDER) {
       if (openIssues.some((i) => i.severity === sev)) return sev;
@@ -31,16 +32,18 @@ export function CriticBadge({ onOpen }: Props) {
     return null;
   }, [openIssues]);
 
+  const anyRunning = Object.values(agentsRunning).some(Boolean);
+
   return (
     <button
       onClick={onOpen}
       className="p-2 border-t border-[color:var(--color-border)] flex items-center justify-between text-xs hover:bg-[color:var(--color-border)] w-full text-left"
     >
       <span className="uppercase tracking-wide text-[color:var(--color-muted)]">
-        Critic
+        Agents
       </span>
       <span className="flex items-center gap-2">
-        {isCriticRunning && (
+        {anyRunning && (
           <span className="italic text-[color:var(--color-muted)]">running</span>
         )}
         {highestSeverity && (
