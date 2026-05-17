@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { useWorkspaceStore } from '@/lib/workspace/store';
 import type { ExportFormat } from '@you-design/shared';
+import { injectPostHog } from './inject-posthog';
 
 const API_BASE = 'http://localhost:3001/api/v1';
 const POLL_INTERVAL = 2000;
@@ -26,8 +27,14 @@ export function useExport() {
 
   const exportHtml = useCallback(() => {
     const allPages = Object.values(pages);
+    const analyticsConfig = useWorkspaceStore.getState().analyticsConfig;
     const combined = allPages
-      .map((p) => `<!-- Page: ${p.path} -->\n${p.html}`)
+      .map((p) => {
+        const html = analyticsConfig
+          ? injectPostHog(p.html, analyticsConfig.postHogApiKey, analyticsConfig.postHogHost, p.path)
+          : p.html;
+        return `<!-- Page: ${p.path} -->\n${html}`;
+      })
       .join('\n\n');
     const blob = new Blob([combined], { type: 'text/html' });
     const url = URL.createObjectURL(blob);

@@ -1,12 +1,4 @@
-export function injectTailwind(html: string): string {
-  const cdnScript = '<script src="https://cdn.tailwindcss.com"></script>';
-  if (html.includes('<head>')) {
-    return html.replace('<head>', `<head>${cdnScript}`);
-  }
-  return `<!DOCTYPE html><html><head>${cdnScript}</head><body>${html}</body></html>`;
-}
-
-export function injectPostHogScript(
+export function injectPostHog(
   html: string,
   postHogKey: string,
   postHogHost: string,
@@ -18,7 +10,11 @@ posthog.init('${postHogKey}',{api_host:'${postHogHost}',capture_pageview:false})
 posthog.capture('$pageview',{page_path:'${pagePath}'});
 </script>`;
 
-  if (html.includes('</head>')) return html.replace('</head>', `${script}</head>`);
-  if (html.includes('<body>')) return html.replace('<body>', `<body>${script}`);
+  if (html.includes('</head>')) {
+    return html.replace('</head>', `${script}</head>`);
+  }
+  if (html.includes('<body>')) {
+    return html.replace('<body>', `<body>${script}`);
+  }
   return script + html;
 }
