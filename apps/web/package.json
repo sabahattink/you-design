@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.0.6",
+    "@hocuspocus/provider": "^2.15.2",
     "@monaco-editor/react": "^4.6.0",
     "@you-design/shared": "workspace:*",
     "@you-design/ui": "workspace:*",
@@ -23,6 +24,9 @@
     "parse5": "^7.2.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "y-indexeddb": "^9.0.12",
+    "y-protocols": "^1.0.6",
+    "yjs": "^13.6.20",
     "zustand": "^5.0.2"
   },
   "devDependencies": {
