@@ -10,6 +10,7 @@ import type {
   AnalyticsConfig,
   AnalyticsSummary,
 } from '@you-design/shared';
+import type { CollabStatus, RemoteCursor } from '@/lib/collab/types';
 
 export type IntentPhase = 'collecting' | 'contracted' | 'building';
 
@@ -37,6 +38,10 @@ export interface WorkspaceState {
   projectId: string | null;
   projectName: string;
   sessionCostUsd: number;
+
+  // Multiplayer (M5b).
+  collabStatus: CollabStatus;
+  remoteCursors: Record<string, RemoteCursor>;
 }
 
 export interface WorkspaceActions {
@@ -69,6 +74,13 @@ export interface WorkspaceActions {
   setProjectId: (id: string) => void;
   setProjectName: (name: string) => void;
   appendSessionCost: (delta: number) => void;
+
+  setCollabStatus: (s: CollabStatus) => void;
+  setRemoteCursors: (next: Record<string, RemoteCursor>) => void;
+  __hydratePagesFromY: (
+    next: Record<string, Page>,
+    currentPath: string,
+  ) => void;
 }
 
 const DEFAULT_MODEL: ModelConfig = {
@@ -97,6 +109,8 @@ const INITIAL: WorkspaceState = {
   projectId: null,
   projectName: '',
   sessionCostUsd: 0,
+  collabStatus: 'idle',
+  remoteCursors: {},
 };
 
 function normalizeContract(raw: unknown): IntentContract | null {
@@ -217,6 +231,15 @@ export const useWorkspaceStore = create<WorkspaceState & WorkspaceActions>()(
           delete next[pagePath];
           return { criticReports: next };
         }),
+      setCollabStatus: (collabStatus) => set({ collabStatus }),
+      setRemoteCursors: (remoteCursors) => set({ remoteCursors }),
+      __hydratePagesFromY: (next, currentPath) =>
+        set((s) => {
+          if (pagesShallowEqual(s.pages, next) && s.currentPath === currentPath) {
+            return s;
+          }
+          return { ...s, pages: next, currentPath };
+        }),
     }),
     {
       name: 'you-design:workspace:v1',
@@ -238,6 +261,30 @@ export const useWorkspaceStore = create<WorkspaceState & WorkspaceActions>()(
     },
   ),
 );
+
+function pagesShallowEqual(
+  a: Record<string, Page>,
+  b: Record<string, Page>,
+): boolean {
+  const aKeys = Object.keys(a);
+  const bKeys = Object.keys(b);
+  if (aKeys.length !== bKeys.length) return false;
+  for (const k of aKeys) {
+    const pa = a[k];
+    const pb = b[k];
+    if (!pa || !pb) return false;
+    if (
+      pa.id !== pb.id ||
+      pa.path !== pb.path ||
+      pa.title !== pb.title ||
+      pa.html !== pb.html ||
+      pa.updatedAt !== pb.updatedAt
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
 
 export function selectActiveModel(state: WorkspaceState): ModelConfig | null {
   if (!state.defaultModelId) return state.models[0] ?? null;
