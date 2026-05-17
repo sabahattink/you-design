@@ -16,6 +16,9 @@ import { ProjectListModal } from '@/components/projects/ProjectListModal';
 import { useProjectSync } from '@/lib/projects/useProjectSync';
 import { ExportDialog } from '@/components/export/ExportDialog';
 import { AnalyticsPanel } from '@/components/sidebar/AnalyticsPanel';
+import { useCollabSync } from '@/lib/collab/use-collab-sync';
+import { LiveStatusPill } from './LiveStatusPill';
+import { ShareDialog } from './ShareDialog';
 
 export function WorkspaceLayout() {
   const intentPhase = useWorkspaceStore((s) => s.intentPhase);
@@ -25,8 +28,10 @@ export function WorkspaceLayout() {
   const [criticOpen, setCriticOpen] = React.useState(false);
   const [showProjectModal, setShowProjectModal] = React.useState(!projectId);
   const [exportOpen, setExportOpen] = React.useState(false);
+  const [shareOpen, setShareOpen] = React.useState(false);
 
   useProjectSync();
+  const collabHandle = useCollabSync(projectId);
 
   return (
     <div className="h-screen flex flex-col">
@@ -39,6 +44,16 @@ export function WorkspaceLayout() {
         <span className="ml-2 text-xs px-2 py-0.5 rounded bg-[color:var(--color-border)] font-mono">
           ${sessionCostUsd.toFixed(4)}
         </span>
+        <span className="ml-2">
+          <LiveStatusPill />
+        </span>
+        <button
+          onClick={() => setShareOpen(true)}
+          className="ml-2 text-xs px-2 py-0.5 rounded border border-[color:var(--color-border)] hover:bg-[color:var(--color-border)]"
+          disabled={!projectId}
+        >
+          Share
+        </button>
         <button
           onClick={() => setExportOpen(true)}
           className="ml-2 text-xs px-2 py-0.5 rounded border border-[color:var(--color-border)] hover:bg-[color:var(--color-border)]"
@@ -82,7 +97,11 @@ export function WorkspaceLayout() {
             </button>
           </div>
           <div className="flex-1 relative">
-            {view === 'preview' ? <PreviewIframe /> : <CodePanel />}
+            {view === 'preview' ? (
+              <PreviewIframe collabProvider={collabHandle?.provider ?? null} />
+            ) : (
+              <CodePanel />
+            )}
             {view === 'preview' && <EditPanel />}
             <AgentDrawer open={criticOpen} onClose={() => setCriticOpen(false)} />
           </div>
@@ -99,6 +118,7 @@ export function WorkspaceLayout() {
         <ProjectListModal onDismiss={() => setShowProjectModal(false)} />
       )}
       {exportOpen && <ExportDialog onClose={() => setExportOpen(false)} />}
+      <ShareDialog open={shareOpen} onClose={() => setShareOpen(false)} />
     </div>
   );
 }
