@@ -14,7 +14,7 @@ export async function exportsRoutes(app: FastifyInstance) {
       reply.code(400);
       return { error: 'INVALID_BODY', message: parsed.error.message };
     }
-    const { projectId, format } = parsed.data;
+    const { projectId, format, motionOptions } = parsed.data;
 
     const pages = await db
       .select({ path: schema.projectPages.path, title: schema.projectPages.title, html: schema.projectPages.html })
@@ -31,6 +31,7 @@ export async function exportsRoutes(app: FastifyInstance) {
       projectId,
       format,
       pages,
+      motionOptions,
     });
 
     reply.code(202);
@@ -71,8 +72,10 @@ export async function exportsRoutes(app: FastifyInstance) {
 
     const ext = path.extname(row.filePath).slice(1);
     const contentType =
-      ext === 'pdf' ? 'application/pdf' :
+      ext === 'pdf'  ? 'application/pdf' :
       ext === 'pptx' ? 'application/vnd.openxmlformats-officedocument.presentationml.presentation' :
+      ext === 'mp4'  ? 'video/mp4' :
+      ext === 'gif'  ? 'image/gif' :
       'text/html';
 
     reply.header('Content-Disposition', `attachment; filename="export.${ext}"`);

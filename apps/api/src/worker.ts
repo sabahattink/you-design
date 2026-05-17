@@ -1,16 +1,19 @@
 import { Worker } from 'bullmq';
 import { eq } from 'drizzle-orm';
 import { db, schema } from '@you-design/db';
+import { MotionExportOptions } from '@you-design/shared';
 import { env } from './config.js';
 import { redis } from './lib/redis.js';
 import { runPdfExport } from './lib/export-pdf.js';
 import { runPptxExport } from './lib/export-pptx.js';
+import { runMotionExport } from './lib/export-motion.js';
 
 interface ExportJobData {
   jobId: string;
   projectId: string;
-  format: 'html' | 'pdf' | 'pptx';
+  format: 'html' | 'pdf' | 'pptx' | 'mp4' | 'gif';
   pages: Array<{ path: string; title: string; html: string }>;
+  motionOptions?: unknown;
 }
 
 async function main() {
@@ -19,7 +22,7 @@ async function main() {
   const exportWorker = new Worker<ExportJobData>(
     'export-queue',
     async (job) => {
-      const { jobId, format, pages } = job.data;
+      const { jobId, format, pages, motionOptions } = job.data;
       console.log(`[worker:export] job ${jobId} format=${format} pages=${pages.length}`);
 
       await db
@@ -33,6 +36,9 @@ async function main() {
           filePath = await runPdfExport(jobId, pages);
         } else if (format === 'pptx') {
           filePath = await runPptxExport(jobId, pages);
+        } else if (format === 'mp4' || format === 'gif') {
+          const opts = MotionExportOptions.parse(motionOptions ?? {});
+          filePath = await runMotionExport(jobId, pages, format, opts);
         } else {
           throw new Error(`Unknown format: ${format}`);
         }
