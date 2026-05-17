@@ -67,7 +67,8 @@ Living Loop (Subsystem 9) — analytics feedback
 you-design/
 ├── apps/
 │   ├── web/         # Next.js 15 (frontend + marketing)
-│   └── api/         # Fastify (REST + SSE + WebSocket)
+│   ├── api/         # Fastify (REST + SSE)
+│   └── collab/      # Hocuspocus WebSocket (Y.js multiplayer, M5b)
 ├── packages/
 │   ├── shared/      # types, zod schemas, utils
 │   ├── ui/          # shadcn components, Tailwind preset
@@ -86,6 +87,46 @@ you-design/
 | Fast edits, autocomplete | Claude Haiku 4.5 | 3x cheaper, ~90% capability |
 | Vision (canvas screenshot analysis) | Gemini 2.0 Flash | cheapest vision |
 | Embeddings (memory) | text-embedding-3-large | pgvector compatible dims |
+
+## Multiplayer (Subsystem 4, M5b)
+
+`apps/collab` is a standalone Node service hosting a Hocuspocus WebSocket server on **port 3002**. It is separated from `apps/api` because long-lived WebSocket connections have a different scaling profile than the stateless REST/SSE API.
+
+| Concern | Choice |
+|---------|--------|
+| CRDT | `yjs` ^13 |
+| Sync server | `@hocuspocus/server` ^2 with `@hocuspocus/extension-database` (Postgres) |
+| Client | `@hocuspocus/provider` ^2 with `y-indexeddb` for offline-first |
+| Presence | `y-protocols/awareness` (bundled with `yjs`) |
+| HTML representation | `Y.Text` per page so concurrent edits CRDT-merge |
+| Auth | None — anyone with the project ID can join (alpha; real auth in M5c) |
+
+### Y.Doc shape
+
+```
+yDoc
+├── pages: Y.Map<string, Y.Map>          // keyed by path
+│   └── <path>
+│       ├── id, path, title              // strings
+│       ├── html: Y.Text                  // character-level CRDT
+│       └── createdAt, updatedAt          // numbers/strings
+└── meta: Y.Map<string, unknown>
+    └── currentPath: string               // advisory; per-room not per-user
+```
+
+### Service port map
+
+| Service | Port |
+|---------|------|
+| web (Next.js) | 3000 |
+| api (Fastify) | 3001 |
+| collab (Hocuspocus) | 3002 |
+| postgres | 5432 |
+| redis | 6379 |
+
+### Persistence
+
+Y.Doc binary state is stored base64 in `project_collab_docs.yjs_state` (one row per project, cascade-deletes with the project). The Hocuspocus database extension handles debounced flushes on disconnect.
 
 ## License Strategy
 

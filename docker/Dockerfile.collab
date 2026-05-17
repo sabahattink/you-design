@@ -1,0 +1,42 @@
+# syntax=docker/dockerfile:1.7
+FROM node:22-slim AS base
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+WORKDIR /app
+
+# -----------------------------------------------------------------------------
+# Dependencies
+# -----------------------------------------------------------------------------
+FROM base AS deps
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* turbo.json tsconfig.base.json ./
+COPY apps/collab/package.json ./apps/collab/package.json
+COPY packages/shared/package.json ./packages/shared/package.json
+COPY packages/db/package.json ./packages/db/package.json
+RUN pnpm install --frozen-lockfile=false
+
+# -----------------------------------------------------------------------------
+# Builder
+# -----------------------------------------------------------------------------
+FROM base AS builder
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN pnpm --filter @you-design/collab... build
+
+# -----------------------------------------------------------------------------
+# Runner
+# -----------------------------------------------------------------------------
+FROM node:22-slim AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+
+RUN addgroup --gid 1001 nodejs && \
+    adduser --uid 1001 --ingroup nodejs --disabled-password --gecos "" collab
+
+COPY --from=builder --chown=collab:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=collab:nodejs /app/packages ./packages
+COPY --from=builder --chown=collab:nodejs /app/apps/collab/dist ./apps/collab/dist
+COPY --from=builder --chown=collab:nodejs /app/apps/collab/package.json ./apps/collab/package.json
+COPY --from=builder --chown=collab:nodejs /app/package.json ./package.json
+
+USER collab
+EXPOSE 3002
+CMD ["node", "apps/collab/dist/server.js"]

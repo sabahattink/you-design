@@ -36,6 +36,10 @@ cp .env.example .env
 docker compose -f compose.dev.yml up -d   # Postgres + Redis
 pnpm install
 pnpm dev                                  # web :3000 + api :3001
+# For multiplayer (M5b in progress): also run
+# pnpm dev:collab                         # Hocuspocus :3002
+# or run all three together:
+# pnpm dev:all
 ```
 
 Open `http://localhost:3000/setup` and add the model you want to use. Then visit `/app`.
@@ -72,7 +76,9 @@ Keys are stored in your browser's localStorage and sent per request to the local
 
 ```bash
 pnpm install
-pnpm dev              # web :3000 + api :3001 hot reload
+pnpm dev              # web :3000 + api :3001 hot reload (turbo)
+pnpm dev:collab       # Hocuspocus :3002 (multiplayer, optional)
+pnpm dev:all          # web + api + collab in parallel
 pnpm typecheck        # tsc across all workspaces
 pnpm test             # vitest (unit)
 pnpm --filter @you-design/web test:e2e   # Playwright (requires `playwright install chromium` first)
