@@ -36,6 +36,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libasound2 libxshmfence1 libxrandr2 libpangocairo-1.0-0 \
     libcairo2 libpango-1.0-0 libatspi2.0-0 \
     ca-certificates fonts-liberation wget \
+    ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 RUN addgroup --gid 1001 nodejs && \
