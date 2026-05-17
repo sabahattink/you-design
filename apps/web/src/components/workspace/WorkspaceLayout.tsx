@@ -15,6 +15,7 @@ import { AgentDrawer } from '@/components/agents/AgentDrawer';
 import { ProjectListModal } from '@/components/projects/ProjectListModal';
 import { useProjectSync } from '@/lib/projects/useProjectSync';
 import { ExportDialog } from '@/components/export/ExportDialog';
+import { AnalyticsPanel } from '@/components/sidebar/AnalyticsPanel';
 
 export function WorkspaceLayout() {
   const intentPhase = useWorkspaceStore((s) => s.intentPhase);
@@ -56,6 +57,7 @@ export function WorkspaceLayout() {
           <IntentChip />
           <AgentsBadge onOpen={() => setCriticOpen(true)} />
           <ModelPicker />
+          <AnalyticsPanel />
         </aside>
         <section
           data-testid="canvas-area"
