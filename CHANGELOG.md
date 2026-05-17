@@ -9,7 +9,21 @@ While the project is in `alpha`, breaking changes may land in any minor version.
 
 ## [Unreleased]
 
-(empty)
+### Fixed
+
+- `style`: ran `pnpm format` across the repo (82 files) so the CI
+  format check passes.
+- `fix(docker)`: copy every workspace `package.json` in the deps stage of
+  `Dockerfile.{web,api,collab}`. Partial workspace context made pnpm's
+  lockfile resolution skip dependency installs (`next: not found`).
+- `fix(docker)`: re-run `pnpm install --offline` in the builder stage
+  after `COPY . .` so per-workspace `node_modules` symlinks are restored
+  (the prior `COPY` overwrote them and left the root `node_modules` alone).
+- `fix(ci)`: add `apps/web/public/.gitkeep` so the empty directory ships
+  in clean clones — the runner stage's `COPY ... apps/web/public` no
+  longer fails.
+- `fix(ci)`: add the `collab` image to the `docker` workflow matrix with
+  `fail-fast: false`.
 
 ## [0.10.0-alpha] — 2026-05-17 — Multiplayer (M5b)
 
