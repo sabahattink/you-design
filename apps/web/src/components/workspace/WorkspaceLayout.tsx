@@ -19,6 +19,7 @@ import { AnalyticsPanel } from '@/components/sidebar/AnalyticsPanel';
 import { useCollabSync } from '@/lib/collab/use-collab-sync';
 import { LiveStatusPill } from './LiveStatusPill';
 import { ShareDialog } from './ShareDialog';
+import { SettingsDialog } from './SettingsDialog';
 
 export function WorkspaceLayout() {
   const intentPhase = useWorkspaceStore((s) => s.intentPhase);
@@ -29,6 +30,7 @@ export function WorkspaceLayout() {
   const [showProjectModal, setShowProjectModal] = React.useState(!projectId);
   const [exportOpen, setExportOpen] = React.useState(false);
   const [shareOpen, setShareOpen] = React.useState(false);
+  const [settingsOpen, setSettingsOpen] = React.useState(false);
 
   useProjectSync();
   const collabHandle = useCollabSync(projectId);
@@ -59,6 +61,14 @@ export function WorkspaceLayout() {
           className="ml-2 text-xs px-2 py-0.5 rounded border border-[color:var(--color-border)] hover:bg-[color:var(--color-border)]"
         >
           Export
+        </button>
+        <button
+          onClick={() => setSettingsOpen(true)}
+          className="ml-2 text-xs px-2 py-0.5 rounded border border-[color:var(--color-border)] hover:bg-[color:var(--color-border)]"
+          aria-label="Settings"
+          title="Settings"
+        >
+          ⚙
         </button>
       </header>
       <div className="flex-1 flex min-h-0">
@@ -117,6 +127,7 @@ export function WorkspaceLayout() {
       {showProjectModal && <ProjectListModal onDismiss={() => setShowProjectModal(false)} />}
       {exportOpen && <ExportDialog onClose={() => setExportOpen(false)} />}
       <ShareDialog open={shareOpen} onClose={() => setShareOpen(false)} />
+      <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </div>
   );
 }
