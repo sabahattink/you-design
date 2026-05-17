@@ -1,0 +1,31 @@
+{
+  "name": "@you-design/collab",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "clean": "rm -rf dist .turbo"
+  },
+  "dependencies": {
+    "@hocuspocus/extension-database": "^2.15.2",
+    "@hocuspocus/extension-logger": "^2.15.2",
+    "@hocuspocus/server": "^2.15.2",
+    "@you-design/db": "workspace:*",
+    "drizzle-orm": "^0.38.2",
+    "pino": "^9.5.0",
+    "pino-pretty": "^13.0.0",
+    "yjs": "^13.6.20"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

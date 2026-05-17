@@ -1,11 +1,6 @@
 import { z } from 'zod';
 
-export const ProviderType = z.enum([
-  'anthropic',
-  'openai',
-  'google',
-  'openai-compatible',
-]);
+export const ProviderType = z.enum(['anthropic', 'openai', 'google', 'openai-compatible']);
 export type ProviderType = z.infer<typeof ProviderType>;
 
 export const ModelConfig = z.object({
@@ -48,11 +43,7 @@ export const PROVIDERS: readonly ProviderInfo[] = [
     type: 'google',
     label: 'Google Gemini',
     needsBaseURL: false,
-    exampleModels: [
-      'gemini-2.0-flash-exp',
-      'gemini-1.5-pro-latest',
-      'gemini-1.5-flash-latest',
-    ],
+    exampleModels: ['gemini-2.0-flash-exp', 'gemini-1.5-pro-latest', 'gemini-1.5-flash-latest'],
   },
   {
     type: 'openai-compatible',

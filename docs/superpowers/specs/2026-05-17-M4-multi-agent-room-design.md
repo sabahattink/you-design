@@ -39,6 +39,7 @@ setAgentRunning: (agent: AgentType, running: boolean) => void;
 ```
 
 Keep backward compatibility for anything reading `isCriticRunning` — add a computed selector:
+
 ```typescript
 export function selectIsCriticRunning(state: WorkspaceState): boolean {
   return state.agentsRunning['critic'] ?? false;
@@ -71,7 +72,9 @@ Rules:
 - Suggest a concrete replacement in your suggestion field.
 - Max 5 issues per review.`;
 
-export const COPYWRITER_TOOLS = [/* same as CRITIC_TOOLS — report_issues */];
+export const COPYWRITER_TOOLS = [
+  /* same as CRITIC_TOOLS — report_issues */
+];
 ```
 
 (COPYWRITER_TOOLS is identical to CRITIC_TOOLS — `report_issues` with the same input schema. Export and reuse CRITIC_TOOLS rather than duplicating.)
@@ -133,10 +136,11 @@ export async function runAgent(
   contract: IntentContract,
   pagePath: string,
   pageHtml: string,
-): Promise<void>
+): Promise<void>;
 ```
 
 Implementation mirrors `runAndStoreCritic` exactly:
+
 1. `setAgentRunning(agentType, true)`
 2. Call `streamLlm` with the agent's system prompt + `report_issues` tool
 3. Parse tool call → normalize issues → build `CriticReport` with `agentType` set
@@ -155,7 +159,10 @@ Replaces `CriticBadge`. Shows combined open issue count + highest severity dot a
 
 ```typescript
 // Selector: count open issues across all agentTypes for currentPath
-const allIssues = Object.values(reports).flat().flatMap(r => r.issues).filter(i => i.status === 'open');
+const allIssues = Object.values(reports)
+  .flat()
+  .flatMap((r) => r.issues)
+  .filter((i) => i.status === 'open');
 // Show running indicator if ANY agent is running
 const anyRunning = Object.values(agentsRunning).some(Boolean);
 ```
@@ -194,28 +201,28 @@ Replaces `CriticDrawer`. Tabbed layout:
 
 ## 7. Error Handling
 
-| Failure | Behaviour |
-|---------|-----------|
-| Agent LLM call fails | `setAgentRunning(type, false)`, no report added, console.warn |
-| No issues found | `setAgentRunning(type, false)`, no report added (empty = no problems) |
-| Model not configured | Early return, show "No model configured" in drawer tab |
+| Failure              | Behaviour                                                             |
+| -------------------- | --------------------------------------------------------------------- |
+| Agent LLM call fails | `setAgentRunning(type, false)`, no report added, console.warn         |
+| No issues found      | `setAgentRunning(type, false)`, no report added (empty = no problems) |
+| Model not configured | Early return, show "No model configured" in drawer tab                |
 
 ---
 
 ## 8. File Map
 
-| Action | File |
-|--------|------|
-| Modify | `packages/shared/src/critic.ts` |
-| Modify | `apps/web/src/lib/workspace/store.ts` |
-| Create | `apps/web/src/lib/chat/copywriter-agent.ts` |
-| Create | `apps/web/src/lib/chat/a11y-agent.ts` |
-| Create | `apps/web/src/lib/chat/dev-agent.ts` |
-| Create | `apps/web/src/lib/chat/agent-dispatch.ts` |
-| Create | `apps/web/src/components/agents/AgentsBadge.tsx` |
-| Create | `apps/web/src/components/agents/AgentDrawer.tsx` |
-| Modify | `apps/web/src/components/workspace/WorkspaceLayout.tsx` |
-| Modify | `apps/web/src/lib/chat/critic-dispatch.ts` (use setAgentRunning) |
+| Action | File                                                                                   |
+| ------ | -------------------------------------------------------------------------------------- |
+| Modify | `packages/shared/src/critic.ts`                                                        |
+| Modify | `apps/web/src/lib/workspace/store.ts`                                                  |
+| Create | `apps/web/src/lib/chat/copywriter-agent.ts`                                            |
+| Create | `apps/web/src/lib/chat/a11y-agent.ts`                                                  |
+| Create | `apps/web/src/lib/chat/dev-agent.ts`                                                   |
+| Create | `apps/web/src/lib/chat/agent-dispatch.ts`                                              |
+| Create | `apps/web/src/components/agents/AgentsBadge.tsx`                                       |
+| Create | `apps/web/src/components/agents/AgentDrawer.tsx`                                       |
+| Modify | `apps/web/src/components/workspace/WorkspaceLayout.tsx`                                |
+| Modify | `apps/web/src/lib/chat/critic-dispatch.ts` (use setAgentRunning)                       |
 | Modify | `apps/web/src/components/chat/ChatPanel.tsx` (isCriticRunning → selectIsCriticRunning) |
-| Modify | `apps/web/src/components/sidebar/CriticBadge.tsx` (delete — replaced) |
-| Modify | `apps/web/src/components/critic/CriticDrawer.tsx` (delete — replaced) |
+| Modify | `apps/web/src/components/sidebar/CriticBadge.tsx` (delete — replaced)                  |
+| Modify | `apps/web/src/components/critic/CriticDrawer.tsx` (delete — replaced)                  |

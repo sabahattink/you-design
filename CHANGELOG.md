@@ -9,14 +9,51 @@ While the project is in `alpha`, breaking changes may land in any minor version.
 
 ## [Unreleased]
 
-### Maintenance
+(empty)
 
-- `chore(db)`: add `usage-logs` and `export-jobs` schemas to the Drizzle config
-  so future `drizzle-kit generate` runs include them.
-- `docs(readme)`: roadmap reflects M2.2 → M6a as shipped and splits the
-  remaining M5/M6 work into substeps (M5b, M6b, M6c).
-- `chore(web)`: commit the regenerated `next-env.d.ts` to avoid a perpetual
-  local diff under Next.js typed routes.
+## [0.10.0-alpha] — 2026-05-17 — Multiplayer (M5b)
+
+### Added
+
+- **`apps/collab`** — a standalone Hocuspocus WebSocket server on **port 3002**,
+  backed by Postgres via `@hocuspocus/extension-database`. Authenticates by
+  checking the project ID exists (alpha — real auth in M5c).
+- **`project_collab_docs`** Drizzle schema + migration 0003. One row per
+  project, holds the base64 Y.Doc snapshot, cascade-deletes with the project.
+- **Web collab module** (`apps/web/src/lib/collab`):
+  - `acquireYDoc(projectId)` — refcounted singleton that wires `yjs` +
+    `HocuspocusProvider` + `y-indexeddb` together. Switching project tears
+    the previous bundle down deterministically.
+  - `bindPagesSync` — bidirectional mirror between the Zustand `pages` map
+    and a Y.Doc. HTML body of each page is a `Y.Text` so concurrent edits
+    CRDT-merge. Transaction origin tags prevent observer/subscriber loops.
+  - `bindAwareness` + `publishLocalCursor` — present cursor + selected
+    element + display name + color through `y-protocols/awareness`.
+  - `useCollabSync(projectId)` — React hook that drives `collabStatus`
+    (`idle` / `connecting` / `connected` / `offline`) from provider events.
+- **Workspace UI**:
+  - `LiveStatusPill` in the header: hidden when idle, dot + label
+    otherwise ("Live", "Live • N people", "Connecting…",
+    "Offline (edits saved locally)").
+  - `Share` button + `ShareDialog`: copy a `/app?project=<id>` URL with an
+    explicit "anyone with this link can edit; auth in M5c" notice.
+  - `RemoteCursors` overlay inside `PreviewIframe`: dot + display-name pill
+    per remote user, filtered by current page.
+  - Preview iframe inject script now emits throttled (50 ms) `pointermove`
+    - `pointerleave` so the parent can relay cursor coordinates to awareness.
+- **Identity** — per-browser UUID + display name + color from a 12-color
+  palette, persisted in `localStorage`.
+- **Root scripts**: `dev:web`, `dev:api`, `dev:collab`, `dev:all`.
+- **CRDT convergence tests** — `sync-pages.test.ts` covers concurrent text
+  insertions, page additions, and page deletions across two Y.Docs.
+- **Docs**: `docs/ARCHITECTURE.md` gains a Multiplayer section with the
+  Y.Doc shape, the port map, and the persistence model.
+
+### Known limitations
+
+- No real authentication — anyone with a project ID can join (M5c).
+- Critic / chat / agents / models / analytics stay per-user; only
+  page content and current path sync.
 
 ## [0.9.0-alpha] — 2026-05-17 — Motion Export (M6a)
 
@@ -156,7 +193,8 @@ While the project is in `alpha`, breaking changes may land in any minor version.
 - Docker Compose, GitHub Actions (CI / docker / release workflows),
   `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `ARCHITECTURE.md`.
 
-[Unreleased]: https://github.com/sabahattink/you-design/compare/v0.9.0-alpha...HEAD
+[Unreleased]: https://github.com/sabahattink/you-design/compare/v0.10.0-alpha...HEAD
+[0.10.0-alpha]: https://github.com/sabahattink/you-design/compare/v0.9.0-alpha...v0.10.0-alpha
 [0.9.0-alpha]: https://github.com/sabahattink/you-design/compare/v0.8.0-alpha...v0.9.0-alpha
 [0.8.0-alpha]: https://github.com/sabahattink/you-design/compare/v0.7.0-alpha...v0.8.0-alpha
 [0.7.0-alpha]: https://github.com/sabahattink/you-design/compare/v0.6.0-alpha...v0.7.0-alpha

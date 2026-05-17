@@ -11,8 +11,8 @@ export default function SetupPage() {
       <div className="max-w-2xl mx-auto">
         <h1 className="text-3xl font-bold tracking-tight mb-2">Setup</h1>
         <p className="text-[color:var(--color-muted)] mb-8">
-          Add the LLM providers and models you want to use. Local-first, BYOK —
-          your keys never leave this browser and the API server you run.
+          Add the LLM providers and models you want to use. Local-first, BYOK — your keys never
+          leave this browser and the API server you run.
         </p>
         <ProviderConfig />
         <AnalyticsConfig />

@@ -2,12 +2,7 @@
 
 import * as React from 'react';
 import { useWorkspaceStore } from '@/lib/workspace/store';
-import {
-  listProjects,
-  createProject,
-  loadProject,
-  deleteProject,
-} from '@/lib/projects/api';
+import { listProjects, createProject, loadProject, deleteProject } from '@/lib/projects/api';
 import type { ProjectMetaType } from '@you-design/shared';
 
 export function ProjectSwitcher() {
@@ -47,7 +42,14 @@ export function ProjectSwitcher() {
       setIntentPhase(full.intentPhase as 'collecting' | 'contracted' | 'building');
       if (full.intentContract) setIntentContract(full.intentContract);
       for (const p of full.pages) {
-        upsertPage({ id: p.path, path: p.path, title: p.title, html: p.html, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+        upsertPage({
+          id: p.path,
+          path: p.path,
+          title: p.title,
+          html: p.html,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
       }
     } finally {
       setOpen(false);
@@ -119,7 +121,10 @@ export function ProjectSwitcher() {
                 placeholder="Project name"
                 className="flex-1 border border-[color:var(--color-border)] rounded px-1 bg-[color:var(--color-bg)]"
               />
-              <button onClick={() => void handleCreate()} className="px-2 py-0.5 rounded bg-[color:var(--color-fg)] text-[color:var(--color-bg)]">
+              <button
+                onClick={() => void handleCreate()}
+                className="px-2 py-0.5 rounded bg-[color:var(--color-fg)] text-[color:var(--color-bg)]"
+              >
                 Create
               </button>
             </div>

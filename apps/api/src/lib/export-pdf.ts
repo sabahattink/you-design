@@ -17,7 +17,10 @@ export async function runPdfExport(jobId: string, pages: PageData[]): Promise<st
   try {
     for (const pg of pages) {
       const bPage = await browser.newPage();
-      await bPage.setContent(injectTailwind(pg.html), { waitUntil: 'networkidle', timeout: 30_000 });
+      await bPage.setContent(injectTailwind(pg.html), {
+        waitUntil: 'networkidle',
+        timeout: 30_000,
+      });
       const buf = await bPage.pdf({ format: 'A4', printBackground: true });
       pdfBuffers.push(buf);
       await bPage.close();

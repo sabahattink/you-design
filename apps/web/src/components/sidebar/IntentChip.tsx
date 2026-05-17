@@ -13,16 +13,13 @@ export function IntentChip() {
       </div>
       <div className="text-xs space-y-0.5">
         <div>
-          <span className="text-[color:var(--color-muted)]">For:</span>{' '}
-          {contract.persona.role}
+          <span className="text-[color:var(--color-muted)]">For:</span> {contract.persona.role}
         </div>
         <div>
-          <span className="text-[color:var(--color-muted)]">Action:</span>{' '}
-          {contract.primaryAction}
+          <span className="text-[color:var(--color-muted)]">Action:</span> {contract.primaryAction}
         </div>
         <div>
-          <span className="text-[color:var(--color-muted)]">Feel:</span>{' '}
-          {contract.emotion}
+          <span className="text-[color:var(--color-muted)]">Feel:</span> {contract.emotion}
         </div>
       </div>
     </div>

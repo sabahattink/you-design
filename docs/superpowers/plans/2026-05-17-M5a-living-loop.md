@@ -12,28 +12,29 @@
 
 ## File Map
 
-| Action | File |
-|--------|------|
-| Create | `packages/shared/src/analytics.ts` |
-| Modify | `packages/shared/src/index.ts` |
-| Modify | `apps/web/src/lib/workspace/store.ts` |
-| Create | `apps/web/src/components/setup/AnalyticsConfig.tsx` |
-| Modify | `apps/web/src/app/setup/page.tsx` |
-| Create | `apps/web/src/lib/export/inject-posthog.ts` |
-| Modify | `apps/web/src/lib/export/useExport.ts` |
-| Modify | `apps/api/src/lib/html-inject.ts` |
-| Create | `apps/api/src/routes/analytics.ts` |
-| Modify | `apps/api/src/server.ts` |
-| Create | `apps/web/src/components/sidebar/AnalyticsPanel.tsx` |
+| Action | File                                                    |
+| ------ | ------------------------------------------------------- |
+| Create | `packages/shared/src/analytics.ts`                      |
+| Modify | `packages/shared/src/index.ts`                          |
+| Modify | `apps/web/src/lib/workspace/store.ts`                   |
+| Create | `apps/web/src/components/setup/AnalyticsConfig.tsx`     |
+| Modify | `apps/web/src/app/setup/page.tsx`                       |
+| Create | `apps/web/src/lib/export/inject-posthog.ts`             |
+| Modify | `apps/web/src/lib/export/useExport.ts`                  |
+| Modify | `apps/api/src/lib/html-inject.ts`                       |
+| Create | `apps/api/src/routes/analytics.ts`                      |
+| Modify | `apps/api/src/server.ts`                                |
+| Create | `apps/web/src/components/sidebar/AnalyticsPanel.tsx`    |
 | Modify | `apps/web/src/components/workspace/WorkspaceLayout.tsx` |
-| Modify | `apps/web/src/lib/chat/critic-agent.ts` |
-| Modify | `apps/web/src/lib/chat/critic-dispatch.ts` |
+| Modify | `apps/web/src/lib/chat/critic-agent.ts`                 |
+| Modify | `apps/web/src/lib/chat/critic-dispatch.ts`              |
 
 ---
 
 ## Task 1: Shared — analytics types
 
 **Files:**
+
 - Create: `packages/shared/src/analytics.ts`
 - Modify: `packages/shared/src/index.ts`
 
@@ -43,12 +44,14 @@
 import { z } from 'zod';
 
 export const AnalyticsSummary = z.object({
-  pages: z.array(z.object({
-    path: z.string(),
-    views: z.number().int(),
-    clicks: z.number().int(),
-    ctr: z.number(),
-  })),
+  pages: z.array(
+    z.object({
+      path: z.string(),
+      views: z.number().int(),
+      clicks: z.number().int(),
+      ctr: z.number(),
+    }),
+  ),
   totalViews: z.number().int(),
   period: z.string(),
   fetchedAt: z.number(),
@@ -83,40 +86,47 @@ git commit -m "feat(shared): AnalyticsConfig + AnalyticsSummary Zod schemas"
 ## Task 2: Store — analyticsConfig + analyticsCache
 
 **Files:**
+
 - Modify: `apps/web/src/lib/workspace/store.ts`
 
 - [ ] **Step 1: Read `apps/web/src/lib/workspace/store.ts` then apply changes**
 
 Add to imports at top:
+
 ```typescript
 import type { AnalyticsConfig, AnalyticsSummary } from '@you-design/shared';
 ```
 
 Add to `WorkspaceState` interface (after `agentsRunning`):
+
 ```typescript
-  analyticsConfig: AnalyticsConfig | null;
-  analyticsCache: AnalyticsSummary | null;
+analyticsConfig: AnalyticsConfig | null;
+analyticsCache: AnalyticsSummary | null;
 ```
 
 Add to `WorkspaceActions` (after `setAgentRunning`):
+
 ```typescript
   setAnalyticsConfig: (config: AnalyticsConfig | null) => void;
   setAnalyticsCache: (data: AnalyticsSummary | null) => void;
 ```
 
 Add to `INITIAL` (after `agentsRunning: {}`):
+
 ```typescript
   analyticsConfig: null,
   analyticsCache: null,
 ```
 
 Add to `create` block (after `setAgentRunning`):
+
 ```typescript
       setAnalyticsConfig: (analyticsConfig) => set({ analyticsConfig }),
       setAnalyticsCache: (analyticsCache) => set({ analyticsCache }),
 ```
 
 Add `analyticsConfig` to `partialize` (persisted — user config):
+
 ```typescript
         analyticsConfig: state.analyticsConfig,
 ```
@@ -136,6 +146,7 @@ git commit -m "feat(web): analyticsConfig + analyticsCache in workspace store"
 ## Task 3: Setup UI — AnalyticsConfig form
 
 **Files:**
+
 - Create: `apps/web/src/components/setup/AnalyticsConfig.tsx`
 - Modify: `apps/web/src/app/setup/page.tsx`
 
@@ -306,6 +317,7 @@ git commit -m "feat(web): AnalyticsConfig form on setup page"
 ## Task 4: PostHog injection — web + API
 
 **Files:**
+
 - Create: `apps/web/src/lib/export/inject-posthog.ts`
 - Modify: `apps/web/src/lib/export/useExport.ts`
 - Modify: `apps/api/src/lib/html-inject.ts`
@@ -340,6 +352,7 @@ posthog.capture('$pageview',{page_path:'${pagePath}'});
 Read the file then apply changes.
 
 Add import at top:
+
 ```typescript
 import { injectPostHog } from './inject-posthog';
 ```
@@ -347,13 +360,13 @@ import { injectPostHog } from './inject-posthog';
 In `exportHtml` (the function inside `useExport`), after reading `pages` and before creating the blob, add PostHog injection:
 
 Find the line:
+
 ```typescript
-const combined = allPages
-  .map((p) => `<!-- Page: ${p.path} -->\n${p.html}`)
-  .join('\n\n');
+const combined = allPages.map((p) => `<!-- Page: ${p.path} -->\n${p.html}`).join('\n\n');
 ```
 
 Replace with:
+
 ```typescript
 const analyticsConfig = useWorkspaceStore.getState().analyticsConfig;
 const combined = allPages
@@ -402,6 +415,7 @@ git commit -m "feat: PostHog script injection in HTML export (web + API)"
 ## Task 5: API — analytics proxy route
 
 **Files:**
+
 - Create: `apps/api/src/routes/analytics.ts`
 - Modify: `apps/api/src/server.ts`
 
@@ -428,7 +442,10 @@ export async function analyticsRoutes(app: FastifyInstance) {
 
     if (!q.postHogApiKey || !q.postHogProjectId) {
       reply.code(400);
-      return { error: 'MISSING_PARAMS', message: 'postHogApiKey and postHogProjectId are required' };
+      return {
+        error: 'MISSING_PARAMS',
+        message: 'postHogApiKey and postHogProjectId are required',
+      };
     }
 
     const host = q.postHogHost ?? 'https://app.posthog.com';
@@ -437,35 +454,35 @@ export async function analyticsRoutes(app: FastifyInstance) {
 
     try {
       // Fetch pageview events grouped by $current_url
-      const res = await fetch(
-        `${host}/api/projects/${q.postHogProjectId}/insights/trend/`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${q.postHogApiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            events: [{ id: '$pageview', name: '$pageview', type: 'events' }],
-            breakdown: '$current_url',
-            breakdown_type: 'event',
-            date_from: `-${days}d`,
-            display: 'ActionsTable',
-          }),
+      const res = await fetch(`${host}/api/projects/${q.postHogProjectId}/insights/trend/`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${q.postHogApiKey}`,
+          'Content-Type': 'application/json',
         },
-      );
+        body: JSON.stringify({
+          events: [{ id: '$pageview', name: '$pageview', type: 'events' }],
+          breakdown: '$current_url',
+          breakdown_type: 'event',
+          date_from: `-${days}d`,
+          display: 'ActionsTable',
+        }),
+      });
 
       if (!res.ok) {
         const text = await res.text();
         reply.code(502);
-        return { error: 'POSTHOG_ERROR', message: `PostHog API returned ${res.status}: ${text.slice(0, 200)}` };
+        return {
+          error: 'POSTHOG_ERROR',
+          message: `PostHog API returned ${res.status}: ${text.slice(0, 200)}`,
+        };
       }
 
       const data = (await res.json()) as { result: PostHogTrend[] };
       const results = data.result ?? [];
 
       const pages = results.map((r) => {
-        const url = (r.action?.name ?? '');
+        const url = r.action?.name ?? '';
         // Extract path from full URL if deployedBaseUrl is in the URL
         let path = url;
         try {
@@ -494,11 +511,13 @@ export async function analyticsRoutes(app: FastifyInstance) {
 - [ ] **Step 2: Register in `apps/api/src/server.ts`**
 
 Add import:
+
 ```typescript
 import { analyticsRoutes } from './routes/analytics.js';
 ```
 
 Add registration after `exportsRoutes`:
+
 ```typescript
 await app.register(analyticsRoutes, { prefix: '/api/v1' });
 ```
@@ -516,6 +535,7 @@ git commit -m "feat(api): analytics summary proxy route for PostHog"
 ## Task 6: AnalyticsPanel sidebar component
 
 **Files:**
+
 - Create: `apps/web/src/components/sidebar/AnalyticsPanel.tsx`
 - Modify: `apps/web/src/components/workspace/WorkspaceLayout.tsx`
 
@@ -626,11 +646,13 @@ export function AnalyticsPanel() {
 - [ ] **Step 2: Update `apps/web/src/components/workspace/WorkspaceLayout.tsx`**
 
 Read the file, add import:
+
 ```typescript
 import { AnalyticsPanel } from '@/components/sidebar/AnalyticsPanel';
 ```
 
 In the sidebar `<aside>`, add `<AnalyticsPanel />` after `<ModelPicker />`:
+
 ```tsx
           <ModelPicker />
           <AnalyticsPanel />
@@ -649,6 +671,7 @@ git commit -m "feat(web): AnalyticsPanel sidebar — PostHog metrics with 5-min 
 ## Task 7: Critic enrichment from analytics
 
 **Files:**
+
 - Modify: `apps/web/src/lib/chat/critic-agent.ts`
 - Modify: `apps/web/src/lib/chat/critic-dispatch.ts`
 
@@ -657,6 +680,7 @@ git commit -m "feat(web): AnalyticsPanel sidebar — PostHog metrics with 5-min 
 Read the file. Find `criticSystemPrompt` — it currently ends with a closing backtick and return statement. Add `analyticsContext` optional param and append it to the prompt.
 
 Change signature from:
+
 ```typescript
 export function criticSystemPrompt(
   contract: IntentContract,
@@ -666,6 +690,7 @@ export function criticSystemPrompt(
 ```
 
 To:
+
 ```typescript
 export function criticSystemPrompt(
   contract: IntentContract,
@@ -676,11 +701,13 @@ export function criticSystemPrompt(
 ```
 
 At the end of the returned template string, before the closing backtick, add:
+
 ```
 ${analyticsContext ? `\n\nREAL USER DATA (use this to make data-informed suggestions):\n${analyticsContext}` : ''}`;
 ```
 
 Example: if the prompt ends with `...Do NOT invent issues to look thorough.\``, change it to:
+
 ```typescript
 ...Do NOT invent issues to look thorough.
 ${analyticsContext ? `\n\nREAL USER DATA (use this to make data-informed suggestions):\n${analyticsContext}` : ''}\`;
@@ -693,8 +720,8 @@ Read the file. In `runCritic`, before calling `criticSystemPrompt`, add analytic
 After the line `const domain = getDomain(state.intentContract.domain);`, add:
 
 ```typescript
-  // Build analytics context from cache if available
-  const analyticsContext = buildAnalyticsContext(state.analyticsCache, pagePath);
+// Build analytics context from cache if available
+const analyticsContext = buildAnalyticsContext(state.analyticsCache, pagePath);
 ```
 
 After the closing brace of `runCritic`, add the helper function:
@@ -721,11 +748,13 @@ function buildAnalyticsContext(
 Update the `criticSystemPrompt` call to pass the context:
 
 Find:
+
 ```typescript
       system: criticSystemPrompt(state.intentContract, domain, triggeredBy),
 ```
 
 Replace with:
+
 ```typescript
       system: criticSystemPrompt(state.intentContract, domain, triggeredBy, analyticsContext),
 ```
@@ -753,6 +782,7 @@ git push && git push --tags
 ## Self-Review
 
 **Spec coverage:**
+
 - ✅ `AnalyticsConfig` + `AnalyticsSummary` Zod schemas (Task 1)
 - ✅ `analyticsConfig` persisted in store, `analyticsCache` ephemeral (Task 2)
 - ✅ `setAnalyticsConfig` + `setAnalyticsCache` actions (Task 2)
@@ -767,6 +797,7 @@ git push && git push --tags
 - ✅ Critic dispatch passes analytics context (Task 7)
 
 **Type consistency:**
+
 - `AnalyticsConfig` defined Task 1, used in Tasks 2, 3, 4, 6 ✅
 - `AnalyticsSummary` defined Task 1, used in Tasks 2, 6, 7 ✅
 - `setAnalyticsCache(data)` defined Task 2, called in Task 6 ✅

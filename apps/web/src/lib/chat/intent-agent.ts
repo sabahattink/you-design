@@ -30,8 +30,7 @@ Start with: "Quick — who is this for?"`;
 export const INTENT_TOOLS = [
   {
     name: 'record_slot',
-    description:
-      'Record a filled intent slot when the user answer is specific enough.',
+    description: 'Record a filled intent slot when the user answer is specific enough.',
     input_schema: {
       type: 'object',
       properties: {
@@ -59,8 +58,7 @@ export const INTENT_TOOLS = [
   },
   {
     name: 'summarize_contract',
-    description:
-      'Once all five slots are filled, propose the intent contract for user approval.',
+    description: 'Once all five slots are filled, propose the intent contract for user approval.',
     input_schema: {
       type: 'object',
       properties: {
@@ -70,21 +68,10 @@ export const INTENT_TOOLS = [
         successMetric: { type: 'string' },
         domain: {
           type: 'string',
-          enum: [
-            'general',
-            'saas-landing',
-            'ecommerce-product',
-            'healthcare-appointment',
-          ],
+          enum: ['general', 'saas-landing', 'ecommerce-product', 'healthcare-appointment'],
         },
       },
-      required: [
-        'persona',
-        'primaryAction',
-        'emotion',
-        'successMetric',
-        'domain',
-      ],
+      required: ['persona', 'primaryAction', 'emotion', 'successMetric', 'domain'],
     },
   },
 ];

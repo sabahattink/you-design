@@ -9,18 +9,18 @@ interface Props {
 }
 
 const FORMATS: Array<{ id: ExportFormat; label: string; desc: string }> = [
-  { id: 'html',  label: 'HTML', desc: 'Single file, instant download' },
-  { id: 'pdf',   label: 'PDF',  desc: 'Print-ready, all pages' },
-  { id: 'pptx',  label: 'PPTX', desc: 'Slide deck, one slide per page' },
-  { id: 'mp4',   label: 'MP4',  desc: 'Animated slideshow video' },
-  { id: 'gif',   label: 'GIF',  desc: 'Animated GIF, smaller file' },
+  { id: 'html', label: 'HTML', desc: 'Single file, instant download' },
+  { id: 'pdf', label: 'PDF', desc: 'Print-ready, all pages' },
+  { id: 'pptx', label: 'PPTX', desc: 'Slide deck, one slide per page' },
+  { id: 'mp4', label: 'MP4', desc: 'Animated slideshow video' },
+  { id: 'gif', label: 'GIF', desc: 'Animated GIF, smaller file' },
 ];
 
 const STATUS_MSG: Record<string, string> = {
-  pending:    'Queued…',
+  pending: 'Queued…',
   processing: 'Rendering…',
-  done:       'Done — downloading…',
-  failed:     'Export failed.',
+  done: 'Done — downloading…',
+  failed: 'Export failed.',
 };
 
 const DEFAULT_MOTION: MotionExportOptions = {
@@ -36,9 +36,9 @@ export function ExportDialog({ onClose }: Props) {
   const [motion, setMotion] = React.useState<MotionExportOptions>(DEFAULT_MOTION);
   const { startExport, status, error, reset } = useExport();
 
-  const isMotion  = selected === 'mp4' || selected === 'gif';
+  const isMotion = selected === 'mp4' || selected === 'gif';
   const isWorking = status === 'pending' || status === 'processing';
-  const isDone    = status === 'done';
+  const isDone = status === 'done';
 
   const handleExport = () => {
     void startExport(selected, isMotion ? motion : undefined);

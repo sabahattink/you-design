@@ -5,10 +5,12 @@ import dynamic from 'next/dynamic';
 import { useWorkspaceStore } from '@/lib/workspace/store';
 import { parseHtml, ensureYdIds, toHtml } from '@/lib/html/ast';
 
-const Editor = dynamic(
-  () => import('@monaco-editor/react').then((m) => m.default),
-  { ssr: false, loading: () => <div className="p-4 text-xs text-[color:var(--color-muted)]">Loading editor...</div> },
-);
+const Editor = dynamic(() => import('@monaco-editor/react').then((m) => m.default), {
+  ssr: false,
+  loading: () => (
+    <div className="p-4 text-xs text-[color:var(--color-muted)]">Loading editor...</div>
+  ),
+});
 
 export function CodePanel() {
   const page = useWorkspaceStore((s) => s.pages[s.currentPath]);

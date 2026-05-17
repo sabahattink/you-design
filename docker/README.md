@@ -9,6 +9,7 @@ docker compose up -d
 ```
 
 Services:
+
 - `web` — Next.js standalone, port 3000
 - `api` — Fastify, port 3001
 - `worker` — BullMQ worker (export queue + llm queue)

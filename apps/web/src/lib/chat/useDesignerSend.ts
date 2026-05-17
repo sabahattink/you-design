@@ -52,7 +52,11 @@ export function useDesignerSend(): (text: string) => Promise<void> {
       setStreaming(true);
 
       const onUsage = (usage: { promptTokens: number; completionTokens: number }) => {
-        const cost = estimateCost(activeModel?.modelName ?? '', usage.promptTokens, usage.completionTokens);
+        const cost = estimateCost(
+          activeModel?.modelName ?? '',
+          usage.promptTokens,
+          usage.completionTokens,
+        );
         if (cost !== null) appendSessionCost(cost);
         void fetch('http://localhost:3001/api/v1/usage', {
           method: 'POST',
@@ -72,16 +76,22 @@ export function useDesignerSend(): (text: string) => Promise<void> {
         let memories: string[] = [];
         if (projectId) {
           const openAiKey =
-            activeModel?.provider === 'openai' ? (activeModel as { apiKey?: string }).apiKey : undefined;
+            activeModel?.provider === 'openai'
+              ? (activeModel as { apiKey?: string }).apiKey
+              : undefined;
           memories = await searchMemories(projectId, text, openAiKey).catch(() => []);
         }
 
-        for await (const ev of streamLlm({
-          model: activeModel,
-          system: designerSystemPrompt(contract, memories),
-          messages: toApiMessages([...buildMessages, userMsg]),
-          tools: DESIGNER_TOOLS,
-        }, undefined, onUsage)) {
+        for await (const ev of streamLlm(
+          {
+            model: activeModel,
+            system: designerSystemPrompt(contract, memories),
+            messages: toApiMessages([...buildMessages, userMsg]),
+            tools: DESIGNER_TOOLS,
+          },
+          undefined,
+          onUsage,
+        )) {
           if (ev.type === 'text-delta') {
             const d = ev.data as { text?: string; textDelta?: string };
             assistantText += d.text ?? d.textDelta ?? '';
@@ -129,6 +139,15 @@ export function useDesignerSend(): (text: string) => Promise<void> {
         setStreaming(false);
       }
     },
-    [contract, models, defaultModelId, appendSessionCost, buildMessages, appendBuild, setStreaming, projectId],
+    [
+      contract,
+      models,
+      defaultModelId,
+      appendSessionCost,
+      buildMessages,
+      appendBuild,
+      setStreaming,
+      projectId,
+    ],
   );
 }

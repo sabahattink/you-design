@@ -11,12 +11,7 @@
  * In M0 this is only a stub interface.
  */
 
-export type LlmTask =
-  | 'judgment'
-  | 'generation'
-  | 'fast-edit'
-  | 'vision'
-  | 'embedding';
+export type LlmTask = 'judgment' | 'generation' | 'fast-edit' | 'vision' | 'embedding';
 
 export interface LlmRoute {
   task: LlmTask;

@@ -27,12 +27,14 @@ Build in You Design
 
 ```typescript
 export const AnalyticsSummary = z.object({
-  pages: z.array(z.object({
-    path: z.string(),
-    views: z.number().int(),
-    clicks: z.number().int(),
-    ctr: z.number(),
-  })),
+  pages: z.array(
+    z.object({
+      path: z.string(),
+      views: z.number().int(),
+      clicks: z.number().int(),
+      ctr: z.number(),
+    }),
+  ),
   totalViews: z.number().int(),
   period: z.string(),
   fetchedAt: z.number(),
@@ -40,10 +42,10 @@ export const AnalyticsSummary = z.object({
 export type AnalyticsSummary = z.infer<typeof AnalyticsSummary>;
 
 export const AnalyticsConfig = z.object({
-  postHogApiKey: z.string().min(1),       // phc_xxx... (project API key)
-  postHogProjectId: z.string().min(1),    // numeric project ID from PostHog
-  postHogHost: z.string().url().default('https://app.posthog.com'),  // or self-hosted
-  deployedBaseUrl: z.string().url().optional(),  // where the exported site lives
+  postHogApiKey: z.string().min(1), // phc_xxx... (project API key)
+  postHogProjectId: z.string().min(1), // numeric project ID from PostHog
+  postHogHost: z.string().url().default('https://app.posthog.com'), // or self-hosted
+  deployedBaseUrl: z.string().url().optional(), // where the exported site lives
 });
 export type AnalyticsConfig = z.infer<typeof AnalyticsConfig>;
 ```
@@ -62,6 +64,7 @@ Persisted in `partialize` (user-level config like models).
 ### Setup page UI (`apps/web/src/components/setup/AnalyticsConfig.tsx`)
 
 New section on `/setup` page below ProviderConfig. Fields:
+
 - PostHog API Key (text input, type=password)
 - PostHog Project ID (text input)
 - PostHog Host (text input, default: https://app.posthog.com)
@@ -79,7 +82,12 @@ New section on `/setup` page below ProviderConfig. Fields:
 Add a new export function alongside the existing `injectTailwind`:
 
 ```typescript
-export function injectPostHog(html: string, postHogKey: string, postHogHost: string, pagePath: string): string {
+export function injectPostHog(
+  html: string,
+  postHogKey: string,
+  postHogHost: string,
+  pagePath: string,
+): string {
   const script = `<script>
     !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]);t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}var u=t.createElement("script");u.type="text/javascript";u.async=!0;u.src=s.api_host+"/static/array.js";var c=t.getElementsByTagName("script")[0];c.parentNode.insertBefore(u,c);var d=e;a!==undefined&&(d=e[a]=[]);d.toString=function(t){return"undefined"!=typeof d&&!0!==t?d:""+(a?a:"posthog")};o=["capture","identify","alias","set_config","unregister","opt_out_capturing","has_opted_out_capturing","opt_in_capturing","reset","isFeatureEnabled","onFeatureFlags","addGroup","setPersonPropertiesForFlags","reloadFeatureFlags","group"];for(n=0;n<o.length;n++)g(d,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
     posthog.init('${postHogKey}', {api_host:'${postHogHost}',capture_pageview:false});
@@ -102,7 +110,12 @@ const { analyticsConfig } = useWorkspaceStore.getState();
 const combined = allPages
   .map((p) => {
     const html = analyticsConfig
-      ? injectPostHogClient(p.html, analyticsConfig.postHogApiKey, analyticsConfig.postHogHost, p.path)
+      ? injectPostHogClient(
+          p.html,
+          analyticsConfig.postHogApiKey,
+          analyticsConfig.postHogHost,
+          p.path,
+        )
       : p.html;
     return `<!-- Page: ${p.path} -->\n${html}`;
   })
@@ -138,6 +151,7 @@ GET /api/v1/analytics/summary
 ```
 
 **PostHog API call:**
+
 ```
 GET {postHogHost}/api/projects/{projectId}/insights/trend/
   Authorization: Bearer {postHogApiKey}
@@ -161,6 +175,7 @@ Renders at the bottom of the sidebar (below ModelPicker, above nothing).
 **Loading state**: simple spinner
 
 **Data state**:
+
 ```
 Analytics (last 7d)
 ─────────────────
@@ -193,10 +208,11 @@ export function criticSystemPrompt(
   domain: DomainConfig,
   triggeredBy: string,
   analyticsContext?: string,
-): string
+): string;
 ```
 
 `analyticsContext` example:
+
 ```
 Analytics (last 7d): 1,240 pageviews. CTA click rate: 3.4% (target: 5%+).
 Low-performing: /pricing page has 2.1% CTA rate.
@@ -231,19 +247,19 @@ NOT persisted (session-only, fetched fresh each session).
 
 ## 7. File Map
 
-| Action | File |
-|--------|------|
-| Create | `packages/shared/src/analytics.ts` |
-| Modify | `packages/shared/src/index.ts` |
-| Modify | `apps/web/src/lib/workspace/store.ts` |
-| Create | `apps/web/src/components/setup/AnalyticsConfig.tsx` |
-| Modify | `apps/web/src/app/setup/page.tsx` |
-| Create | `apps/web/src/lib/export/inject-posthog.ts` |
-| Modify | `apps/web/src/lib/export/useExport.ts` |
-| Modify | `apps/api/src/lib/html-inject.ts` |
-| Create | `apps/api/src/routes/analytics.ts` |
-| Modify | `apps/api/src/server.ts` |
-| Create | `apps/web/src/components/sidebar/AnalyticsPanel.tsx` |
+| Action | File                                                    |
+| ------ | ------------------------------------------------------- |
+| Create | `packages/shared/src/analytics.ts`                      |
+| Modify | `packages/shared/src/index.ts`                          |
+| Modify | `apps/web/src/lib/workspace/store.ts`                   |
+| Create | `apps/web/src/components/setup/AnalyticsConfig.tsx`     |
+| Modify | `apps/web/src/app/setup/page.tsx`                       |
+| Create | `apps/web/src/lib/export/inject-posthog.ts`             |
+| Modify | `apps/web/src/lib/export/useExport.ts`                  |
+| Modify | `apps/api/src/lib/html-inject.ts`                       |
+| Create | `apps/api/src/routes/analytics.ts`                      |
+| Modify | `apps/api/src/server.ts`                                |
+| Create | `apps/web/src/components/sidebar/AnalyticsPanel.tsx`    |
 | Modify | `apps/web/src/components/workspace/WorkspaceLayout.tsx` |
-| Modify | `apps/web/src/lib/chat/critic-agent.ts` |
-| Modify | `apps/web/src/lib/chat/critic-dispatch.ts` |
+| Modify | `apps/web/src/lib/chat/critic-agent.ts`                 |
+| Modify | `apps/web/src/lib/chat/critic-dispatch.ts`              |

@@ -1,13 +1,7 @@
 import { nanoid } from 'nanoid';
 import { useWorkspaceStore, selectActiveModel } from '@/lib/workspace/store';
 import { storeBuildMemory } from '@/lib/projects/memory';
-import {
-  parseHtml,
-  ensureYdIds,
-  updateElement,
-  addChild,
-  toHtml,
-} from '@/lib/html/ast';
+import { parseHtml, ensureYdIds, updateElement, addChild, toHtml } from '@/lib/html/ast';
 import type { ElementPatch, Page } from '@you-design/shared';
 import { runAndStoreCritic } from './critic-dispatch';
 
@@ -16,10 +10,7 @@ export interface DispatchResult {
   note: string;
 }
 
-export function dispatchDesignerTool(
-  name: string,
-  input: Record<string, unknown>,
-): DispatchResult {
+export function dispatchDesignerTool(name: string, input: Record<string, unknown>): DispatchResult {
   const store = useWorkspaceStore.getState();
   switch (name) {
     case 'write_page': {
@@ -51,7 +42,8 @@ export function dispatchDesignerTool(
       const { projectId: wpProjectId, intentContract: wpContract } = useWorkspaceStore.getState();
       const wpModel = selectActiveModel(useWorkspaceStore.getState());
       if (wpProjectId && wpContract) {
-        const wpOpenAiKey = wpModel?.provider === 'openai' ? (wpModel as { apiKey?: string }).apiKey : undefined;
+        const wpOpenAiKey =
+          wpModel?.provider === 'openai' ? (wpModel as { apiKey?: string }).apiKey : undefined;
         void storeBuildMemory(wpProjectId, wpContract, path, finalHtml, wpOpenAiKey);
       }
       return { ok: true, note: `Wrote ${path}` };
@@ -75,7 +67,8 @@ export function dispatchDesignerTool(
         const { projectId: ueProjectId, intentContract: ueContract } = useWorkspaceStore.getState();
         const ueModel = selectActiveModel(useWorkspaceStore.getState());
         if (ueProjectId && ueContract) {
-          const ueOpenAiKey = ueModel?.provider === 'openai' ? (ueModel as { apiKey?: string }).apiKey : undefined;
+          const ueOpenAiKey =
+            ueModel?.provider === 'openai' ? (ueModel as { apiKey?: string }).apiKey : undefined;
           void storeBuildMemory(ueProjectId, ueContract, path, updated, ueOpenAiKey);
         }
         return { ok: true, note: `Updated ${elementId} on ${path}` };
@@ -103,7 +96,8 @@ export function dispatchDesignerTool(
         const { projectId: aeProjectId, intentContract: aeContract } = useWorkspaceStore.getState();
         const aeModel = selectActiveModel(useWorkspaceStore.getState());
         if (aeProjectId && aeContract) {
-          const aeOpenAiKey = aeModel?.provider === 'openai' ? (aeModel as { apiKey?: string }).apiKey : undefined;
+          const aeOpenAiKey =
+            aeModel?.provider === 'openai' ? (aeModel as { apiKey?: string }).apiKey : undefined;
           void storeBuildMemory(aeProjectId, aeContract, path, updated, aeOpenAiKey);
         }
         return { ok: true, note: `Added to ${parentId} on ${path}` };

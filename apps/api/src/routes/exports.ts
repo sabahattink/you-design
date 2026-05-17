@@ -17,14 +17,15 @@ export async function exportsRoutes(app: FastifyInstance) {
     const { projectId, format, motionOptions } = parsed.data;
 
     const pages = await db
-      .select({ path: schema.projectPages.path, title: schema.projectPages.title, html: schema.projectPages.html })
+      .select({
+        path: schema.projectPages.path,
+        title: schema.projectPages.title,
+        html: schema.projectPages.html,
+      })
       .from(schema.projectPages)
       .where(eq(schema.projectPages.projectId, projectId));
 
-    const [job] = await db
-      .insert(schema.exportJobs)
-      .values({ projectId, format })
-      .returning();
+    const [job] = await db.insert(schema.exportJobs).values({ projectId, format }).returning();
 
     await exportQueue.add('export', {
       jobId: job!.id,
@@ -41,10 +42,7 @@ export async function exportsRoutes(app: FastifyInstance) {
   // GET /exports/:jobId — status
   app.get('/exports/:jobId', async (req, reply) => {
     const { jobId } = req.params as { jobId: string };
-    const [row] = await db
-      .select()
-      .from(schema.exportJobs)
-      .where(eq(schema.exportJobs.id, jobId));
+    const [row] = await db.select().from(schema.exportJobs).where(eq(schema.exportJobs.id, jobId));
     if (!row) {
       reply.code(404);
       return { error: 'NOT_FOUND' };
@@ -55,12 +53,12 @@ export async function exportsRoutes(app: FastifyInstance) {
   // GET /exports/:jobId/download — serve file
   app.get('/exports/:jobId/download', async (req, reply) => {
     const { jobId } = req.params as { jobId: string };
-    const [row] = await db
-      .select()
-      .from(schema.exportJobs)
-      .where(eq(schema.exportJobs.id, jobId));
+    const [row] = await db.select().from(schema.exportJobs).where(eq(schema.exportJobs.id, jobId));
 
-    if (!row) { reply.code(404); return { error: 'NOT_FOUND' }; }
+    if (!row) {
+      reply.code(404);
+      return { error: 'NOT_FOUND' };
+    }
     if (row.status !== 'done' || !row.filePath) {
       reply.code(409);
       return { error: 'NOT_READY', status: row.status };
@@ -72,11 +70,15 @@ export async function exportsRoutes(app: FastifyInstance) {
 
     const ext = path.extname(row.filePath).slice(1);
     const contentType =
-      ext === 'pdf'  ? 'application/pdf' :
-      ext === 'pptx' ? 'application/vnd.openxmlformats-officedocument.presentationml.presentation' :
-      ext === 'mp4'  ? 'video/mp4' :
-      ext === 'gif'  ? 'image/gif' :
-      'text/html';
+      ext === 'pdf'
+        ? 'application/pdf'
+        : ext === 'pptx'
+          ? 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+          : ext === 'mp4'
+            ? 'video/mp4'
+            : ext === 'gif'
+              ? 'image/gif'
+              : 'text/html';
 
     reply.header('Content-Disposition', `attachment; filename="export.${ext}"`);
     reply.header('Content-Type', contentType);

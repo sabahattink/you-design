@@ -10,6 +10,18 @@ export const INJECT_SCRIPT = `
     return el && el.getAttribute ? el.getAttribute('data-yd-id') : null;
   };
 
+  var lastPointer = 0;
+  document.addEventListener('pointermove', function (e) {
+    var now = Date.now();
+    if (now - lastPointer < 50) return;
+    lastPointer = now;
+    POST({ type: 'pointermove', x: e.clientX, y: e.clientY });
+  }, { passive: true });
+
+  document.addEventListener('pointerleave', function () {
+    POST({ type: 'pointerleave' });
+  }, { passive: true });
+
   document.addEventListener('click', function (e) {
     var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
     if (a) {

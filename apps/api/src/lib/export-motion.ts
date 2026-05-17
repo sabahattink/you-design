@@ -30,13 +30,20 @@ export function buildFfmpegArgs(
 
   if (n === 1) {
     return [
-      '-loop', '1',
-      '-t', String(durationPerPage),
-      '-i', screenshotPaths[0]!,
-      '-vcodec', 'libx264',
-      '-pix_fmt', 'yuv420p',
-      '-r', String(fps),
-      '-y', outPath,
+      '-loop',
+      '1',
+      '-t',
+      String(durationPerPage),
+      '-i',
+      screenshotPaths[0]!,
+      '-vcodec',
+      'libx264',
+      '-pix_fmt',
+      'yuv420p',
+      '-r',
+      String(fps),
+      '-y',
+      outPath,
     ];
   }
 
@@ -57,12 +64,18 @@ export function buildFfmpegArgs(
   filterComplex = filterComplex.replace(/;$/, '');
 
   args.push(
-    '-filter_complex', filterComplex,
-    '-map', '[v]',
-    '-vcodec', 'libx264',
-    '-pix_fmt', 'yuv420p',
-    '-r', String(fps),
-    '-y', outPath,
+    '-filter_complex',
+    filterComplex,
+    '-map',
+    '[v]',
+    '-vcodec',
+    'libx264',
+    '-pix_fmt',
+    'yuv420p',
+    '-r',
+    String(fps),
+    '-y',
+    outPath,
   );
 
   return args;
@@ -106,20 +119,27 @@ export async function runMotionExport(
     const ffArgs = buildFfmpegArgs(screenshotPaths, mp4Path, opts);
     await execFileAsync('ffmpeg', ffArgs, { maxBuffer: 50 * 1024 * 1024 });
   } catch (err) {
-    throw new Error(`FFmpeg MP4 encoding failed: ${err instanceof Error ? err.message : String(err)}`);
+    throw new Error(
+      `FFmpeg MP4 encoding failed: ${err instanceof Error ? err.message : String(err)}`,
+    );
   }
 
   if (format === 'gif') {
     const gifPath = path.join(outDir, `${jobId}.gif`);
     try {
       await execFileAsync('ffmpeg', [
-        '-i', mp4Path,
-        '-vf', 'fps=10,scale=960:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse',
-        '-loop', '0',
+        '-i',
+        mp4Path,
+        '-vf',
+        'fps=10,scale=960:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse',
+        '-loop',
+        '0',
         gifPath,
       ]);
     } catch (err) {
-      throw new Error(`FFmpeg GIF conversion failed: ${err instanceof Error ? err.message : String(err)}`);
+      throw new Error(
+        `FFmpeg GIF conversion failed: ${err instanceof Error ? err.message : String(err)}`,
+      );
     }
     fs.unlinkSync(mp4Path);
     return gifPath;

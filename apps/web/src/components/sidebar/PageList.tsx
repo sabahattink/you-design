@@ -9,9 +9,7 @@ export function PageList() {
   const setCurrentPath = useWorkspaceStore((s) => s.setCurrentPath);
   const removePage = useWorkspaceStore((s) => s.removePage);
 
-  const list = Object.values(pages).sort((a, b) =>
-    a.path.localeCompare(b.path),
-  );
+  const list = Object.values(pages).sort((a, b) => a.path.localeCompare(b.path));
 
   return (
     <div className="p-2">
@@ -19,9 +17,7 @@ export function PageList() {
         Pages
       </div>
       {list.length === 0 && (
-        <div className="text-xs italic text-[color:var(--color-muted)] px-1">
-          No pages yet
-        </div>
+        <div className="text-xs italic text-[color:var(--color-muted)] px-1">No pages yet</div>
       )}
       <ul className="flex flex-col gap-0.5">
         {list.map((p) => (

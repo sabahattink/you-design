@@ -29,7 +29,11 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yaml,yml}\"",
     "db:generate": "pnpm --filter @you-design/db generate",
     "db:migrate": "pnpm --filter @you-design/db migrate",
-    "db:studio": "pnpm --filter @you-design/db studio"
+    "db:studio": "pnpm --filter @you-design/db studio",
+    "dev:web": "pnpm --filter @you-design/web dev",
+    "dev:api": "pnpm --filter @you-design/api dev",
+    "dev:collab": "pnpm --filter @you-design/collab dev",
+    "dev:all": "pnpm -r --parallel --filter \"./apps/**\" dev"
   },
   "devDependencies": {
     "prettier": "^3.4.2",

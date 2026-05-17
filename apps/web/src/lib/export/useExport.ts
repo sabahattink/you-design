@@ -31,7 +31,12 @@ export function useExport() {
     const combined = allPages
       .map((p) => {
         const html = analyticsConfig
-          ? injectPostHog(p.html, analyticsConfig.postHogApiKey, analyticsConfig.postHogHost, p.path)
+          ? injectPostHog(
+              p.html,
+              analyticsConfig.postHogApiKey,
+              analyticsConfig.postHogHost,
+              p.path,
+            )
           : p.html;
         return `<!-- Page: ${p.path} -->\n${html}`;
       })
@@ -94,7 +99,11 @@ export function useExport() {
       startedAt.current = Date.now();
 
       try {
-        const body: { projectId: string; format: ExportFormat; motionOptions?: MotionExportOptions } = {
+        const body: {
+          projectId: string;
+          format: ExportFormat;
+          motionOptions?: MotionExportOptions;
+        } = {
           projectId,
           format,
         };

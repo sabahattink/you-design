@@ -68,23 +68,38 @@ export function AnalyticsConfig() {
     <form onSubmit={handleSave} className="flex flex-col gap-4 mt-8">
       <h2 className="text-lg font-semibold">Analytics (PostHog)</h2>
       <p className="text-sm text-[color:var(--color-muted)]">
-        Connect PostHog to see real user metrics and enrich Critic feedback with live data.
-        Keys stay in your browser.
+        Connect PostHog to see real user metrics and enrich Critic feedback with live data. Keys
+        stay in your browser.
       </p>
 
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium">PostHog Project API Key</label>
-        <input type="password" placeholder="phc_..." {...field('postHogApiKey')} className={inputClass} />
+        <input
+          type="password"
+          placeholder="phc_..."
+          {...field('postHogApiKey')}
+          className={inputClass}
+        />
       </div>
 
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium">PostHog Project ID</label>
-        <input type="text" placeholder="12345" {...field('postHogProjectId')} className={inputClass} />
+        <input
+          type="text"
+          placeholder="12345"
+          {...field('postHogProjectId')}
+          className={inputClass}
+        />
       </div>
 
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium">PostHog Host</label>
-        <input type="url" placeholder="https://app.posthog.com" {...field('postHogHost')} className={inputClass} />
+        <input
+          type="url"
+          placeholder="https://app.posthog.com"
+          {...field('postHogHost')}
+          className={inputClass}
+        />
       </div>
 
       <div className="flex flex-col gap-1">

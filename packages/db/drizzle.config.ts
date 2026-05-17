@@ -8,6 +8,7 @@ export default {
     './src/schema/project-memories.ts',
     './src/schema/usage-logs.ts',
     './src/schema/export-jobs.ts',
+    './src/schema/project-collab-docs.ts',
   ],
   out: './migrations',
   dialect: 'postgresql',

@@ -39,22 +39,16 @@ export function AgentsBadge({ onOpen }: Props) {
       onClick={onOpen}
       className="p-2 border-t border-[color:var(--color-border)] flex items-center justify-between text-xs hover:bg-[color:var(--color-border)] w-full text-left"
     >
-      <span className="uppercase tracking-wide text-[color:var(--color-muted)]">
-        Agents
-      </span>
+      <span className="uppercase tracking-wide text-[color:var(--color-muted)]">Agents</span>
       <span className="flex items-center gap-2">
-        {anyRunning && (
-          <span className="italic text-[color:var(--color-muted)]">running</span>
-        )}
+        {anyRunning && <span className="italic text-[color:var(--color-muted)]">running</span>}
         {highestSeverity && (
           <span
             className={`inline-block w-2 h-2 rounded-full ${DOT[highestSeverity]}`}
             aria-hidden
           />
         )}
-        <span className="text-[color:var(--color-muted)]">
-          {openIssues.length}
-        </span>
+        <span className="text-[color:var(--color-muted)]">{openIssues.length}</span>
       </span>
     </button>
   );
