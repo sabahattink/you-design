@@ -11,7 +11,8 @@ services:
     volumes:
       - postgres-data-dev:/var/lib/postgresql/data
     ports:
-      - '5432:5432'
+      # Override with POSTGRES_HOST_PORT env var if 5434 conflicts.
+      - '${POSTGRES_HOST_PORT:-5434}:5432'
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U youdesign']
       interval: 5s
@@ -25,7 +26,8 @@ services:
     volumes:
       - redis-data-dev:/data
     ports:
-      - '6379:6379'
+      # Override with REDIS_HOST_PORT env var if 6381 conflicts.
+      - '${REDIS_HOST_PORT:-6381}:6379'
     healthcheck:
       test: ['CMD', 'redis-cli', 'ping']
       interval: 5s
