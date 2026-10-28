@@ -34,7 +34,11 @@ const SECTIONS: readonly SettingsSection[] = [
   },
 ] as const;
 
-export function SettingsDialog({ open, onClose, initialSection = 'providers' }: SettingsDialogProps) {
+export function SettingsDialog({
+  open,
+  onClose,
+  initialSection = 'providers',
+}: SettingsDialogProps) {
   const [active, setActive] = useState<SettingsSectionId>(initialSection);
 
   if (!open) return null;
@@ -75,7 +79,9 @@ export function SettingsDialog({ open, onClose, initialSection = 'providers' }: 
                 >
                   <span className="text-base leading-5">{section.icon}</span>
                   <span className="flex flex-col">
-                    <span className="font-medium text-[color:var(--color-fg)]">{section.label}</span>
+                    <span className="font-medium text-[color:var(--color-fg)]">
+                      {section.label}
+                    </span>
                     <span className="text-[11px] text-[color:var(--color-muted)]">
                       {section.description}
                     </span>
