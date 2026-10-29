@@ -89,3 +89,38 @@ describe('workspace store — actions', () => {
     expect(c?.successMetrics[0]?.name).toBe('trial CVR > 5%');
   });
 });
+
+describe('workspace store — openSharedProject (M5c)', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    useWorkspaceStore.setState(useWorkspaceStore.getInitialState());
+  });
+
+  it('clears project-scoped state but keeps BYOK models and analytics config', () => {
+    const store = useWorkspaceStore.getState();
+    store.upsertModel({
+      id: 'mine',
+      label: 'My key',
+      provider: 'openai',
+      modelName: 'gpt-4o',
+      tier: 'standard',
+    });
+    store.setDefaultModel('mine');
+    store.setProjectId('own-project');
+    store.setProjectName('Mine');
+    store.upsertPage(makePage());
+    store.setIntentPhase('building');
+    store.appendSessionCost(0.5);
+
+    useWorkspaceStore.getState().openSharedProject('6f1c2b8e-3d4a-4b5c-9d6e-7f8a9b0c1d2e');
+    const s = useWorkspaceStore.getState();
+
+    expect(s.projectId).toBe('6f1c2b8e-3d4a-4b5c-9d6e-7f8a9b0c1d2e');
+    expect(s.projectName).toBe('Shared project');
+    expect(s.pages).toEqual({});
+    expect(s.intentPhase).toBe('collecting');
+    expect(s.models.map((m) => m.id)).toContain('mine');
+    expect(s.defaultModelId).toBe('mine');
+    expect(s.sessionCostUsd).toBe(0.5);
+  });
+});

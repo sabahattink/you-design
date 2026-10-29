@@ -17,11 +17,34 @@ import { useProjectSync } from '@/lib/projects/useProjectSync';
 import { ExportDialog } from '@/components/export/ExportDialog';
 import { AnalyticsPanel } from '@/components/sidebar/AnalyticsPanel';
 import { useCollabSync } from '@/lib/collab/use-collab-sync';
+import { consumeShareLink } from '@/lib/collab/share-link';
+import { collabTokens } from '@/lib/collab/tokens';
 import { LiveStatusPill } from './LiveStatusPill';
 import { ShareDialog } from './ShareDialog';
 import { SettingsDialog } from './SettingsDialog';
 
 export function WorkspaceLayout() {
+  const [isShareLinkHandled, setShareLinkHandled] = React.useState(false);
+
+  // A share link (/app?project=<id>#share=<token>, M5c) must be applied
+  // before the project-sync hooks in the shell first run, otherwise they
+  // would start loading whatever project this browser had open. Rendering
+  // the shell only after this effect also keeps SSR and the first client
+  // render identical.
+  React.useEffect(() => {
+    const sharedProjectId = consumeShareLink(collabTokens);
+    const store = useWorkspaceStore.getState();
+    if (sharedProjectId && sharedProjectId !== store.projectId) {
+      store.openSharedProject(sharedProjectId);
+    }
+    setShareLinkHandled(true);
+  }, []);
+
+  if (!isShareLinkHandled) return <div className="h-screen" aria-busy="true" />;
+  return <WorkspaceShell />;
+}
+
+function WorkspaceShell() {
   const intentPhase = useWorkspaceStore((s) => s.intentPhase);
   const projectId = useWorkspaceStore((s) => s.projectId);
   const sessionCostUsd = useWorkspaceStore((s) => s.sessionCostUsd);

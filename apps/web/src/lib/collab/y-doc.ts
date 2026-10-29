@@ -1,4 +1,4 @@
-import { createProvider, type ProviderBundle } from './provider.js';
+import { createProvider, type ProviderBundle, type ProviderOptions } from './provider.js';
 
 interface Entry {
   projectId: string;
@@ -30,13 +30,14 @@ function teardown(entry: Entry): void {
   }
 }
 
-export function acquireYDoc(projectId: string): YDocHandle {
+/** `options` only apply when a new bundle is created for `projectId`. */
+export function acquireYDoc(projectId: string, options: ProviderOptions): YDocHandle {
   if (current && current.projectId !== projectId) {
     teardown(current);
     current = null;
   }
   if (!current) {
-    current = { projectId, bundle: createProvider(projectId), refCount: 0 };
+    current = { projectId, bundle: createProvider(projectId, options), refCount: 0 };
   }
   current.refCount += 1;
   const captured = current;

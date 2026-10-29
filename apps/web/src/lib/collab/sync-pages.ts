@@ -80,7 +80,21 @@ function applyPagesToY(yPages: Y.Map<Y.Map<unknown>>, pages: Record<string, Page
   }
 }
 
-export function bindPagesSync(doc: Y.Doc, store: WorkspaceStore): () => void {
+export interface BindPagesSyncOptions {
+  /**
+   * View-only access (M5c): never push local store changes into the Y.Doc.
+   * The collab server rejects them anyway; this keeps the local doc from
+   * diverging. Remote changes still hydrate the store.
+   */
+  readOnly?: boolean;
+}
+
+export function bindPagesSync(
+  doc: Y.Doc,
+  store: WorkspaceStore,
+  options: BindPagesSyncOptions = {},
+): () => void {
+  const readOnly = options.readOnly ?? false;
   const yPages = doc.getMap<Y.Map<unknown>>('pages');
   const yMeta = doc.getMap<unknown>('meta');
 
@@ -108,7 +122,7 @@ export function bindPagesSync(doc: Y.Doc, store: WorkspaceStore): () => void {
   const local = store.getState();
   const yHasPages = yPages.size > 0;
   const localHasPages = Object.keys(local.pages).length > 0;
-  if (!yHasPages && localHasPages) {
+  if (!readOnly && !yHasPages && localHasPages) {
     doc.transact(() => {
       applyPagesToY(yPages, local.pages);
       yMeta.set('currentPath', local.currentPath);
@@ -119,6 +133,7 @@ export function bindPagesSync(doc: Y.Doc, store: WorkspaceStore): () => void {
 
   // store -> Y.Doc
   const unsub = store.subscribe((next, prev) => {
+    if (readOnly) return;
     if (next.pages === prev.pages && next.currentPath === prev.currentPath) {
       return;
     }

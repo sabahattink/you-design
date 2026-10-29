@@ -1,4 +1,9 @@
 import type { ProjectMetaType, ProjectFullType, ProjectPatchType } from '@you-design/shared';
+import {
+  CollabTokenResponse,
+  type CollabRole,
+  type CollabTokenResponseType,
+} from '@you-design/shared';
 
 const BASE = 'http://localhost:3001/api/v1';
 
@@ -61,4 +66,28 @@ export async function searchMemories(
     body: JSON.stringify({ q, openAiKey }),
   });
   return data.memories;
+}
+
+// M5c — collab capability tokens. Responses are validated: the token ends up
+// in share URLs and WebSocket handshakes.
+export async function issueCollabToken(
+  projectId: string,
+  role: CollabRole,
+  ttlSeconds?: number,
+): Promise<CollabTokenResponseType> {
+  const data = await apiFetch<unknown>(`/projects/${projectId}/collab-tokens`, {
+    method: 'POST',
+    body: JSON.stringify(ttlSeconds === undefined ? { role } : { role, ttlSeconds }),
+  });
+  return CollabTokenResponse.parse(data);
+}
+
+/** Revokes every outstanding link; resolves to a fresh owner token. */
+export async function revokeCollabTokens(projectId: string): Promise<CollabTokenResponseType> {
+  const data = await apiFetch<unknown>(`/projects/${projectId}/collab-tokens/revoke`, {
+    method: 'POST',
+    // Fastify rejects an empty body sent with Content-Type: application/json.
+    body: '{}',
+  });
+  return CollabTokenResponse.parse(data);
 }

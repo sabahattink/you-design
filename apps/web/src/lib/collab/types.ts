@@ -1,6 +1,10 @@
 import type { Identity } from './identity.js';
 
-export type CollabStatus = 'idle' | 'connecting' | 'connected' | 'offline';
+/** `denied`: the collab server (or the token vault) refused access — see M5c. */
+export type CollabStatus = 'idle' | 'connecting' | 'connected' | 'offline' | 'denied';
+
+/** Scope the collab server granted after authentication. */
+export type CollabAccess = 'read-write' | 'readonly';
 
 export interface RemoteCursor {
   user: Identity;

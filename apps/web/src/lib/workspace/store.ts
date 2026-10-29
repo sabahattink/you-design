@@ -10,7 +10,7 @@ import type {
   AnalyticsConfig,
   AnalyticsSummary,
 } from '@you-design/shared';
-import type { CollabStatus, RemoteCursor } from '@/lib/collab/types';
+import type { CollabAccess, CollabStatus, RemoteCursor } from '@/lib/collab/types';
 
 export type IntentPhase = 'collecting' | 'contracted' | 'building';
 
@@ -41,6 +41,7 @@ export interface WorkspaceState {
 
   // Multiplayer (M5b).
   collabStatus: CollabStatus;
+  collabAccess: CollabAccess | null;
   remoteCursors: Record<string, RemoteCursor>;
 }
 
@@ -72,9 +73,18 @@ export interface WorkspaceActions {
   appendSessionCost: (delta: number) => void;
 
   setCollabStatus: (s: CollabStatus) => void;
+  setCollabAccess: (access: CollabAccess | null) => void;
+  /**
+   * Switch to a project opened from a share link (M5c): clears all
+   * project-scoped state but keeps the user's BYOK models, analytics config
+   * and session cost.
+   */
+  openSharedProject: (projectId: string) => void;
   setRemoteCursors: (next: Record<string, RemoteCursor>) => void;
   __hydratePagesFromY: (next: Record<string, Page>, currentPath: string) => void;
 }
+
+const SHARED_PROJECT_NAME = 'Shared project';
 
 const DEFAULT_MODEL: ModelConfig = {
   id: 'default-anthropic',
@@ -103,6 +113,7 @@ const INITIAL: WorkspaceState = {
   projectName: '',
   sessionCostUsd: 0,
   collabStatus: 'idle',
+  collabAccess: null,
   remoteCursors: {},
 };
 
@@ -217,6 +228,17 @@ export const useWorkspaceStore = create<WorkspaceState & WorkspaceActions>()(
           return { criticReports: next };
         }),
       setCollabStatus: (collabStatus) => set({ collabStatus }),
+      setCollabAccess: (collabAccess) => set({ collabAccess }),
+      openSharedProject: (projectId) =>
+        set((s) => ({
+          ...INITIAL,
+          models: s.models,
+          defaultModelId: s.defaultModelId,
+          analyticsConfig: s.analyticsConfig,
+          sessionCostUsd: s.sessionCostUsd,
+          projectId,
+          projectName: SHARED_PROJECT_NAME,
+        })),
       setRemoteCursors: (remoteCursors) => set({ remoteCursors }),
       __hydratePagesFromY: (next, currentPath) =>
         set((s) => {
