@@ -4,7 +4,7 @@
 
 Local-first, AGPL-licensed, AI-assisted visual design + code workspace. Picks up where Figma + V0 + Bolt fall short: no sycophancy, domain expertise, multi-format export, post-deploy analytics feedback loop.
 
-> ⚠️ **Alpha — latest release v0.10.0-alpha (M5b multiplayer); M7a in-workspace settings is unreleased.** Workspace shell, intent quiz, multi-page HTML designer agent, click-to-edit canvas, Monaco code panel. **Bring any LLM** — built-in Anthropic / OpenAI / Gemini support plus any OpenAI-compatible endpoint (Ollama, Groq, OpenRouter, LM Studio, vLLM, ...). Honest critic + a five-agent room (designer / copywriter / a11y / dev / critic), 4 domain templates, Postgres-backed projects with semantic memory, smart model routing with cost tracking, export to HTML / PPTX / PDF / MP4 / GIF, PostHog feedback loop, and real-time multiplayer (Y.js + Hocuspocus). **Multiplayer has no real auth yet** — anyone with a project ID can join; signed share links land in M5c. Plugins (M6b) and native exporters (M6c) ship later.
+> ⚠️ **Alpha — latest release v0.10.0-alpha (M5b multiplayer); M7a in-workspace settings is unreleased.** Workspace shell, intent quiz, multi-page HTML designer agent, click-to-edit canvas, Monaco code panel. **Bring any LLM** — built-in Anthropic / OpenAI / Gemini support plus any OpenAI-compatible endpoint (Ollama, Groq, OpenRouter, LM Studio, vLLM, ...). Honest critic + a five-agent room (designer / copywriter / a11y / dev / critic), 4 domain templates, Postgres-backed projects with semantic memory, smart model routing with cost tracking, export to HTML / PPTX / PDF / MP4 / GIF, PostHog feedback loop, and real-time multiplayer (Y.js + Hocuspocus). **Multiplayer joins need a signed share link** (edit or view, expiring, revocable — M5c, unreleased). The REST API is still unauthenticated: keep it on a trusted network. Plugins (M6b) and native exporters (M6c) ship later.
 
 ## Why?
 
@@ -30,6 +30,8 @@ Requires: Node 22, pnpm 9, Docker 25+, **and any LLM you can reach** — see the
 git clone https://github.com/sabahattink/you-design.git
 cd you-design
 cp .env.example .env
+# Required (api + collab): a secret for signing multiplayer share links
+# echo "COLLAB_TOKEN_SECRET=$(openssl rand -base64 48)" >> .env
 # Optional: set an env key as a server-side fallback. The UI works without it too.
 # echo 'ANTHROPIC_API_KEY=sk-ant-...' >> .env
 
@@ -118,7 +120,8 @@ Detailed milestone plan: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 - **M6a** ✅ Motion export (MP4/GIF slideshow via Playwright + FFmpeg) — v0.9.0-alpha
 - **M5b** ✅ Multiplayer (Y.js CRDT + Hocuspocus + presence) — v0.10.0-alpha
 - **M7a** ✅ In-workspace settings modal (accessible, responsive) — Unreleased
-- **M5c** — Collab auth (signed, expiring, role-scoped share links + revocation)
+- **M5c** ✅ Collab auth (signed, expiring, role-scoped share links + revocation) — Unreleased
+- **M5d** — REST API authentication (owner identity) + per-link revocation
 - **M6b** — Plugins (MCP host runtime + marketplace + sandbox) — 3 weeks
 - **M6c** — Native exporters (iOS) — 2 weeks
 - **M7b / M7c** — Settings: local CLI runtime, theme, language

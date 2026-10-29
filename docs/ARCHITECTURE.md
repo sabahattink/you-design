@@ -92,14 +92,14 @@ you-design/
 
 `apps/collab` is a standalone Node service hosting a Hocuspocus WebSocket server on **port 3002**. It is separated from `apps/api` because long-lived WebSocket connections have a different scaling profile than the stateless REST/SSE API.
 
-| Concern             | Choice                                                                   |
-| ------------------- | ------------------------------------------------------------------------ |
-| CRDT                | `yjs` ^13                                                                |
-| Sync server         | `@hocuspocus/server` ^2 with `@hocuspocus/extension-database` (Postgres) |
-| Client              | `@hocuspocus/provider` ^2 with `y-indexeddb` for offline-first           |
-| Presence            | `y-protocols/awareness` (bundled with `yjs`)                             |
-| HTML representation | `Y.Text` per page so concurrent edits CRDT-merge                         |
-| Auth                | None — anyone with the project ID can join (alpha; real auth in M5c)     |
+| Concern             | Choice                                                                      |
+| ------------------- | --------------------------------------------------------------------------- |
+| CRDT                | `yjs` ^13                                                                   |
+| Sync server         | `@hocuspocus/server` ^2 with `@hocuspocus/extension-database` (Postgres)    |
+| Client              | `@hocuspocus/provider` ^2 with `y-indexeddb` for offline-first              |
+| Presence            | `y-protocols/awareness` (bundled with `yjs`)                                |
+| HTML representation | `Y.Text` per page so concurrent edits CRDT-merge                            |
+| Auth                | HMAC-signed capability tokens per project + role, expiring, revocable (M5c) |
 
 ### Y.Doc shape
 
@@ -113,6 +113,26 @@ yDoc
 └── meta: Y.Map<string, unknown>
     └── currentPath: string               // advisory; per-room not per-user
 ```
+
+### Access control (M5c)
+
+Every join must present a capability token `yd1.<claims>.<HMAC-SHA256>` whose claims are `{ pid, role: owner|edit|view, iat, exp, ver }`.
+
+```
+Owner browser ──POST /api/v1/projects/:id/collab-tokens──▶ api  (signs with COLLAB_TOKEN_SECRET
+      │                                                          at projects.collab_token_version)
+      ├── owner token (memory) ──────────────────────────────────▶ collab onAuthenticate
+      └── share link  /app?project=<id>#share=<token> ─▶ guest ──▶ collab onAuthenticate
+                                                                   ├─ verify HMAC (timingSafeEqual)
+                                                                   ├─ exp, pid == documentName
+                                                                   ├─ ver == projects.collab_token_version
+                                                                   └─ role=view ⇒ connection.readOnly
+```
+
+- **Expiry / revocation on live sockets:** `beforeHandleMessage` re-checks `exp` and `ver` (10 s cache) and closes the connection (`4401` / `4403`).
+- **Revoke all links:** `POST /api/v1/projects/:id/collab-tokens/revoke` bumps `collab_token_version`; the response carries a fresh owner token.
+- **Where tokens live:** share tokens in the URL fragment (never sent to servers) and then `sessionStorage`; owner tokens in memory, minted on demand. Tokens are never logged.
+- **Trust boundary:** the REST API is still unauthenticated and therefore owner-only — anyone who can reach it can mint tokens (and edit projects). Keep `:3001` off untrusted networks; REST auth is M5d.
 
 ### Service port map
 

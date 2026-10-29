@@ -9,6 +9,36 @@ While the project is in `alpha`, breaking changes may land in any minor version.
 
 ## [Unreleased]
 
+### Security
+
+- **Collab auth (M5c)** — joining a multiplayer room now requires an
+  HMAC-SHA256-signed capability token (`yd1.<claims>.<sig>`) bound to one
+  project, a role (`owner` / `edit` / `view`) and an expiry. Knowing a
+  project ID is no longer enough. Signatures are compared with
+  `crypto.timingSafeEqual`; tokens are never logged.
+  - `apps/collab` verifies tokens in `onAuthenticate` (signature, expiry,
+    project, token version) and makes `view` connections read-only;
+    `beforeHandleMessage` closes live sockets once a token expires or is
+    revoked.
+  - `apps/api`: `POST /api/v1/projects/:id/collab-tokens` issues tokens,
+    `POST /api/v1/projects/:id/collab-tokens/revoke` revokes all of them by
+    bumping `projects.collab_token_version` (migration `0004`).
+  - Web: **Share** dialog creates edit / view links that expire after
+    1 / 7 / 30 days and can revoke all links. The token travels in the URL
+    fragment and is stripped on arrival; the owner's own browser gets an
+    in-memory owner token. "Access denied" and "View only" states in the
+    live pill.
+  - The REST API itself is still unauthenticated (owner-only surface) —
+    see the M5c spec; REST auth is M5d.
+
+### Changed
+
+- **Breaking (self-host):** `COLLAB_TOKEN_SECRET` (≥ 32 chars) is now
+  required by `apps/api` and `apps/collab`; both exit at startup without
+  it. Generate with `openssl rand -base64 48`.
+- The `/app?project=<id>` share link from M5b was never consumed by the
+  app; links now open the shared project (keeping your BYOK models).
+
 ### Added
 
 - **In-workspace settings (M7a)** — a ⚙ button in the workspace header opens
@@ -22,7 +52,7 @@ While the project is in `alpha`, breaking changes may land in any minor version.
   - Reusable `useModalDialog` hook (`apps/web/src/lib/a11y`).
 - Component tests for `SettingsDialog` (Vitest + jsdom, no new deps) and a
   Playwright `settings.spec.ts` (mocked LLM + projects API).
-- Docs: M7a spec + plan under `docs/superpowers/`.
+- Docs: M7a and M5c specs + plans under `docs/superpowers/`.
 
 ### Fixed
 
