@@ -13,6 +13,9 @@ import { llmRoutes } from './routes/llm.js';
 import { usageRoutes } from './routes/usage.js';
 import { exportsRoutes } from './routes/exports.js';
 import { analyticsRoutes } from './routes/analytics.js';
+import { collabTokenRoutes } from './routes/collab-tokens.js';
+import { createDrizzleCollabTokenStore } from './lib/collab-token-store.js';
+import { db } from '@you-design/db';
 import { redis } from './lib/redis.js';
 
 async function buildServer() {
@@ -63,6 +66,11 @@ async function buildServer() {
   await app.register(usageRoutes, { prefix: '/api/v1' });
   await app.register(exportsRoutes, { prefix: '/api/v1' });
   await app.register(analyticsRoutes, { prefix: '/api/v1' });
+  await app.register(collabTokenRoutes, {
+    prefix: '/api/v1',
+    secret: env.COLLAB_TOKEN_SECRET,
+    store: createDrizzleCollabTokenStore(db),
+  });
 
   return app;
 }

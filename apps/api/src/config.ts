@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { COLLAB_TOKEN_SECRET_MIN_LENGTH } from '@you-design/shared';
 
 const EnvSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
@@ -17,6 +18,14 @@ const EnvSchema = z.object({
   ANTHROPIC_API_KEY: z.string().optional(),
   OPENAI_API_KEY: z.string().optional(),
   GEMINI_API_KEY: z.string().optional(),
+
+  // M5c: signs collab capability tokens. Must match apps/collab.
+  COLLAB_TOKEN_SECRET: z
+    .string({ required_error: 'required — generate one with `openssl rand -base64 48`' })
+    .min(
+      COLLAB_TOKEN_SECRET_MIN_LENGTH,
+      `must be at least ${COLLAB_TOKEN_SECRET_MIN_LENGTH} characters (openssl rand -base64 48)`,
+    ),
 
   TELEMETRY_ENABLED: z
     .string()
