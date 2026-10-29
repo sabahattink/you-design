@@ -1,20 +1,33 @@
 import { Hocuspocus } from '@hocuspocus/server';
 import { Logger } from '@hocuspocus/extension-logger';
+import { loadCollabEnv } from './config.js';
 import { createPostgresExtension } from './extensions/postgres.js';
-import { authenticate } from './auth.js';
+import { cacheVersionLookup, createAuthenticator, createMessageGuard } from './auth.js';
+import { lookupTokenVersion } from './token-versions.js';
 import { logger } from './extensions/logger.js';
 
-const port = Number(process.env.COLLAB_PORT ?? 3002);
+// Revocations reach live sockets within this window (see M5c spec §3).
+const VERSION_CACHE_TTL_MS = 10_000;
+
+const env = loadCollabEnv();
 
 const server = new Hocuspocus({
-  port,
+  port: env.COLLAB_PORT,
   extensions: [new Logger(), createPostgresExtension()],
-  onAuthenticate: authenticate,
+  onAuthenticate: createAuthenticator({
+    secret: env.COLLAB_TOKEN_SECRET,
+    lookupVersion: lookupTokenVersion,
+    logger,
+  }),
+  beforeHandleMessage: createMessageGuard({
+    lookupVersion: cacheVersionLookup(lookupTokenVersion, VERSION_CACHE_TTL_MS),
+    logger,
+  }),
 });
 
 server
   .listen()
-  .then(() => logger.info({ port }, 'collab server listening'))
+  .then(() => logger.info({ port: env.COLLAB_PORT }, 'collab server listening'))
   .catch((err: unknown) => {
     logger.error({ err }, 'collab server failed to start');
     process.exit(1);
