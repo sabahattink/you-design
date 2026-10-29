@@ -8,3 +8,4 @@ export * from './router.js';
 export * from './pricing.js';
 export * from './exports.js';
 export * from './analytics.js';
+export * from './collab.js';
