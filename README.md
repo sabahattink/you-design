@@ -4,7 +4,7 @@
 
 Local-first, AGPL-licensed, AI-assisted visual design + code workspace. Picks up where Figma + V0 + Bolt fall short: no sycophancy, domain expertise, multi-format export, post-deploy analytics feedback loop.
 
-> ⚠️ **Alpha — M2.1 (critic + domains) shipped.** Workspace shell, intent quiz, multi-page HTML designer agent, click-to-edit canvas, Monaco code panel, all wired and persisting to localStorage. **Bring any LLM** — built-in Anthropic / OpenAI / Gemini support plus any OpenAI-compatible endpoint (Ollama, Groq, OpenRouter, LM Studio, vLLM, ...). **Honest critic now runs in build phase too** — reviews every designer action, structured issues with severity / category / Fix button, never blocks. **4 domain templates**: general / SaaS landing / e-commerce product / healthcare appointment. Multi-format export (M3), multiplayer (M5), full multi-agent room (M4) ship later.
+> ⚠️ **Alpha — latest release v0.10.0-alpha (M5b multiplayer); M7a in-workspace settings is unreleased.** Workspace shell, intent quiz, multi-page HTML designer agent, click-to-edit canvas, Monaco code panel. **Bring any LLM** — built-in Anthropic / OpenAI / Gemini support plus any OpenAI-compatible endpoint (Ollama, Groq, OpenRouter, LM Studio, vLLM, ...). Honest critic + a five-agent room (designer / copywriter / a11y / dev / critic), 4 domain templates, Postgres-backed projects with semantic memory, smart model routing with cost tracking, export to HTML / PPTX / PDF / MP4 / GIF, PostHog feedback loop, and real-time multiplayer (Y.js + Hocuspocus). **Multiplayer has no real auth yet** — anyone with a project ID can join; signed share links land in M5c. Plugins (M6b) and native exporters (M6c) ship later.
 
 ## Why?
 
@@ -36,13 +36,13 @@ cp .env.example .env
 docker compose -f compose.dev.yml up -d   # Postgres + Redis
 pnpm install
 pnpm dev                                  # web :3000 + api :3001
-# For multiplayer (M5b in progress): also run
+# For multiplayer (M5b): also run
 # pnpm dev:collab                         # Hocuspocus :3002
 # or run all three together:
 # pnpm dev:all
 ```
 
-Open `http://localhost:3000/setup` and add the model you want to use. Then visit `/app`.
+Open `http://localhost:3000/setup` and add the model you want to use. Then visit `/app`. Inside the workspace, the ⚙ button in the header opens the same settings without leaving the page.
 
 ### Supported providers
 
@@ -116,9 +116,12 @@ Detailed milestone plan: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 - **M4** ✅ Multi-Agent Room (designer / copywriter / a11y / dev / critic) — v0.7.0-alpha
 - **M5a** ✅ Living Loop (PostHog analytics → Critic feedback) — v0.8.0-alpha
 - **M6a** ✅ Motion export (MP4/GIF slideshow via Playwright + FFmpeg) — v0.9.0-alpha
-- **M5b** — Multiplayer (Y.js CRDT + Hocuspocus + presence) — 4 weeks
+- **M5b** ✅ Multiplayer (Y.js CRDT + Hocuspocus + presence) — v0.10.0-alpha
+- **M7a** ✅ In-workspace settings modal (accessible, responsive) — Unreleased
+- **M5c** — Collab auth (signed, expiring, role-scoped share links + revocation)
 - **M6b** — Plugins (MCP host runtime + marketplace + sandbox) — 3 weeks
 - **M6c** — Native exporters (iOS) — 2 weeks
+- **M7b / M7c** — Settings: local CLI runtime, theme, language
 
 ## Contributing
 

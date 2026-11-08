@@ -9,8 +9,26 @@ While the project is in `alpha`, breaking changes may land in any minor version.
 
 ## [Unreleased]
 
+### Added
+
+- **In-workspace settings (M7a)** — a ⚙ button in the workspace header opens
+  `SettingsDialog` with **LLM providers** and **Analytics** sections (the
+  same panels as `/setup`, which stays for bookmarks and first-run links).
+  - Accessible modal: `role="dialog"` + `aria-modal` + `aria-labelledby` on
+    the panel, focus moves in on open, Tab / Shift+Tab are trapped, Escape
+    closes, focus returns to the ⚙ button.
+  - Sections are WAI-ARIA tabs (roving tabindex, arrows / Home / End).
+  - Responsive: fills phone-sized viewports, capped at 920×640 on desktop.
+  - Reusable `useModalDialog` hook (`apps/web/src/lib/a11y`).
+- Component tests for `SettingsDialog` (Vitest + jsdom, no new deps) and a
+  Playwright `settings.spec.ts` (mocked LLM + projects API).
+- Docs: M7a spec + plan under `docs/superpowers/`.
+
 ### Fixed
 
+- `chore(format)`: add `.prettierignore` (lockfiles, build/cache dirs,
+  Playwright artefacts, drizzle-kit snapshots) so `pnpm lint` no longer
+  fails on `pnpm-lock.yaml`.
 - `style`: ran `pnpm format` across the repo (82 files) so the CI
   format check passes.
 - `fix(docker)`: copy every workspace `package.json` in the deps stage of
